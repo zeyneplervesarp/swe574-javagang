@@ -1,0 +1,14 @@
+@startuml Sequence
+skinparam sequenceMessageAlign right
+title "User Creation Diagram"
+actor User
+participant UserService
+' participant NotificationService
+
+database db
+
+User ->UserService : Register(string username, string password, string location, List interests)
+UserService -> db : CreateUser(long id, string username, string password, string location, List interests, int balance)
+db --> UserService : ok
+UserService --> User : SendToken(string jwt)
+@enduml

@@ -1,0 +1,11 @@
+@startuml UseCase
+
+User --> (Create events)
+User --> (Request event participation)
+User --> (Approve event participation)
+User --> (Follow users)
+User --> (View events)
+User --> (View event details)
+Reader --> (View events)
+
+@enduml

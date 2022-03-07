@@ -1,0 +1,110 @@
+@startuml Class
+class User {
+    string Id
+    string Name
+    string EmailAddress
+    string Password
+    string Bio
+    double Latitude
+    double Longitude
+    string FormattedAddress
+    int Credits
+   
+    void FollowUser(int userId)
+    void Register(string username,string email,string bio,string password,string tags,string latitude,string longitude,string formattedAddress)
+    void Login (string username, string password)
+    User GetUser(int userId)
+    List<User> GetAllUsers(int userId)
+
+}
+
+
+User "1" *-- "*" Service : creates
+User "*" -- "*" User : follows
+User "*" -- "*" Tag : interests
+User "1" -- "*" Notification
+
+
+class Service {
+    string Id
+    string Header
+    string Description
+    string Location
+    DateTime Time
+    int Credits
+    DateTime CreatedDateTime
+    int CreatedUserId
+    int Quota    
+    double Latitude
+    double Longitude
+    string FormattedAddress
+    ServiceStatus Status
+    List<Service> GetAll()
+    List<Service> GetSorted(SortType sortType)
+    Service GetById(int serviceId)
+    void Complete(int serviceId)
+    void Create(string title, string description, string location, datetime time, int hours, List<Tag> tags, int createdUserId)
+   
+}
+
+Service "*" *-- "*" Tag 
+Service "1" *-- "*" ServiceStatus 
+
+enum ServiceStatus
+{
+    ONGOING,
+    CREATOR_APPROVED,
+    COMPLETED,
+    CANCELLED
+}
+
+enum SortType
+{
+    distanceAsc,
+    distanceDesc,
+    serviceDateDesc,
+    createdDateDesc,
+    serviceDateAsc,
+    createdDateAsc
+}
+
+class Tag{
+    int Id
+    string Name
+}
+
+class UserServiceApproval{
+    int Id
+    int RequesterUserId
+    int RequestedServiceId
+    int ApprovedByUserId
+    ApprovalStatus ApprovalStatus
+    void RequestServiceParticipation(int serviceId, int requesterId )
+    List<UserServiceApproval> GetApprovalListRequestByUser(int userId)
+    void Approve(int requestId)
+    void Deny(int requestId)
+}
+User "1" *-- "*" UserServiceApproval : requests
+Service "1" *-- "*" UserServiceApproval
+User "1" *-- "*" UserServiceApproval : approves
+ApprovalStatus "1" *-- "*" UserServiceApproval
+
+enum ApprovalStatus {
+    Pending
+    Approved
+    Denied
+}
+
+class Notification {
+    string Id
+    string UserId
+    string Message
+    bool Read
+    List<Notification> GetNotificationsByUser(int userId)
+
+}
+
+
+User "1" --* "*" Notification
+
+@enduml

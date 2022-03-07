@@ -1,0 +1,22 @@
+@startuml Sequence
+skinparam sequenceMessageAlign right
+title "Request Approval Diagram"
+actor User
+participant EventService
+participant NotificationService
+
+database db
+
+
+
+User -> EventService : Approve(int requestId, bool isApproved)
+EventService -> db : UpdateRequest(int requestId, int approvalStatus)
+db --> EventService : ok
+EventService -> db : UpdateEventQuota(int eventId)
+db --> EventService : ok
+EventService -> NotificationService : NotifyUser(int eventId)
+NotificationService -> User: SendNotification(int eventId, int userId)
+
+
+
+@enduml

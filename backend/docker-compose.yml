@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  app:
+    image: 'spring-boot-api:latest'
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/socialhubdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8081:8081"
+  db:
+    image: 'mysql:8'
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+  ui:
+    image: 'vue-app:latest'
+    build:
+      context: ../frontend
+    container_name: ui
+    depends_on:
+      - app
+    environment:
+        - VUE_APP_API=http://localhost:8081/
+    ports:
+      - "8080:8080"

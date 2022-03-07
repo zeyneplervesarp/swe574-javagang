@@ -1,0 +1,16 @@
+@startuml Sequence
+skinparam sequenceMessageAlign right
+title "Create Service"
+actor User
+participant EventService
+participant NotificationService
+
+database db
+
+User -> EventService : Create(string title, string description, string location, datetime time, int hours)
+EventService -> db : CreateEventEntity(string title, string description, string location, datetime time, int hours, int createdById)
+db --> EventService : ok
+EventService --> User : ok
+
+
+@enduml

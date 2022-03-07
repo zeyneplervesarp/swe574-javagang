@@ -1,0 +1,16 @@
+@startuml Sequence
+skinparam sequenceMessageAlign right
+title "Service Request Diagram"
+actor User
+participant EventService
+participant NotificationService
+
+database db
+
+User -> EventService : AskToJoin(int eventId)
+EventService -> db : CreateRequest(int eventId, int userId, int approvalStauts)
+db --> EventService : ok
+EventService --> NotificationService : NotifyUser(int eventId)
+
+NotificationService --> User : SendNotification(int eventId, int userId)
+@enduml
