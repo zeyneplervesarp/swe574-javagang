@@ -7,8 +7,15 @@ import modal from '../utils/modal'
 const handleError = (e, message) => {
     debugger;
     if (e) {   
-        if(message) e.message = message;     
-        modal.showError(e.message)
+        try {
+            let msg = e.response.data.message;
+            if (msg) {
+                modal.showError(msg);
+            }
+        } catch (error) {
+            if(message) e.message = message;     
+            modal.showError(e.message)   
+        }
     } else if (e && e.message && e.message.indexOf('timeout') !== -1) {
         modal.show(e)
     }
@@ -72,7 +79,6 @@ export default {
     post(url, data, handleOnError,errorMessage, successMessage) {
         return new Promise((resolve, reject) => {
             axios({
-                
                 method: 'POST',
                 url: url,
                 data: data,
@@ -107,6 +113,7 @@ export default {
                 }
             }).catch((e) => {
                 if (handleOnError === true) {
+                    console.log("Calling handleError put", e)
                     handleError(e, errorMessage)
                 }
                 else {
