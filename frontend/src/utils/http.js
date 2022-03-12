@@ -113,7 +113,6 @@ export default {
                 }
             }).catch((e) => {
                 if (handleOnError === true) {
-                    console.log("Calling handleError put", e)
                     handleError(e, errorMessage)
                 }
                 else {
