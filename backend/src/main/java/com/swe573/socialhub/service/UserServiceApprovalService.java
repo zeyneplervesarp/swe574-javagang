@@ -89,7 +89,7 @@ public class UserServiceApprovalService {
     private UserServiceApprovalDto getApprovalDto(UserServiceApproval entity) {
         var service = entity.getService();
         var userDto = userService.mapUserToDTO(entity.getUser());
-        var serviceDto = new ServiceDto(service.getId(), service.getHeader(), "", service.getLocation(), service.getTime(), 0, service.getQuota(), service.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), service.getStatus(), 0L, null);
+        var serviceDto = new ServiceDto(service.getId(), service.getHeader(), "", service.getLocation(), service.getTime(), 0, service.getQuota(), service.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), service.getStatus(), 0L, null, null);
         var dto = new UserServiceApprovalDto(userDto, serviceDto, entity.getApprovalStatus());
         return dto;
     }
