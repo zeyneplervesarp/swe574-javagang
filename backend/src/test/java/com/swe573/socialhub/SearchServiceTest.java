@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -37,16 +38,20 @@ public class SearchServiceTest {
 
     private final SearchService service = new SearchService(userRepository, tagRepository, serviceRepository);
 
+    private static final int DEFAULT_LIMIT = 20;
+
+    private static final Pageable DEFAULT_PAGE = Pageable.ofSize(DEFAULT_LIMIT);
+
     @Test
     public void SearchService_canFindByServiceHeader() {
         var sampleEntity = sampleServiceEntity();
 
-        Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(sampleEntity.getHeader()))
+        Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(sampleEntity.getHeader(), DEFAULT_PAGE))
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getHeader());
+        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -54,12 +59,25 @@ public class SearchServiceTest {
     public void SearchService_canFindByServiceDescription() {
         var sampleEntity = sampleServiceEntity();
 
-        Mockito.when(serviceRepository.findByDescriptionLikeIgnoreCase(sampleEntity.getDescription()))
+        Mockito.when(serviceRepository.findByDescriptionLikeIgnoreCase(sampleEntity.getDescription(), DEFAULT_PAGE))
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getHeader());
+        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
+        Assertions.assertIterableEquals(expectedResult, result);
+    }
+
+    @Test
+    public void SearchService_canFindByServiceLocation() {
+        var sampleEntity = sampleServiceEntity();
+
+        Mockito.when(serviceRepository.findByLocationLikeIgnoreCase(sampleEntity.getLocation(), DEFAULT_PAGE))
+                .thenReturn(List.of(sampleEntity));
+
+        var expectedResult = List.of(
+                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
+        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -67,12 +85,12 @@ public class SearchServiceTest {
     public void SearchService_canFindByUserBio() {
         var sampleEntity = sampleUserEntity();
 
-        Mockito.when(userRepository.findByBioLikeIgnoreCase(sampleEntity.getBio()))
+        Mockito.when(userRepository.findByBioLikeIgnoreCase(sampleEntity.getBio(), DEFAULT_PAGE))
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER));
-        var result = service.search(sampleEntity.getBio());
+        var result = service.search(sampleEntity.getBio(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -80,12 +98,12 @@ public class SearchServiceTest {
     public void SearchService_canFindByUserUsername() {
         var sampleEntity = sampleUserEntity();
 
-        Mockito.when(userRepository.findByUsernameLikeIgnoreCase(sampleEntity.getUsername()))
+        Mockito.when(userRepository.findByUsernameLikeIgnoreCase(sampleEntity.getUsername(), DEFAULT_PAGE))
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER));
-        var result = service.search(sampleEntity.getBio());
+        var result = service.search(sampleEntity.getBio(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -93,12 +111,12 @@ public class SearchServiceTest {
     public void SearchService_canFindByTagName() {
         var sampleEntity = sampleTagEntity();
 
-        Mockito.when(tagRepository.findByNameLikeIgnoreCase(sampleEntity.getName()))
+        Mockito.when(tagRepository.findByNameLikeIgnoreCase(sampleEntity.getName(), DEFAULT_PAGE))
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getName(), "/tags/" + sampleEntity.getId(), SearchMatchType.TAG));
-        var result = service.search(sampleEntity.getName());
+        var result = service.search(sampleEntity.getName(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -107,6 +125,7 @@ public class SearchServiceTest {
         sampleEntity.setHeader("test");
         sampleEntity.setId(1L);
         sampleEntity.setDescription("description");
+        sampleEntity.setLocation("Istanbul");
         return sampleEntity;
     }
 
