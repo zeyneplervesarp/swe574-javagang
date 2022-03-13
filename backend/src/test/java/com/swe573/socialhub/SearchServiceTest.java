@@ -10,9 +10,11 @@ import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import com.swe573.socialhub.service.SearchService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Collections;
 import java.util.List;
 
 @ActiveProfiles("test")
@@ -36,11 +39,30 @@ public class SearchServiceTest {
     @MockBean
     private TagRepository tagRepository;
 
-    private final SearchService service = new SearchService(userRepository, tagRepository, serviceRepository);
+    private SearchService service;
 
     private static final int DEFAULT_LIMIT = 20;
 
     private static final Pageable DEFAULT_PAGE = Pageable.ofSize(DEFAULT_LIMIT);
+
+    @BeforeEach
+    public void init() {
+        MockitoAnnotations.openMocks(this);
+        this.service = new SearchService(userRepository, tagRepository, serviceRepository);
+
+//        Mockito.when(userRepository.findByBioLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+//                .thenReturn(Collections.emptyList());
+//        Mockito.when(userRepository.findByUsernameLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+//                .thenReturn(Collections.emptyList());
+//        Mockito.when(tagRepository.findByNameLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+//                .thenReturn(Collections.emptyList());
+//        Mockito.when(serviceRepository.findByDescriptionLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+//                .thenReturn(Collections.emptyList());
+//        Mockito.when(serviceRepository.findByLocationLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+//                .thenReturn(Collections.emptyList());
+//        Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+//                .thenReturn(Collections.emptyList());
+    }
 
     @Test
     public void SearchService_canFindByServiceHeader() {
@@ -64,7 +86,7 @@ public class SearchServiceTest {
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
+        var result = service.search(sampleEntity.getDescription(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -77,7 +99,7 @@ public class SearchServiceTest {
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
+        var result = service.search(sampleEntity.getLocation(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -103,7 +125,7 @@ public class SearchServiceTest {
 
         var expectedResult = List.of(
                 new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER));
-        var result = service.search(sampleEntity.getBio(), DEFAULT_LIMIT);
+        var result = service.search(sampleEntity.getUsername(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
