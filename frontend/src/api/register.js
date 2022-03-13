@@ -80,6 +80,10 @@ export default {
         
         debugger;
         return http.get('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=' + tag)
+    },    
+    AddTag(tag)
+    {
+        return http.post(process.env.VUE_APP_API + 'tags', tag,false)
     }
 
 }
