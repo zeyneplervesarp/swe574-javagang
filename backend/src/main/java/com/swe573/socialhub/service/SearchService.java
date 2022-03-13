@@ -6,14 +6,10 @@ import com.swe573.socialhub.enums.SearchMatchType;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,7 +36,7 @@ public class SearchService {
         }
 
         final var searchOperations = prepareSearchOperations(stringToMatch);
-        final var searchResults = new HashSet<SearchMatchDto>();
+        final var searchResults = new LinkedHashSet<SearchMatchDto>();
 
         for (int i = 0; i < searchOperations.size() && searchResults.size() < limit; i++) {
             final var opResult = searchOperations.get(i).apply(limit - searchResults.size());
