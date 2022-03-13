@@ -60,7 +60,9 @@
                   :multiple="true"
                   :close-on-select="false"
                   :show-labels="false"
-                  placeholder="Pick your interests"
+                  :taggable="true" 
+                  @tag="addTag"
+                  placeholder="Pick a tag or enter a new one"
                   label="name"
                   track-by="id"
                 ></multiselect>
@@ -174,6 +176,12 @@ export default {
       this.coordinates.lat = position.coords.latitude;
       this.coordinates.lng = position.coords.longitude;
     },
+    addTag (newTag) {
+      const tag = {
+        name: newTag
+      }
+      register.AddTag(tag);
+    }
   },
 };
 </script>

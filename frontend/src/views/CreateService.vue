@@ -99,7 +99,9 @@
                     :multiple="true"
                     :close-on-select="false"
                     :show-labels="false"
-                    placeholder="Pick a tag"
+                    :taggable="true" 
+                    @tag="addTag"
+                    placeholder="Pick a tag or enter a new one"
                     label="name"
                     track-by="id"
                   ></multiselect>
@@ -151,6 +153,7 @@ import apiRegister from "../api/register";
 import DatePicker from "vue2-datepicker";
 import Multiselect from "vue-multiselect";
 import MyMap from "./components/Map.vue";
+import register from '../api/register';
 
 export default {
   components: {
@@ -218,6 +221,12 @@ export default {
       this.coordinates.lat = lat;
       this.coordinates.lng = lng;
     },
+    addTag (newTag) {
+      const tag = {
+        name: newTag
+      }
+      register.AddTag(tag);
+    }
   },
 };
 </script>
