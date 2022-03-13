@@ -22,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collections;
 import java.util.List;
 
 @ActiveProfiles("test")
@@ -49,19 +48,6 @@ public class SearchServiceTest {
     public void init() {
         MockitoAnnotations.openMocks(this);
         this.service = new SearchService(userRepository, tagRepository, serviceRepository);
-
-//        Mockito.when(userRepository.findByBioLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
-//                .thenReturn(Collections.emptyList());
-//        Mockito.when(userRepository.findByUsernameLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
-//                .thenReturn(Collections.emptyList());
-//        Mockito.when(tagRepository.findByNameLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
-//                .thenReturn(Collections.emptyList());
-//        Mockito.when(serviceRepository.findByDescriptionLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
-//                .thenReturn(Collections.emptyList());
-//        Mockito.when(serviceRepository.findByLocationLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
-//                .thenReturn(Collections.emptyList());
-//        Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
-//                .thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -140,6 +126,21 @@ public class SearchServiceTest {
                 new SearchMatchDto(sampleEntity.getName(), "/tags/" + sampleEntity.getId(), SearchMatchType.TAG));
         var result = service.search(sampleEntity.getName(), DEFAULT_LIMIT);
         Assertions.assertIterableEquals(expectedResult, result);
+    }
+
+    @Test
+    public void SearchService_disallows_MoreThan50Limit() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.search("test", 51));
+    }
+
+    @Test
+    public void SearchService_clips_ifFoundMoreThanRequested() {
+        var sampleList = List.of(sampleServiceEntity(), sampleServiceEntity(), sampleServiceEntity());
+        Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+                .thenReturn(sampleList);
+
+        var result = service.search(sampleList.get(0).getHeader(), sampleList.size() - 1);
+        Assertions.assertEquals(sampleList.size() - 1, result.size());
     }
 
     private Service sampleServiceEntity() {
