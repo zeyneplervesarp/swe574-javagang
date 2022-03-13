@@ -33,9 +33,7 @@ public class SearchService {
     }
 
     public List<SearchMatchDto> search(String stringToMatch, int limit) {
-        if (limit > SEARCH_LIMIT) {
-            throw new IllegalArgumentException("Maximum search limit is " + SEARCH_LIMIT + ".");
-        }
+        validate(limit);
 
         if (stringToMatch.isEmpty() || stringToMatch.isBlank()) {
             return Collections.emptyList();
@@ -50,6 +48,16 @@ public class SearchService {
         }
 
         return searchResults.size() > limit ? new ArrayList<>(searchResults).subList(0, limit) : new ArrayList<>(searchResults);
+    }
+
+    private void validate(int limit) {
+        if (limit > SEARCH_LIMIT) {
+            throw new IllegalArgumentException("Maximum search limit is " + SEARCH_LIMIT + ".");
+        }
+
+        if (limit < 1) {
+            throw new IllegalArgumentException("Minimum search limit is 1.");
+        }
     }
 
     private List<Function<Integer, List<SearchMatchDto>>> prepareSearchOperations(String stringToMatch) {
