@@ -135,12 +135,28 @@ public class SearchServiceTest {
 
     @Test
     public void SearchService_clips_ifFoundMoreThanRequested() {
-        var sampleList = List.of(sampleServiceEntity(), sampleServiceEntity(), sampleServiceEntity());
+        var differentService = new Service();
+        differentService.setHeader("abc");
+        differentService.setId(0L);
+        var sampleList = List.of(sampleServiceEntity(), differentService);
         Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
                 .thenReturn(sampleList);
 
         var result = service.search(sampleList.get(0).getHeader(), sampleList.size() - 1);
         Assertions.assertEquals(sampleList.size() - 1, result.size());
+    }
+
+    @Test
+    public void SearchService_discardsDuplicateItems() {
+        var sampleEntity = sampleServiceEntity();
+
+        Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+                .thenReturn(List.of(sampleEntity));
+        Mockito.when(serviceRepository.findByDescriptionLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
+                .thenReturn(List.of(sampleEntity));
+
+        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
+        Assertions.assertEquals(1, result.size());
     }
 
     private Service sampleServiceEntity() {
