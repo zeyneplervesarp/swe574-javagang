@@ -58,11 +58,12 @@
               </div>
               <div class="col-lg-4 order-lg-1">
                 <div class="card-profile-stats d-flex justify-content-center">
-                  <div>
-                    <span class="heading">{{
+                  <div @click="OpenParticipantModal()">
+                    <a href="#"><span class="heading">{{
                       serviceData.attendingUserCount
                     }}</span>
                     <span class="description">Participants</span>
+                    </a>
                   </div>
                   <div>
                     <span class="heading">{{ serviceData.quota }}</span>
@@ -141,13 +142,12 @@
                       block
                       type="primary"
                       class="mb-3"
-                       v-for="(tag, index) in serviceData.serviceTags"
+                      v-for="(tag, index) in serviceData.serviceTags"
                       :key="index"
                       @click="GetTagInfo(tag.name)"
                     >
-                      {{tag.name}}
+                      {{ tag.name }}
                     </base-button>
-                    
                   </div>
                 </div>
               </div>
@@ -197,8 +197,8 @@
 import BaseButton from "../../assets/components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
-import swal from 'sweetalert2'
-import register from '../api/register';
+import swal from "sweetalert2";
+import register from "../api/register";
 
 export default {
   components: { BaseButton },
@@ -218,6 +218,7 @@ export default {
         serviceTags: [],
         status: "",
         datePassed: false,
+        participantUserList: [],
       },
       userData: {
         hasServiceRequest: "",
@@ -251,8 +252,8 @@ export default {
         this.serviceData.serviceTags = r.serviceTags;
         this.serviceData.attendingUserCount = r.attendingUserCount;
         this.serviceData.status = r.status;
+        this.serviceData.participantUserList = r.participantUserList;
         this.serviceData.datePassed = r.showServiceOverButton;
-
         this.coordinates.lat = r.latitude;
         this.coordinates.lng = r.longitude;
       });
@@ -319,13 +320,31 @@ export default {
         location.reload();
       });
     },
+    OpenParticipantModal() {
+      //when clicked on the participant count, a modal shows the list of participants to the user
+      var htmlText = "";
+      var i = 0;
+      for (i = 0; i < this.serviceData.participantUserList.length; i++) {
+        var text = "<hr>"
+        var username = this.serviceData.participantUserList[i].username;
+        var id = this.serviceData.participantUserList[i].id;
+        text += "<p><a target='_blank' href='#/profile/"+ id+"'>"+ username +"</a></p>";        
+        htmlText += text;        
+      }
+
+      swal.fire({
+        title: "<strong>Who is going?</strong>",
+        icon: 'question',
+        html: htmlText,
+        showCloseButton: true,
+      });
+    },
     GetTagInfo(tag) {
-      debugger;
       register.GetTagInfo(tag).then((r) => {
-           swal.fire({
-            text: r
-          })
-      });;
+        swal.fire({
+          text: r,
+        });
+      });
     },
   },
 };
