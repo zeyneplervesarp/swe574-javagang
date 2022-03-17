@@ -67,9 +67,9 @@ public class NotificationDto implements Serializable, Comparable<NotificationDto
     @Override
     public int compareTo(NotificationDto notificationDto) {
         if(notificationDto.getSentDate().isBefore(this.sentDate)) {
-            return 1;
-        } else if(notificationDto.getSentDate().isAfter(this.sentDate)) {
             return -1;
+        } else if(notificationDto.getSentDate().isAfter(this.sentDate)) {
+            return 1;
         } else {
             return 0;
         }
