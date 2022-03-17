@@ -5,6 +5,7 @@ import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import com.swe573.socialhub.service.NotificationService;
+import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -49,10 +52,17 @@ class NotificationTest {
 
     @Test
     public void mapToDto_ReturnsSameProperties() {
-        var notification = new Notification(null, "test message", "test", true, new User());
+        LocalDateTime now = LocalDateTime.now();
+        var notification = new Notification(null, "test message", "test", true, new User(), now);
         var dto = service.mapNotificationToDTO(notification);
         assertEquals(notification.getMessage(), dto.getMessage());
         assertEquals(notification.getMessageUrl(), dto.getMessageBody());
         assertEquals(notification.getRead(), dto.getRead());
+        assertEquals(notification.getSentDate(), dto.getSentDate());
+    }
+
+    @Test
+    public void getNotificationsOrdered() {
+
     }
 }
