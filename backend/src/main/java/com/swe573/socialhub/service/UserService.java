@@ -284,7 +284,7 @@ public class UserService {
         final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
         User userToFlag = repository.findById(toFlagUserId).get();
         // check for existing flags for duplicates
-        var existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
+        Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
         if (existingFlag.isPresent()) {
             throw new IllegalArgumentException("You have already flagged user " + userToFlag.getUsername());
         }
@@ -292,8 +292,7 @@ public class UserService {
         try {
             // create flag
             Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId);
-            var returnVar = flagRepository.save(flag);
-            return returnVar;
+            return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -304,7 +303,7 @@ public class UserService {
             // get current user and user to flag
             final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
             // check for existing flags for duplicates
-            var existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
+            Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
             return existingFlag.isPresent();
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());

@@ -92,7 +92,7 @@ public class UserController {
     @GetMapping("/user/follow/control/{userId}")
     public ResponseEntity<Boolean> controlUserFollow(Principal principal, @PathVariable Long userId) {
         try {
-            var response = service.followControl(principal,userId);
+            Boolean response = service.followControl(principal,userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
