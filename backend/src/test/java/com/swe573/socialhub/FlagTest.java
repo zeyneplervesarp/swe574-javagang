@@ -1,10 +1,14 @@
 package com.swe573.socialhub;
 
 import com.swe573.socialhub.domain.Flag;
+import com.swe573.socialhub.domain.Service;
 import com.swe573.socialhub.domain.User;
+import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.enums.FlagType;
+import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.FlagRepository;
 import com.swe573.socialhub.repository.UserRepository;
+import com.swe573.socialhub.service.ServiceService;
 import com.swe573.socialhub.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.security.auth.Subject;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +34,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class FlagTest {
     @Autowired
-    private UserService service;
+    private UserService userService;
+
+    @Autowired
+    private ServiceService serviceService;
 
     @MockBean
     private UserRepository repository;
@@ -58,7 +66,7 @@ public class FlagTest {
 
     @Test
     public void contextLoads() throws Exception {
-        assertNotNull(service);
+        assertNotNull(userService);
     }
 /*
     @Test
@@ -107,10 +115,31 @@ public class FlagTest {
         flag.setId(1L);
         Mockito.when(flagRepository.save(Mockito.any(Flag.class))).thenReturn(flag);
 
-        Flag result = service.flagUser(mockUser, testUser2.getId());
+        Flag result = userService.flagUser(mockUser, testUser2.getId());
         assertEquals(testUser.getId(), result.getFlaggingUser());
         assertEquals(testUser2.getId(), result.getFlaggedEntity());
     }
+
+    @Test
+    public void FlagService_shouldReturnFlag() {
+        var testUser = new User();
+        testUser.setId(1L);
+        testUser.setUsername("test user");
+
+        ServiceDto testService = new ServiceDto(1L, "Test Service", ",", "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null);
+        var mockUser = new MockPrincipal(testUser.getUsername());
+        Mockito.when(repository.findUserByUsername(testUser.getUsername())).thenReturn(Optional.of(testUser));
+        Mockito.when(flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(testUser.getId(), testService.getId(), FlagType.service)).thenReturn(Optional.empty());
+
+        Flag flag = new Flag(FlagType.service, testUser.getId(), testService.getId());
+        flag.setId(1L);
+        Mockito.when(flagRepository.save(Mockito.any(Flag.class))).thenReturn(flag);
+
+        Flag result = serviceService.flagService(mockUser, testService.getId());
+        assertEquals(testUser.getId(), result.getFlaggingUser());
+        assertEquals(testService.getId(), result.getFlaggedEntity());
+    }
+
 
 
 }
