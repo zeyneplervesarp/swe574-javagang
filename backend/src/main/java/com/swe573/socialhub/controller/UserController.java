@@ -99,7 +99,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/flag/{userId}")
+    @PostMapping("/user/flag/{userId}")
     public ResponseEntity<Flag> flagUser(Principal principal, @PathVariable Long userId) {
         try {
             Flag response = service.flagUser(principal, userId);

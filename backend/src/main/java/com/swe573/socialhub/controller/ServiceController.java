@@ -103,7 +103,7 @@ public class ServiceController {
         }
     }
 
-    @GetMapping("/flag/{serviceId}")
+    @PostMapping("/flag/{serviceId}")
     public ResponseEntity<Flag> flagService(Principal principal, @PathVariable Long serviceId) {
         try {
             Flag response = serviceService.flagService(principal, serviceId);
