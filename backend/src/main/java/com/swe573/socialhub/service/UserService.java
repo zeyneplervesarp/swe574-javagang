@@ -1,9 +1,11 @@
 package com.swe573.socialhub.service;
 
+import com.swe573.socialhub.domain.Flag;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.domain.UserFollowing;
 import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.FlagType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.config.JwtTokenUtil;
@@ -35,6 +37,9 @@ public class UserService {
 
     @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
+    private FlagRepository flagRepository;
 
     @Autowired
     private UserServiceApprovalRepository userServiceApprovalRepository;
@@ -257,8 +262,6 @@ public class UserService {
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-
-
     }
 
     public Boolean followControl(Principal principal, Long userId) {
@@ -270,9 +273,38 @@ public class UserService {
             //check if there is already a following entity
             var entityResult = userFollowingRepository.findUserFollowingByFollowingUserAndFollowedUser(loggedInUser, userToFollow);
             var entityExists = entityResult.isPresent();
-
-
             return entityExists;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Flag flagUser(Principal principal, Long toFlagUserId) {
+        // get current user and user to flag
+        final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+        User userToFlag = repository.findById(toFlagUserId).get();
+        // check for existing flags for duplicates
+        Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
+        if (existingFlag.isPresent()) {
+            throw new IllegalArgumentException("You have already flagged user " + userToFlag.getUsername());
+        }
+        // flag the user
+        try {
+            // create flag
+            Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId);
+            return flagRepository.save(flag);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Boolean checkExistingFlag(Principal principal, Long toFlagUserId) {
+        try {
+            // get current user and user to flag
+            final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+            // check for existing flags for duplicates
+            Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
+            return existingFlag.isPresent();
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

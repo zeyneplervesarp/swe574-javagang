@@ -1,5 +1,6 @@
 package com.swe573.socialhub.controller;
 
+import com.swe573.socialhub.domain.Flag;
 import com.swe573.socialhub.domain.UserFollowing;
 import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.service.UserService;
@@ -91,12 +92,33 @@ public class UserController {
     @GetMapping("/user/follow/control/{userId}")
     public ResponseEntity<Boolean> controlUserFollow(Principal principal, @PathVariable Long userId) {
         try {
-            var response = service.followControl(principal,userId);
+            Boolean response = service.followControl(principal,userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    @PostMapping("/user/flag/{userId}")
+    public ResponseEntity<Flag> flagUser(Principal principal, @PathVariable Long userId) {
+        try {
+            Flag response = service.flagUser(principal, userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/user/flag/control/{userId}")
+    public ResponseEntity<Boolean> checkForExistingFlag(Principal principal, @PathVariable Long userId) {
+        try {
+            Boolean response = service.checkExistingFlag(principal, userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
 
 
 }

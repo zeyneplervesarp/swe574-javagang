@@ -3,14 +3,8 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
-import com.swe573.socialhub.enums.ApprovalStatus;
-import com.swe573.socialhub.enums.ServiceFilter;
-import com.swe573.socialhub.enums.ServiceSortBy;
-import com.swe573.socialhub.enums.ServiceStatus;
-import com.swe573.socialhub.repository.ServiceRepository;
-import com.swe573.socialhub.repository.TagRepository;
-import com.swe573.socialhub.repository.UserRepository;
-import com.swe573.socialhub.repository.UserServiceApprovalRepository;
+import com.swe573.socialhub.enums.*;
+import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +28,9 @@ public class ServiceService {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private FlagRepository flagRepository;
 
     @Autowired
     private UserServiceApprovalRepository approvalRepository;
@@ -181,10 +178,7 @@ public class ServiceService {
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
         }
-
-
     }
-
 
     public List<ServiceDto> findByUser(Principal principal) {
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
@@ -199,7 +193,6 @@ public class ServiceService {
         }
 
     }
-
 
     @Transactional
     public void complete(Principal principal, Long serviceId) {
@@ -277,7 +270,6 @@ public class ServiceService {
         } else {
             throw new IllegalArgumentException("No services have been found");
         }
-
     }
 
     private ServiceDto mapToDto(Service service, Optional<User> loggedInUser) {
@@ -306,7 +298,6 @@ public class ServiceService {
         return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList);
     }
 
-
     private Service mapToEntity(ServiceDto dto) {
         return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
     }
@@ -324,6 +315,33 @@ public class ServiceService {
         float dist = (float) (earthRadius * c);
 
         return dist * 0.001;
+    }
+
+    public Flag flagService(Principal principal, Long serviceId) {
+        final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        Service serviceToFlag = serviceRepository.getById(serviceId);
+        // check for existing flag for duplicate
+        Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), serviceId, FlagType.service);
+        if (existingFlag.isPresent()) {
+            throw new IllegalArgumentException("You have already flagged service " + serviceToFlag.getHeader());
+        }
+        // flag the service
+        try {
+            Flag flag = new Flag(FlagType.service, loggedInUser.getId(), serviceId);
+            return flagRepository.save(flag);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Boolean checkForExistingFlag(Principal principal, Long serviceId) {
+        try {
+            final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+            Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), serviceId, FlagType.service);
+            return existingFlag.isPresent();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
 

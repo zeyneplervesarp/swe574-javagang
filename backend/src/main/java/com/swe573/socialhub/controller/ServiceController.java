@@ -1,5 +1,6 @@
 package com.swe573.socialhub.controller;
 
+import com.swe573.socialhub.domain.Flag;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.enums.ServiceFilter;
 import com.swe573.socialhub.enums.ServiceSortBy;
@@ -98,6 +99,27 @@ public class ServiceController {
         }
         catch (RuntimeException e)
         {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @PostMapping("/flag/{serviceId}")
+    public ResponseEntity<Flag> flagService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            Flag response = serviceService.flagService(principal, serviceId);
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/flag/control/{serviceId}")
+    public ResponseEntity<Boolean> checkForExistingFlag(Principal principal, @PathVariable Long serviceId) {
+        try {
+            Boolean response = serviceService.checkForExistingFlag(principal, serviceId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
