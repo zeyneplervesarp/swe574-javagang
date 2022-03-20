@@ -23,6 +23,7 @@ import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,10 +40,16 @@ public class UserService {
     private ServiceRepository serviceRepository;
 
     @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
     private FlagRepository flagRepository;
 
     @Autowired
     private UserServiceApprovalRepository userServiceApprovalRepository;
+
+    @Autowired
+    private UserEventApprovalRepository userEventApprovalRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -219,12 +226,28 @@ public class UserService {
             throw new IllegalArgumentException("Service doesn't exist.");
         }
         var service = serviceOptional.get();
-        var ownsService = service.getCreatedUser().getId() == loggedInUser.getId();
+        var ownsService = Objects.equals(service.getCreatedUser().getId(), loggedInUser.getId());
         var userServiceApproval = userServiceApprovalRepository.findUserServiceApprovalByServiceAndUser(service, loggedInUser);
-        var attendsService = userServiceApproval.isPresent() && userServiceApproval.get().getApprovalStatus().name() == "APPROVED";
-        var dto = new UserServiceDto(userServiceApproval != null && !userServiceApproval.isEmpty(), ownsService, attendsService);
+        var attendsService = userServiceApproval.isPresent() && userServiceApproval.get().getApprovalStatus().name().equals("APPROVED");
+        var dto = new UserServiceDto(userServiceApproval != null && userServiceApproval.isPresent(), ownsService, attendsService);
         return dto;
 
+    }
+
+    public UserEventDto getUserEventDetails(Principal principal, Long eventId) {
+        final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+        if (loggedInUser == null)
+            throw new IllegalArgumentException("User doesn't exist.");
+        var eventOptional = eventRepository.findById(eventId);
+        if (eventOptional == null) {
+            throw new IllegalArgumentException("Event doesn't exist.");
+        }
+        var event = eventOptional.get();
+        var ownsEvent = Objects.equals(event.getCreatedUser().getId(), loggedInUser.getId());
+        var userEventApproval = userEventApprovalRepository.findUserEventApprovalByEventAndUser(event, loggedInUser);
+        var attendsEvent = userEventApproval.isPresent() && userEventApproval.get().getApprovalStatus().name().equals("APPROVED");
+        var dto = new UserEventDto(userEventApproval != null && userEventApproval.isPresent(), ownsEvent, attendsEvent);
+        return dto;
     }
 
     public int getBalanceToBe(User user) {

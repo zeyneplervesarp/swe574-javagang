@@ -74,6 +74,16 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user/getEventDetails/{eventId}")
+    public UserEventDto getEventDetails(Principal principal, @PathVariable Long eventId) {
+        try {
+            return service.getUserEventDetails(principal, eventId);
+
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/user/getAll")
     public List<UserDto> getAllUsers(Principal principal) {
         return service.getAllUsers();
