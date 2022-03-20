@@ -14,7 +14,7 @@ public class Event {
 
     }
 
-    public Event(Long id, String header, String description, String location, LocalDateTime time, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+    public Event(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
@@ -27,6 +27,7 @@ public class Event {
         this.attendingUserCount = attendingUserCount;
         this.eventTags = serviceTags;
         this.status = ServiceStatus.ONGOING;
+        this.minutes = minutes;
     }
 
     private @Id
@@ -36,6 +37,7 @@ public class Event {
     private String description;
     private String location;
     private LocalDateTime time;
+    private int minutes;
     private int quota;
     private int attendingUserCount;
     private Double latitude;
@@ -97,6 +99,14 @@ public class Event {
 
     public void setTime(LocalDateTime time) {
         this.time = time;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(int minutes) {
+        this.minutes = minutes;
     }
 
     public void setCreatedUser(User createdUser) {

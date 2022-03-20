@@ -269,11 +269,11 @@ public class EventService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
 
-        return new EventDto(event.getId(), event.getHeader(), event.getDescription(), event.getLocation(), event.getTime(), event.getQuota(), attending, event.getCreatedUser().getId(), event.getCreatedUser().getUsername(), event.getLatitude(), event.getLongitude(), list, event.getStatus(), pending, distanceToUser, attendingUserList);
+        return new EventDto(event.getId(), event.getHeader(), event.getDescription(), event.getLocation(), event.getTime(), event.getMinutes(), event.getQuota(), attending, event.getCreatedUser().getId(), event.getCreatedUser().getUsername(), event.getLatitude(), event.getLongitude(), list, event.getStatus(), pending, distanceToUser, attendingUserList);
     }
 
     private Event mapToEntity(EventDto dto) {
-        return new Event(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
+        return new Event(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
     }
 
     private double getDistance(double lat1, double lng1, String lat2, String lng2) {

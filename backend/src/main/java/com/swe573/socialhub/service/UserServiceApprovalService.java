@@ -113,9 +113,4 @@ public class UserServiceApprovalService {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
-
-    public String foo()
-    {
-        return "foo";
-    }
 }

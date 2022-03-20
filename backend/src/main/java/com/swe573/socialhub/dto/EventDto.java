@@ -16,6 +16,7 @@ public class EventDto implements Serializable {
     private final String Location;
     private final LocalDateTime Time;
     private final int Minutes;
+    private final int quota;
     private final Long AttendingUserCount;
     private final Long CreatedUserIdId;
     private final String CreatedUserName;
@@ -30,8 +31,9 @@ public class EventDto implements Serializable {
     private final Double DistanceToUser;
     private final List<UserDto> ParticipantUserList;
 
-    public EventDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> eventTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList) {
+    public EventDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> eventTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList) {
         this.id = id;
+        this.quota = quota;
         Header = header;
         Description = description;
         Location = location;
@@ -61,6 +63,10 @@ public class EventDto implements Serializable {
 
         TimeString = time.format(formatter);
         ShowEventOverButton = time.isBefore(LocalDateTime.now()) ;
+    }
+
+    public int getQuota() {
+        return quota;
     }
 
     public Long getId() {
