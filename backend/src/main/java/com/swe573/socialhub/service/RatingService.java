@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class RatingService {
@@ -70,11 +72,25 @@ public class RatingService {
         return ratingEntity;
     }
 
-    public RatingSummaryDto getServiceRatingSummary(Long serviceId) {
-        return null;
+    @Transactional
+    public RatingSummaryDto getServiceRatingSummary(com.swe573.socialhub.domain.Service service) {
+        final var ratings = service.getRatings();
+        return summarize(ratings);
     }
 
-    public RatingSummaryDto getUserRatingSummary(Long userId) {
-        return null;
+    @Transactional
+    public RatingSummaryDto getUserRatingSummary(User user) {
+        final var services = user.getCreatedServices();
+        final var ratings = services.stream().flatMap(s -> s.getRatings().stream()).collect(Collectors.toUnmodifiableList());
+        return summarize(ratings);
+    }
+
+    private RatingSummaryDto summarize(Collection<Rating> ratings) {
+        final var count = ratings.size();
+        if (count == 0) {
+            return new RatingSummaryDto(0D, 0);
+        }
+        final var avg = ratings.stream().mapToInt(Rating::getRating).average().getAsDouble();
+        return new RatingSummaryDto(avg, count);
     }
 }
