@@ -23,8 +23,7 @@ public class Rating {
 
     }
 
-    public Rating(Long id, Service service, Integer rating, User rater) {
-        this.id = id;
+    public Rating(Service service, Integer rating, User rater) {
         this.service = service;
         this.rating = rating;
         this.rater = rater;
