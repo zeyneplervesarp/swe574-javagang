@@ -5,6 +5,7 @@ import com.swe573.socialhub.domain.Tag;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.SearchMatchDto;
 import com.swe573.socialhub.enums.SearchMatchType;
+import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
@@ -38,6 +39,9 @@ public class SearchServiceTest {
     @MockBean
     private TagRepository tagRepository;
 
+    @MockBean
+    private EventRepository eventRepository;
+
     private SearchService service;
 
     private static final int DEFAULT_LIMIT = 20;
@@ -47,7 +51,7 @@ public class SearchServiceTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        this.service = new SearchService(userRepository, tagRepository, serviceRepository);
+        this.service = new SearchService(userRepository, tagRepository, serviceRepository, eventRepository);
     }
 
     @Test
