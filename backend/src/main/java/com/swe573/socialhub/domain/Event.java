@@ -52,7 +52,7 @@ public class Event {
     )
     Set<Tag> eventTags;
     @OneToMany(mappedBy = "service")
-    Set<UserServiceApproval> approvalSet;
+    Set<UserEventApproval> approvalSet;
 
 
     public User getCreatedUser() {
@@ -143,11 +143,11 @@ public class Event {
         this.attendingUserCount = attendingUserCount;
     }
 
-    public Set<UserServiceApproval> getApprovalSet() {
+    public Set<UserEventApproval> getApprovalSet() {
         return approvalSet;
     }
 
-    public void setApprovalSet(Set<UserServiceApproval> approvalSet) {
+    public void setApprovalSet(Set<UserEventApproval> approvalSet) {
         this.approvalSet = approvalSet;
     }
 
