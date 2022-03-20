@@ -12,6 +12,7 @@ import com.swe573.socialhub.repository.UserEventApprovalRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Service
 public class UserEventApprovalService {
 
     @Autowired
