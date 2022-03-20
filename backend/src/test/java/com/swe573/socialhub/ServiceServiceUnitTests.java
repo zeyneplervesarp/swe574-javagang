@@ -98,7 +98,7 @@ public class ServiceServiceUnitTests {
         testUser.setId(1L);
         testUser.setUsername("test user");
 
-        var testService = new ServiceDto(1L, "Test Service", ",", "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null);
+        var testService = new ServiceDto(1L, "Test Service", ",", "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null);
 
 
         var mockUser = new MockPrincipal(testUser.getUsername());

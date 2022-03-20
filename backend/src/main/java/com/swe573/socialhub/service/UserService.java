@@ -61,6 +61,9 @@ public class UserService {
     @Autowired
     private UserFollowingRepository userFollowingRepository;
 
+    @Autowired
+    private RatingService ratingService;
+
 
     @Transactional
     public UserDto register(UserDto dto) {
@@ -188,7 +191,8 @@ public class UserService {
                 user.getFormattedAddress(),
                 user.getFollowedBy().stream().map(u -> u.getFollowingUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
-                user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList())
+                user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
+                ratingService.getUserRatingSummary(user)
         );
 
 
