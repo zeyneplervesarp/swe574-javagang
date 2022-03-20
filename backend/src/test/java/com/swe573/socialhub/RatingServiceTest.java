@@ -44,7 +44,7 @@ public class RatingServiceTest {
     }
 
     @Test
-    public void SearchService_disallows_InvalidRatings() {
+    public void RatingService_disallows_InvalidRatings() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.addOrUpdateRating(mockPrincipal, 0L, -1));
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.addOrUpdateRating(mockPrincipal, 0L, 6));
     }
