@@ -84,7 +84,7 @@ public class UserServiceUnitTests {
     @MockBean
     private UserFollowingRepository userFollowingRepository;
 
-    class MockPrincipal implements Principal {
+    static class MockPrincipal implements Principal {
 
         public MockPrincipal(String name) {
             this.name = name;
