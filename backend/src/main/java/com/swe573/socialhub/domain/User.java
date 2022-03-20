@@ -34,6 +34,9 @@ public class User {
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
 
+    @OneToMany(mappedBy="rater")
+    private Set<Rating> ratings;
+
     public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress) {
         this.id = id;
         this.bio = bio;
@@ -48,6 +51,14 @@ public class User {
 
     public User() {
 
+    }
+
+    public Set<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(Set<Rating> ratings) {
+        this.ratings = ratings;
     }
 
     public String getPassword() {
