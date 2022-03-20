@@ -23,20 +23,19 @@ import java.util.List;
 @Service
 public class UserEventApprovalService {
 
-    @Autowired
-    UserEventApprovalRepository repository;
+    private final UserEventApprovalRepository repository;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+    private final UserService userService;
+    private final NotificationService notificationService;
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    EventRepository eventRepository;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    NotificationService notificationService;
+    public UserEventApprovalService(UserEventApprovalRepository repository, UserRepository userRepository, EventRepository eventRepository, UserService userService, NotificationService notificationService) {
+        this.repository = repository;
+        this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
+        this.userService = userService;
+        this.notificationService = notificationService;
+    }
 
 
     @Transactional
