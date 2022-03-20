@@ -53,7 +53,7 @@ public class Event {
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
     Set<Tag> eventTags;
-    @OneToMany(mappedBy = "service")
+    @OneToMany(mappedBy = "event")
     Set<UserEventApproval> approvalSet;
 
 
