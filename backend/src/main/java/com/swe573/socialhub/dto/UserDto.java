@@ -1,5 +1,7 @@
 package com.swe573.socialhub.dto;
 
+import com.swe573.socialhub.enums.UserType;
+
 import java.util.List;
 
 public class UserDto {
@@ -19,10 +21,10 @@ public class UserDto {
     private List<String>  following;
     private List<TagDto> tags;
     private RatingSummaryDto ratingSummary;
+    private UserType userType;
 
 
-
-    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags,RatingSummaryDto ratingSummary) {
+    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType) {
         this.id = id;
         this.ratingSummary = ratingSummary;
         this.username = username;
@@ -37,6 +39,7 @@ public class UserDto {
         this.followedBy = followedBy;
         this.following = following;
         this.tags = tags;
+        this.userType = userType;
     }
     public String getEmail() {
         return email;
@@ -164,5 +167,13 @@ public class UserDto {
 
     public void setRatingSummary(RatingSummaryDto ratingSummary) {
         this.ratingSummary = ratingSummary;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }
