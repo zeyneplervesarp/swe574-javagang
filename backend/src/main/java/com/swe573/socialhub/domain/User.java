@@ -24,8 +24,14 @@ public class User {
     private Set<Tag> userTags;
     @OneToMany(mappedBy = "createdUser")
     private Set<Service> createdServices;
+
+    @OneToMany(mappedBy = "createdUser")
+    private Set<Event> createdEvents;
     @OneToMany(mappedBy = "user")
-    Set<UserServiceApproval> approvalSet;
+    Set<UserServiceApproval> serviceApprovalSet;
+
+    @OneToMany(mappedBy = "user")
+    Set<UserEventApproval> eventApprovalSet;
     private Integer balance;
     @OneToMany(mappedBy = "receiver")
     Set<Notification> notificationSet;
@@ -129,6 +135,14 @@ public class User {
         this.createdServices = createdServices;
     }
 
+    public Set<Event> getCreatedEvents() {
+        return createdEvents;
+    }
+
+    public void setCreatedEvents(Set<Event> createdEvents) {
+        this.createdEvents = createdEvents;
+    }
+
     public Integer getBalance() {
         return balance;
     }
@@ -145,12 +159,20 @@ public class User {
         this.userTags = userTags;
     }
 
-    public Set<UserServiceApproval> getApprovalSet() {
-        return approvalSet;
+    public Set<UserServiceApproval> getServiceApprovalSet() {
+        return serviceApprovalSet;
     }
 
-    public void setApprovalSet(Set<UserServiceApproval> approvalSet) {
-        this.approvalSet = approvalSet;
+    public void setServiceApprovalSet(Set<UserServiceApproval> approvalSet) {
+        this.serviceApprovalSet = approvalSet;
+    }
+
+    public Set<UserEventApproval> getEventApprovalSet() {
+        return eventApprovalSet;
+    }
+
+    public void setEventApprovalSet(Set<UserEventApproval> eventApprovalSet) {
+        this.eventApprovalSet = eventApprovalSet;
     }
 
     public Set<Notification> getNotificationSet() {

@@ -6,13 +6,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class UserServiceApprovalDto implements Serializable {
-    //    private final UserServiceApprovalKeyDto id;
     private final UserDto user;
     private final ServiceDto service;
     private final ApprovalStatus approvalStatus;
 
     public UserServiceApprovalDto(UserDto user, ServiceDto service, ApprovalStatus approvalStatus) {
-//        this.id = id;
         this.user = user;
         this.service = service;
         this.approvalStatus = approvalStatus;

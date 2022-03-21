@@ -1,6 +1,7 @@
 package com.swe573.socialhub.config;
 
 import com.swe573.socialhub.domain.*;
+import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.repository.*;
@@ -22,7 +23,7 @@ class LoadDatabase {
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
     @Bean
-    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository) {
+    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository) {
 
         return args -> {
 
@@ -189,6 +190,24 @@ class LoadDatabase {
                         add(tag5);
                     }});
 
+            var mockEvent = new Event(
+                    null,
+                    "Programming Meetup",
+                    "Let's write a simple game together",
+                    "Kolektif House",
+                    LocalDateTime.of(2022, 5, 16, 16, 0),
+                    2,
+                    10,
+                    1,
+                    user1,
+                    41.145570653598446, 28.973261953340998,
+                    new HashSet<Tag>() {{
+                        add(tag5);
+                        add(tag6);
+                    }});
+
+            eventRepository.save(mockEvent);
+
             serviceRepository.save(service);
             serviceRepository.save(service2);
             serviceRepository.save(service3);
@@ -225,6 +244,11 @@ class LoadDatabase {
             var approval106 = saveAndGetApproval(approvalRepository, user3, service7, ApprovalStatus.APPROVED);
             var approval107 = saveAndGetApproval(approvalRepository, user4, service7, ApprovalStatus.APPROVED);
             var approval108 = saveAndGetApproval(approvalRepository, user5, service7, ApprovalStatus.APPROVED);
+
+            var approval109 = saveAndGetApproval(eventApprovalRepository, user2, mockEvent, ApprovalStatus.PENDING);
+            var approval110 = saveAndGetApproval(eventApprovalRepository, user3, mockEvent, ApprovalStatus.APPROVED);
+            var approval111 = saveAndGetApproval(eventApprovalRepository, user4, mockEvent, ApprovalStatus.APPROVED);
+            var approval112 = saveAndGetApproval(eventApprovalRepository, user5, mockEvent, ApprovalStatus.APPROVED);
 
             approvalRepository.findAll().forEach(s -> {
                 log.info("Preloaded " + s);
@@ -286,6 +310,12 @@ class LoadDatabase {
 
     private UserServiceApproval saveAndGetApproval(UserServiceApprovalRepository approvalRepository, User user1, Service service, ApprovalStatus approved) {
         var approval = new UserServiceApproval(new UserServiceApprovalKey(user1.getId(), service.getId()), user1, service, approved);
+        approvalRepository.save(approval);
+        return approval;
+    }
+
+    private UserEventApproval saveAndGetApproval(UserEventApprovalRepository approvalRepository, User user1, Event event, ApprovalStatus approved) {
+        var approval = new UserEventApproval(new UserEventApprovalKey(user1.getId(), event.getId()), user1, event, approved);
         approvalRepository.save(approval);
         return approval;
     }
