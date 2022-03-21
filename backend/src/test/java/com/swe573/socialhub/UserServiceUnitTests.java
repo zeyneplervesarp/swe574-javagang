@@ -8,6 +8,7 @@ import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.ServiceStatus;
+import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.service.NotificationService;
 import com.swe573.socialhub.service.RatingService;
@@ -215,7 +216,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void Register_ShouldThrowError_WhenDataIsInvalid() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null, UserType.USER);
         assertThrows(IllegalArgumentException.class, () -> service.register(testUser));
         testUser.setPassword("123456");
         testUser.setUsername("");
@@ -230,10 +231,10 @@ public class UserServiceUnitTests {
 
     @Test
     public void Register_ShouldReturnEntity() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER);
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
-        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","");
+        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER);
         Mockito.when(repository.save(Mockito.any(User.class))).thenReturn(user);
         assertEquals(testUser.getUsername(), user.getUsername());
         assertEquals(testUser.getBio(), user.getBio());
@@ -243,7 +244,7 @@ public class UserServiceUnitTests {
     @Test
     public void MapToDto_ShouldReturnSameFields()
     {
-        var user = new User(new Random().nextLong(),"testUsername","testMail","testBio",null,new Random().nextInt(15),"testLatitude","tetstLongitude","testAddress");
+        var user = new User(new Random().nextLong(),"testUsername","testMail","testBio",null,new Random().nextInt(15),"testLatitude","tetstLongitude","testAddress", UserType.USER);
         user.setFollowingUsers(new HashSet<>());
         user.setFollowedBy(new HashSet<>());
 
@@ -259,5 +260,6 @@ public class UserServiceUnitTests {
         assertEquals(user.getLatitude(),dto.getLatitude());
         assertEquals(user.getLongitude(),dto.getLongitude());
         assertEquals(user.getFormattedAddress(),dto.getFormattedAddress());
+        assertEquals(user.getUserType(),dto.getUserType());
     }
 }
