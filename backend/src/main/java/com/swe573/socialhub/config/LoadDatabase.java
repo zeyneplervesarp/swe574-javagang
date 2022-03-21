@@ -80,6 +80,8 @@ class LoadDatabase {
                 add(tag2);
             }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER);
 
+            var user6 = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN);
+
             userRepository.findAll().forEach(user -> {
                 log.info("Preloaded " + user);
             });
