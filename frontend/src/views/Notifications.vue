@@ -38,9 +38,7 @@
                     >
                       <div class="col mt-2 text-center">
                         <span>
-                          <base-button block disabled type="secondary">{{
-                            notification.message
-                          }}</base-button>
+                          <base-button block disabled type="secondary">{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
                         </span>
                       </div>
                       <div class="w-100"></div>
@@ -52,7 +50,7 @@
                     >
                       <div class="col mt-2 text-center">
                         <span>
-                          <base-button block disabled type="succeess">{{
+                          <base-button block disabled type="succeess">{{getFormattedDate(notification.sentDate)}} | {{
                             notification.message
                           }}</base-button>
                         </span>
@@ -71,6 +69,7 @@
 </template>
 <script>
 import apiRegister from "../api/register";
+import moment from 'moment';
 export default {
   components: {},
   data() {
@@ -98,6 +97,9 @@ export default {
         apiRegister.ReadAllNotifications();
       });
     },
+    getFormattedDate(date) {
+            return moment(date).format("YYYY-MM-DD")
+    }
   },
   destroyed() {
           window.location.reload();
