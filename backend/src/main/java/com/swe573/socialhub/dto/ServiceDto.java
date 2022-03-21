@@ -30,8 +30,9 @@ public class ServiceDto implements Serializable {
     private final String DistanceToUserString;
     private final Double DistanceToUser;
     private final List<UserDto> ParticipantUserList;
+    private final RatingSummaryDto ratingSummary;
 
-    public ServiceDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList) {
+    public ServiceDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary) {
         this.id = id;
         Header = header;
         Description = description;
@@ -43,6 +44,7 @@ public class ServiceDto implements Serializable {
         CreatedUserIdId = createdUserIdId;
         CreatedUserName = createdUserName;
         Latitude = latitude;
+        this.ratingSummary = ratingSummary;
         Longitude = longitude;
         ServiceTags = serviceTags;
         Status = status;
@@ -179,5 +181,9 @@ public class ServiceDto implements Serializable {
 
     public List<UserDto> getParticipantUserList() {
         return ParticipantUserList;
+    }
+
+    public RatingSummaryDto getRatingSummary() {
+        return ratingSummary;
     }
 }

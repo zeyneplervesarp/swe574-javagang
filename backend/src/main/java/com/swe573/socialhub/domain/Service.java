@@ -43,6 +43,11 @@ public class Service {
     private Double latitude;
     private Double longitude;
     private ServiceStatus status;
+
+    @OneToMany(mappedBy="service")
+    private Set<Rating> ratings;
+
+
     @ManyToOne
     @JoinColumn(name = "createdUser")
     User createdUser;
@@ -171,7 +176,13 @@ public class Service {
         this.status = status;
     }
 
+    public Set<Rating> getRatings() {
+        return ratings;
+    }
 
+    public void setRatings(Set<Rating> ratings) {
+        this.ratings = ratings;
+    }
 
     @Override
     public String toString() {

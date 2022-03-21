@@ -10,6 +10,7 @@ import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.service.NotificationService;
+import com.swe573.socialhub.service.RatingService;
 import com.swe573.socialhub.service.UserService;
 import com.swe573.socialhub.config.JwtTokenUtil;
 import org.junit.jupiter.api.Test;
@@ -82,9 +83,12 @@ public class UserServiceUnitTests {
     private NotificationService notificationService;
 
     @MockBean
+    private RatingService ratingService;
+
+    @MockBean
     private UserFollowingRepository userFollowingRepository;
 
-    class MockPrincipal implements Principal {
+    static class MockPrincipal implements Principal {
 
         public MockPrincipal(String name) {
             this.name = name;
@@ -211,7 +215,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void Register_ShouldThrowError_WhenDataIsInvalid() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null);
         assertThrows(IllegalArgumentException.class, () -> service.register(testUser));
         testUser.setPassword("123456");
         testUser.setUsername("");
@@ -226,7 +230,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void Register_ShouldReturnEntity() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null);
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
         var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","");
