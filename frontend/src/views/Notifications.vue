@@ -38,7 +38,7 @@
                     >
                       <div class="col mt-2 text-center">
                         <span>
-                          <base-button block disabled type="secondary">{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
+                          <base-button @click="GoToUrl(notification.messageBody)" block type="secondary">{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
                         </span>
                       </div>
                       <div class="w-100"></div>
@@ -50,7 +50,7 @@
                     >
                       <div class="col mt-2 text-center">
                         <span>
-                          <base-button block disabled type="succeess">{{getFormattedDate(notification.sentDate)}} | {{
+                          <base-button  @click="GoToUrl(notification.messageBody)" block  type="succeess">{{getFormattedDate(notification.sentDate)}} | {{
                             notification.message
                           }}</base-button>
                         </span>
@@ -99,6 +99,10 @@ export default {
     },
     getFormattedDate(date) {
             return moment(date).format("YYYY-MM-DD")
+    },
+    GoToUrl(url)
+    {
+      window.location.href = "#" + url;
     }
   },
   destroyed() {
