@@ -1,5 +1,7 @@
 package com.swe573.socialhub.domain;
 
+import com.swe573.socialhub.enums.UserType;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +45,9 @@ public class User {
     @OneToMany(mappedBy="rater")
     private Set<Rating> ratings;
 
-    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress) {
+    private UserType userType;
+
+    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
         this.id = id;
         this.bio = bio;
         this.username = username;
@@ -53,6 +57,7 @@ public class User {
         this.formattedAddress = formattedAddress;
         this.userTags = userTags;
         this.balance = balance;
+        this.userType = userType;
     }
 
     public User() {
@@ -229,6 +234,14 @@ public class User {
 
     public void setFollowedBy(Set<UserFollowing> followedBy) {
         this.followedBy = followedBy;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     @Override
