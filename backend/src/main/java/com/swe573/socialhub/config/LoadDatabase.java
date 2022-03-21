@@ -4,6 +4,7 @@ import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,27 +58,27 @@ class LoadDatabase {
             var user1 = saveAndGetUser(userRepository, passwordEncoder, "miranda", "miranda.osborne@gmail.com", "Gamer. Award-winning music buff. Social media maven. Zombie fan. Student. Professional internet fanatic. Thinker. Freelance baconaholic.", new HashSet<Tag>() {{
                 add(tag2);
                 add(tag5);
-            }}, 2, "41.084148", "29.035460", "Etiler");
+            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER);
 
             var user2 = saveAndGetUser(userRepository, passwordEncoder, "joshua", "joshua.osborne@gmail.com", "Life's uncertain. Eat dessert first.", new HashSet<Tag>() {{
                 add(tag4);
                 add(tag3);
                 add(tag1);
-            }}, 5, "41.084148", "29.035460", "Etiler");
+            }}, 5, "41.084148", "29.035460", "Etiler", UserType.USER);
 
             var user3 = saveAndGetUser(userRepository, passwordEncoder, "jane", "jane.austen@gmail.com", "Probably the best TV binge-watcher you’ll ever find.", new HashSet<Tag>() {{
                 add(tag4);
                 add(tag5);
-            }}, 2, "41.084148", "29.035460", "Etiler");
+            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER);
 
             var user4 = saveAndGetUser(userRepository, passwordEncoder, "labelcaution", "labelcaution@gmail.com", "Incurable tv fan. Twitter junkie. Evil food fanatic. Certified travel maven. Social media advocate. Total thinker.", new HashSet<Tag>() {{
                 add(tag1);
                 add(tag6);
-            }}, 3, "41.084148", "29.035460", "Etiler");
+            }}, 3, "41.084148", "29.035460", "Etiler", UserType.USER);
 
             var user5 = saveAndGetUser(userRepository, passwordEncoder, "orangejuicecucumber", "orangejuicecucumber@gmail.com", "A human. Being.", new HashSet<Tag>() {{
                 add(tag2);
-            }}, 2, "41.084148", "29.035460", "Etiler");
+            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER);
 
             userRepository.findAll().forEach(user -> {
                 log.info("Preloaded " + user);
@@ -289,8 +290,8 @@ class LoadDatabase {
         };
     }
 
-    private User saveAndGetUser(UserRepository userRepository, PasswordEncoder passwordEncoder, String username, String email, String bio, HashSet<Tag> tags, Integer balance, String latitude, String longitude, String formattedAddress) {
-        var user = new User(null, username, email, bio, tags, balance,latitude,longitude, formattedAddress);
+    private User saveAndGetUser(UserRepository userRepository, PasswordEncoder passwordEncoder, String username, String email, String bio, HashSet<Tag> tags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
+        var user = new User(null, username, email, bio, tags, balance,latitude,longitude, formattedAddress, userType);
         user.setPassword(passwordEncoder.encode("1"));
         userRepository.save(user);
         return user;
