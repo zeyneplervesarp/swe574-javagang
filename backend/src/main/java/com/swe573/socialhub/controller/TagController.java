@@ -12,11 +12,18 @@ import net.minidev.json.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +70,25 @@ class TagController {
 
     @PostMapping("/tags")
     ResponseEntity<?> newTag(@RequestBody Tag newTag) {
+        try
+        {
+            //get the swear-words resource and add them to a list
+            URL res = getClass().getClassLoader().getResource("swear-words");
+            File file = Paths.get(res.toURI()).toFile();
+            var path = file.toPath();
+            List<String> lines = Files.readAllLines(path);
+
+            for(String line : lines){
+                if (newTag.getName().toLowerCase(Locale.ROOT).contains(line))
+                {
+                    throw new Exception("You have tried to add an illegal tag.");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
 
         EntityModel<Tag> entityModel = assembler.toModel(repository.save(newTag));
 
