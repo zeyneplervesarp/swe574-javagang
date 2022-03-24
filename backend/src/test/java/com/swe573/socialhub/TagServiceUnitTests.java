@@ -10,8 +10,11 @@ import com.swe573.socialhub.service.TagService;
 import com.swe573.socialhub.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -49,14 +52,14 @@ public class TagServiceUnitTests {
         assertNotNull(service);
     }
 
-    @Test
-    public void IllegalTag_ShouldReturnTrue() {
-        var illegalKeyword = "2g1c";
+    @ParameterizedTest
+    @ValueSource(strings = {"2g1c", "bimbos", "porn"})
+    public void IllegalTag_ShouldReturnTrue(String illegalKeyword ) {
         var tag = new Tag(illegalKeyword);
-
         var result = service.keywordIsIllegal(tag);
         assertTrue(result);
     }
+
 
 
 }
