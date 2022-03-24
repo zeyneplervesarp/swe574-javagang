@@ -61,5 +61,13 @@ public class TagServiceUnitTests {
     }
 
 
+    @ParameterizedTest
+    @ValueSource(strings = {"history", "computers", "television"})
+    public void IllegalTag_ShouldReturnFalse(String legalKeyword ) {
+        var tag = new Tag(legalKeyword);
+        var result = service.keywordIsIllegal(tag);
+        assertFalse(result);
+    }
+
 
 }
