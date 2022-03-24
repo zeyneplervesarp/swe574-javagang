@@ -293,7 +293,6 @@ export default {
     ConfirmServiceOverCreator() {
       modal.confirm(
         "Do you accept that the service is over?",
-        // "The participants' and your balance will be updated",
         "A notification will be sent to attendees to request their approval for system completion",
 
         this.SendServiceOverApprovalForCreator
@@ -308,8 +307,7 @@ export default {
     ConfirmServiceOverAttendee() {
       modal.confirm(
         "Do you accept that the service is over?",
-        // "The participants' and your balance will be updated",
-        "A notification will be sent to the creator and the service will be complete",
+        "A notification will be sent to the creator and the service will be complete. You can rate the service after it is over.",
 
         this.SendServiceOverApprovalForAttendee
       );
