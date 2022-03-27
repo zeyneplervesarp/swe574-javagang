@@ -121,7 +121,8 @@
               </div>
             </div>
             <div class="mt-2 py-5 border-top text-center">
-              <d <div class="col-lg-9">
+              <div class="row justify-content-center">
+                <div class="col-lg-9">
                   <p>{{ serviceData.description }}</p>
 
                   <div>
@@ -133,8 +134,7 @@
                       >{{ tag.name }}</badge
                     >
                   </div>
-                </div>iv class="row justify-content-center">
-               
+                </div>
               </div>
             </div>
             <!-- <div class="mt-2 py-5 border-top text-center">
