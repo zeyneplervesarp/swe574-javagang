@@ -114,6 +114,17 @@ public class ServiceController {
         }
     }
 
+    @GetMapping("/feature")
+    public List<ServiceDto> getFeaturedServices(Principal principal) {
+        try {
+            return serviceService.getAllFeaturedServices(principal);
+        }
+        catch (RuntimeException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/complete/{serviceId}")
     public void Complete(Principal principal, @PathVariable Long serviceId) {
         try {

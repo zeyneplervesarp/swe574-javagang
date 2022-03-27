@@ -376,7 +376,11 @@ public class ServiceService {
     }
 
     public List<ServiceDto> getAllFeaturedServices(Principal principal) {
-        final var loggedInUser = userRepository.findUserByUsername(principal.getName());
+        final Optional<User> loggedInUser;
+        if (principal == null)
+            loggedInUser = Optional.empty();
+        else
+            loggedInUser = userRepository.findUserByUsername(principal.getName());
         return serviceRepository
                 .findFeatured()
                 .stream()
