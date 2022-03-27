@@ -105,7 +105,7 @@
                 </base-button>
               </div>
               <br />
-
+              <!-- 
               <div
                 class="mt-2 py-5 border-top text-center"
               >
@@ -114,10 +114,16 @@
                     <star-rating :star-size = "20" @rating-selected ="SetRating"></star-rating>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
+              </div>
+              <div class = "row justify-content-center">
+                <star-rating
+                  :star-size="20"
+                  @rating-selected="SetRating"
+                ></star-rating>
               </div>
             </div>
             <div class="mt-2 py-5 border-top text-center">
@@ -207,11 +213,11 @@ import BaseButton from "../../assets/components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
-import StarRating  from "vue-star-rating";
+import StarRating from "vue-star-rating";
 import register from "../api/register";
 
 export default {
-  components: { BaseButton,StarRating },
+  components: { BaseButton, StarRating },
   data() {
     return {
       serviceData: {
@@ -228,7 +234,7 @@ export default {
         serviceTags: [],
         status: "",
         datePassed: false,
-        participantUserList: []
+        participantUserList: [],
       },
       userData: {
         hasServiceRequest: "",
@@ -359,9 +365,9 @@ export default {
         });
       });
     },
-    SetRating: function(rating){
+    SetRating: function (rating) {
       console.log(rating);
-    }
+    },
   },
 };
 </script>
