@@ -117,6 +117,7 @@
                 <star-rating
                   :star-size="20"
                   @rating-selected="SetRating"
+                  :read-only="ratingData.readOnly"
                 ></star-rating>
               </div>
             </div>
@@ -234,6 +235,9 @@ export default {
         hasServiceRequest: "",
         ownsService: "",
         attendsService: false,
+      },
+      ratingData:{
+        readOnly : false
       },
       coordinates: {
         lat: 0,
@@ -362,12 +366,13 @@ export default {
     SetRating: function (rating) {
       var id = this.$route.params.service_id;
       apiRegister.RateService(id, rating).then((r) => {
+        this.ratingData.readOnly = true;
         swal.fire({
           position: "top-end",
           icon: "success",
           title: "Your rating has been saved",
           showConfirmButton: false,
-          timer: 3000,
+          timer: 1500,
         });
       });
     },
