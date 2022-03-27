@@ -347,5 +347,52 @@ public class ServiceService {
         }
     }
 
+    private User validateAdmin(Principal principal) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName());
+        if (loggedInUser.isEmpty())
+            throw new IllegalArgumentException("User doesn't exist.");
+        if (loggedInUser.get().getUserType() != UserType.ADMIN)
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        return loggedInUser.get();
+    }
 
+    private static int MAX_FEATURED_SERVICE_COUNT = 3;
+
+    public ServiceDto featureService(Long serviceId, Principal principal) {
+        final var admin = validateAdmin(principal);
+
+        final var previouslyFeatured = serviceRepository.findFeatured();
+        if (previouslyFeatured.size() >= MAX_FEATURED_SERVICE_COUNT)
+            throw new IllegalArgumentException("Already have " + MAX_FEATURED_SERVICE_COUNT + " services featured. Unfeature one before proceeding.");
+
+
+        final var svc = serviceRepository.findById(serviceId);
+        if (svc.isEmpty())
+            throw new IllegalArgumentException("Service doesn't exist.");
+
+        svc.get().setFeatured(true);
+
+        return mapToDto(svc.get(), Optional.of(admin));
+    }
+
+    public List<ServiceDto> getAllFeaturedServices(Principal principal) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName());
+        return serviceRepository
+                .findFeatured()
+                .stream()
+                .map(s -> mapToDto(s, loggedInUser))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public ServiceDto removeFromFeaturedServices(Long serviceId, Principal principal) {
+        final var admin = validateAdmin(principal);
+
+        final var svc = serviceRepository.findById(serviceId);
+        if (svc.isEmpty())
+            throw new IllegalArgumentException("Service doesn't exist.");
+
+        svc.get().setFeatured(false);
+
+        return mapToDto(svc.get(), Optional.of(admin));
+    }
 }

@@ -22,4 +22,7 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     @Query("select s from Service s where lower(s.location) like lower(concat('%', :match, '%'))")
     List<Service> findByLocationLikeIgnoreCase(@Param("match") String stringToMatch, Pageable pageable);
+
+    @Query("select s from Service s where s.isFeatured = true")
+    List<Service> findFeatured();
 }

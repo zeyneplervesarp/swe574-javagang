@@ -28,6 +28,7 @@ public class Service {
         this.attendingUserCount = attendingUserCount;
         this.serviceTags = serviceTags;
         this.status = ServiceStatus.ONGOING;
+        this.isFeatured = false;
     }
 
     private @Id
@@ -43,6 +44,7 @@ public class Service {
     private Double latitude;
     private Double longitude;
     private ServiceStatus status;
+    private boolean isFeatured;
 
     @OneToMany(mappedBy="service")
     private Set<Rating> ratings;
@@ -182,6 +184,14 @@ public class Service {
 
     public void setRatings(Set<Rating> ratings) {
         this.ratings = ratings;
+    }
+
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    public void setFeatured(boolean featured) {
+        isFeatured = featured;
     }
 
     @Override
