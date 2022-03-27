@@ -105,21 +105,12 @@
                 </base-button>
               </div>
               <br />
-              <!-- 
-              <div
-                class="mt-2 py-5 border-top text-center"
-              >
-                <div class="row justify-content-center">
-                  <div class="col-lg-9">
-                    <star-rating :star-size = "20" @rating-selected ="SetRating"></star-rating>
-                  </div>
-                </div>
-              </div> -->
 
               <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
-              <div class = "row justify-content-center">
+              <div               
+                 class = "row justify-content-center">
                 <star-rating
                   :star-size="20"
                   @rating-selected="SetRating"
