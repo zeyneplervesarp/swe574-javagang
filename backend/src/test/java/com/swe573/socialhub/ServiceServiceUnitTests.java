@@ -4,6 +4,7 @@ package com.swe573.socialhub;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.enums.ServiceStatus;
+import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
@@ -107,5 +108,27 @@ public class ServiceServiceUnitTests {
 
 
         assertThrows(IllegalArgumentException.class, () -> service.save(mockUser, testService));
+    }
+
+    @Test
+    public void Service_ShouldDisallowNonAdmin_WhenFeaturing() {
+        var testUser = new User();
+        testUser.setBalance(18);
+        testUser.setId(1L);
+        testUser.setUsername("test user");
+        testUser.setUserType(UserType.USER);
+        var mockUser = new MockPrincipal(testUser.getUsername());
+        assertThrows(IllegalArgumentException.class, () -> service.featureService(0L, mockUser));
+    }
+
+    @Test
+    public void Service_ShouldDisallowNonAdmin_WhenUnfeaturing() {
+        var testUser = new User();
+        testUser.setBalance(18);
+        testUser.setId(1L);
+        testUser.setUsername("test user");
+        testUser.setUserType(UserType.USER);
+        var mockUser = new MockPrincipal(testUser.getUsername());
+        assertThrows(IllegalArgumentException.class, () -> service.removeFromFeaturedServices(0L, mockUser));
     }
 }
