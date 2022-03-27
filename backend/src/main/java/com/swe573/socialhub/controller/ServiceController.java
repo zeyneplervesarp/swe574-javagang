@@ -92,6 +92,28 @@ public class ServiceController {
         }
     }
 
+    @PostMapping("/feature/{serviceId}")
+    public ServiceDto featureService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            return serviceService.featureService(serviceId, principal);
+        }
+        catch (RuntimeException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @DeleteMapping("/feature/{serviceId}")
+    public ServiceDto unfeatureService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            return serviceService.removeFromFeaturedServices(serviceId, principal);
+        }
+        catch (RuntimeException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/complete/{serviceId}")
     public void Complete(Principal principal, @PathVariable Long serviceId) {
         try {
