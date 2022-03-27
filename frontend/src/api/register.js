@@ -81,7 +81,7 @@ export default {
         return http.post(process.env.VUE_APP_API + 'tags', tag, false)
     },
     RateService(serviceId, rating) {
-        return http.post(process.env.VUE_APP_API + 'service/' + serviceId + "/" + rating, null, true)
+        return http.post(process.env.VUE_APP_API + 'rating/service/' + serviceId + "/" + rating, null, true)
     }
 
 }
