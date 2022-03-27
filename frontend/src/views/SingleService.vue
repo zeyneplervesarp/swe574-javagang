@@ -59,10 +59,11 @@
               <div class="col-lg-4 order-lg-1">
                 <div class="card-profile-stats d-flex justify-content-center">
                   <div @click="OpenParticipantModal()">
-                    <a href="#"><span class="heading">{{
-                      serviceData.attendingUserCount
-                    }}</span>
-                    <span class="description">Participants</span>
+                    <a href="#"
+                      ><span class="heading">{{
+                        serviceData.attendingUserCount
+                      }}</span>
+                      <span class="description">Participants</span>
                     </a>
                   </div>
                   <div>
@@ -104,17 +105,23 @@
                 </base-button>
               </div>
               <br />
+
+              <div
+                class="mt-2 py-5 border-top text-center"
+              >
+                <div class="row justify-content-center">
+                  <div class="col-lg-9">
+                    <star-rating :star-size = "20" @rating-selected ="SetRating"></star-rating>
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <!-- <i class="ni ni-square-pin"></i> : {{ serviceData.location }} -->
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
-              <!-- <div>
-                <i class="ni ni-single-02"></i>: {{ serviceData.quota }} people
-              </div> -->
             </div>
             <div class="mt-2 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
+              <d <div class="col-lg-9">
                   <p>{{ serviceData.description }}</p>
 
                   <div>
@@ -126,10 +133,11 @@
                       >{{ tag.name }}</badge
                     >
                   </div>
-                </div>
+                </div>iv class="row justify-content-center">
+               
               </div>
             </div>
-            <div class="mt-2 py-5 border-top text-center">
+            <!-- <div class="mt-2 py-5 border-top text-center">
               <div class="row justify-content-center">
                 <div class="col-lg-9">
                   <p>
@@ -151,7 +159,8 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
+
             <div
               v-if="
                 userData.ownsService &&
@@ -198,10 +207,11 @@ import BaseButton from "../../assets/components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
+import StarRating  from "vue-star-rating";
 import register from "../api/register";
 
 export default {
-  components: { BaseButton },
+  components: { BaseButton,StarRating },
   data() {
     return {
       serviceData: {
@@ -218,7 +228,7 @@ export default {
         serviceTags: [],
         status: "",
         datePassed: false,
-        participantUserList: [],
+        participantUserList: []
       },
       userData: {
         hasServiceRequest: "",
@@ -323,16 +333,21 @@ export default {
       var htmlText = "";
       var i = 0;
       for (i = 0; i < this.serviceData.participantUserList.length; i++) {
-        var text = "<hr>"
+        var text = "<hr>";
         var username = this.serviceData.participantUserList[i].username;
         var id = this.serviceData.participantUserList[i].id;
-        text += "<p><a target='_blank' href='#/profile/"+ id+"'>"+ username +"</a></p>";        
-        htmlText += text;        
+        text +=
+          "<p><a target='_blank' href='#/profile/" +
+          id +
+          "'>" +
+          username +
+          "</a></p>";
+        htmlText += text;
       }
 
       swal.fire({
         title: "<strong>Who is going?</strong>",
-        icon: 'question',
+        icon: "question",
         html: htmlText,
         showCloseButton: true,
       });
@@ -344,6 +359,9 @@ export default {
         });
       });
     },
+    SetRating: function(rating){
+      console.log(rating);
+    }
   },
 };
 </script>
