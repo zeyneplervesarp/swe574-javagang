@@ -109,7 +109,11 @@
               <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
-              <div class="row justify-content-center">
+              <div   v-if="
+                userData.attendsService &&
+                serviceData.status === 'COMPLETED'
+              "
+              class="row justify-content-center">
                 <star-rating
                   :star-size="20"
                   @rating-selected="SetRating"
@@ -357,9 +361,6 @@ export default {
     },
     SetRating: function (rating) {
       var id = this.$route.params.service_id;
-
-      console.log(rating);
-      console.log(id);
       apiRegister.RateService(id, rating).then((r) => {
         Swal.fire({
           position: "top-end",
