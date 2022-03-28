@@ -12,11 +12,18 @@ import net.minidev.json.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +70,15 @@ class TagController {
 
     @PostMapping("/tags")
     ResponseEntity<?> newTag(@RequestBody Tag newTag) {
+        try {
+            var keywordIsIllegal = tagService.keywordIsIllegal(newTag);
+            if (keywordIsIllegal) {
+                throw new Exception("You have tried to add an illegal tag.");
+            }
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
 
         EntityModel<Tag> entityModel = assembler.toModel(repository.save(newTag));
 
@@ -105,22 +121,19 @@ class TagController {
         final String uri = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + name;
 
 
-
-
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
-        JSONObject jsonObject =(JSONObject) JSONValue.parse(result);
+        JSONObject jsonObject = (JSONObject) JSONValue.parse(result);
         var i = 0;
         var returnString = "";
 
-    var foo = result.substring(result.indexOf("extract") + 8 , result.length());
+        var foo = result.substring(result.indexOf("extract") + 8, result.length());
         Pattern p = Pattern.compile("\"([^\"]*)\"");
         Matcher m = p.matcher(foo);
         while (m.find()) {
 
             System.out.println(m.group(1));
-            if (i == 0)
-            {
+            if (i == 0) {
                 returnString = m.group(1);
             }
             i++;
@@ -128,6 +141,6 @@ class TagController {
         System.out.println(result);
 
 
-        return  returnString;
+        return returnString;
     }
 }
