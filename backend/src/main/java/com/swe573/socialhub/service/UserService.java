@@ -183,8 +183,7 @@ public class UserService {
 
         var approvalList = userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING);
         var balanceOnHold = approvalList.stream().mapToInt(o -> o.getService().getCredit()).sum();
-
-
+        long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.user, user.getId(), FlagStatus.active);
 
         return new UserDto(
                 user.getId(),
@@ -201,7 +200,7 @@ public class UserService {
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
                 ratingService.getUserRatingSummary(user),
-                user.getUserType());
+                user.getUserType(), flagCount);
 
 
     }
