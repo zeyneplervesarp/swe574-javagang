@@ -30,8 +30,9 @@ public class EventDto implements Serializable {
     private final String DistanceToUserString;
     private final Double DistanceToUser;
     private final List<UserDto> ParticipantUserList;
+    private final long flagCount;
 
-    public EventDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> eventTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList) {
+    public EventDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> eventTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, long flagCount) {
         this.id = id;
         this.quota = quota;
         Header = header;
@@ -50,6 +51,7 @@ public class EventDto implements Serializable {
 
         DistanceToUser = distanceToUser;
         ParticipantUserList = participantUserList;
+        this.flagCount = flagCount;
         if (DistanceToUser != null && DistanceToUser != 0)
         {
             DecimalFormat df = new DecimalFormat("0.00");
@@ -143,6 +145,10 @@ public class EventDto implements Serializable {
 
     public Boolean getShowEventOverButton() {
         return ShowEventOverButton;
+    }
+
+    public long getFlagCount() {
+        return flagCount;
     }
 
     @Override
