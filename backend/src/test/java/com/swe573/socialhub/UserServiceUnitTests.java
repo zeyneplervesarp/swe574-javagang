@@ -242,6 +242,16 @@ public class UserServiceUnitTests {
     }
 
     @Test
+    public void Register_ShouldReturnUserType() {
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER);
+        testUser.setPassword("123456");
+        Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
+        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER);
+        Mockito.when(repository.save(Mockito.any(User.class))).thenReturn(user);
+        assertEquals(testUser.getUserType(), UserType.USER);
+    }
+
+    @Test
     public void MapToDto_ShouldReturnSameFields()
     {
         var user = new User(new Random().nextLong(),"testUsername","testMail","testBio",null,new Random().nextInt(15),"testLatitude","tetstLongitude","testAddress", UserType.USER);

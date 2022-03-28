@@ -8,6 +8,7 @@ import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.FlagStatus;
 import com.swe573.socialhub.enums.FlagType;
 import com.swe573.socialhub.enums.ServiceStatus;
+import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.config.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +93,7 @@ public class UserService {
         userEntity.setLongitude(dto.getLongitude());
         userEntity.setLatitude(dto.getLatitude());
         userEntity.setFormattedAddress(dto.getFormattedAddress());
+        userEntity.setUserType(UserType.USER);
 
         //set tags
         var tags = dto.getUserTags();
