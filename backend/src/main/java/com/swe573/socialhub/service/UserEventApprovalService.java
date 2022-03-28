@@ -7,7 +7,10 @@ import com.swe573.socialhub.dto.EventDto;
 import com.swe573.socialhub.dto.SimpleEventApprovalDto;
 import com.swe573.socialhub.dto.UserEventApprovalDto;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.FlagStatus;
+import com.swe573.socialhub.enums.FlagType;
 import com.swe573.socialhub.repository.EventRepository;
+import com.swe573.socialhub.repository.FlagRepository;
 import com.swe573.socialhub.repository.UserEventApprovalRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import org.hibernate.exception.DataException;
@@ -31,6 +34,9 @@ public class UserEventApprovalService {
 
     @Autowired
     EventRepository eventRepository;
+
+    @Autowired
+    FlagRepository flagRepository;
 
     @Autowired
     UserService userService;
@@ -83,7 +89,7 @@ public class UserEventApprovalService {
     private UserEventApprovalDto getApprovalDto(UserEventApproval entity) {
         var event = entity.getEvent();
         var userDto = userService.mapUserToDTO(entity.getUser());
-        var eventDto = new EventDto(event.getId(), event.getHeader(), "", event.getLocation(), event.getTime(), 0, event.getQuota(), event.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), event.getStatus(), 0L, null, null);
+        var eventDto = new EventDto(event.getId(), event.getHeader(), "", event.getLocation(), event.getTime(), 0, event.getQuota(), event.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), event.getStatus(), 0L, null, null, flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.event, event.getId(), FlagStatus.active));
         var dto = new UserEventApprovalDto(userDto, eventDto, entity.getApprovalStatus());
         return dto;
     }

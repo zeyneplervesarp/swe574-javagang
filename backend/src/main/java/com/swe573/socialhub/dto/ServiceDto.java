@@ -31,8 +31,9 @@ public class ServiceDto implements Serializable {
     private final Double DistanceToUser;
     private final List<UserDto> ParticipantUserList;
     private final RatingSummaryDto ratingSummary;
+    private final Long flagCount;
 
-    public ServiceDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary) {
+    public ServiceDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount) {
         this.id = id;
         Header = header;
         Description = description;
@@ -52,6 +53,7 @@ public class ServiceDto implements Serializable {
 
         DistanceToUser = distanceToUser;
         ParticipantUserList = participantUserList;
+        this.flagCount = flagCount;
         if (DistanceToUser != null && DistanceToUser != 0)
         {
             DecimalFormat df = new DecimalFormat("0.00");
@@ -127,6 +129,10 @@ public class ServiceDto implements Serializable {
 
     public Double getDistanceToUser() {
         return DistanceToUser;
+    }
+
+    public Long getFlagCount() {
+        return flagCount;
     }
 
     @Override

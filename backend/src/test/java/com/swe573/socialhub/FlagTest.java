@@ -1,9 +1,9 @@
 package com.swe573.socialhub;
 
 import com.swe573.socialhub.domain.Flag;
-import com.swe573.socialhub.domain.Service;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.ServiceDto;
+import com.swe573.socialhub.enums.FlagStatus;
 import com.swe573.socialhub.enums.FlagType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.FlagRepository;
@@ -111,7 +111,7 @@ public class FlagTest {
         Mockito.when(repository.findUserByUsername(testUser2.getUsername())).thenReturn(Optional.of(testUser2));
         Mockito.when(flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(testUser.getId(), testUser2.getId(), FlagType.user)).thenReturn(Optional.empty());
 
-        Flag flag = new Flag(FlagType.user, testUser.getId(), testUser2.getId());
+        Flag flag = new Flag(FlagType.user, testUser.getId(), testUser2.getId(), FlagStatus.active);
         flag.setId(1L);
         Mockito.when(flagRepository.save(Mockito.any(Flag.class))).thenReturn(flag);
 
@@ -126,12 +126,12 @@ public class FlagTest {
         testUser.setId(1L);
         testUser.setUsername("test user");
 
-        ServiceDto testService = new ServiceDto(1L, "Test Service", ",", "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null);
+        ServiceDto testService = new ServiceDto(1L, "Test Service", ",", "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null, 0l);
         var mockUser = new MockPrincipal(testUser.getUsername());
         Mockito.when(repository.findUserByUsername(testUser.getUsername())).thenReturn(Optional.of(testUser));
         Mockito.when(flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(testUser.getId(), testService.getId(), FlagType.service)).thenReturn(Optional.empty());
 
-        Flag flag = new Flag(FlagType.service, testUser.getId(), testService.getId());
+        Flag flag = new Flag(FlagType.service, testUser.getId(), testService.getId(), FlagStatus.active);
         flag.setId(1L);
         Mockito.when(flagRepository.save(Mockito.any(Flag.class))).thenReturn(flag);
 

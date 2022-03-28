@@ -5,6 +5,7 @@ import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.domain.UserFollowing;
 import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.FlagStatus;
 import com.swe573.socialhub.enums.FlagType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
@@ -182,8 +183,7 @@ public class UserService {
 
         var approvalList = userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING);
         var balanceOnHold = approvalList.stream().mapToInt(o -> o.getService().getCredit()).sum();
-
-
+        long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.user, user.getId(), FlagStatus.active);
 
         return new UserDto(
                 user.getId(),
@@ -200,7 +200,7 @@ public class UserService {
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
                 ratingService.getUserRatingSummary(user),
-                user.getUserType());
+                user.getUserType(), flagCount);
 
 
     }
@@ -318,7 +318,7 @@ public class UserService {
         // flag the user
         try {
             // create flag
-            Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId);
+            Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId, FlagStatus.active);
             return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
