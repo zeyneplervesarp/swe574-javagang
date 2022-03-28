@@ -301,7 +301,7 @@ public class EventService {
         }
         // flag the event
         try {
-            Flag flag = new Flag(FlagType.event, loggedInUser.getId(), eventId);
+            Flag flag = new Flag(FlagType.event, loggedInUser.getId(), eventId, FlagStatus.active);
             return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());

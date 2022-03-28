@@ -5,6 +5,7 @@ import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.domain.UserFollowing;
 import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.FlagStatus;
 import com.swe573.socialhub.enums.FlagType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
@@ -318,7 +319,7 @@ public class UserService {
         // flag the user
         try {
             // create flag
-            Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId);
+            Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId, FlagStatus.active);
             return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());

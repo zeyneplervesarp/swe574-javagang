@@ -330,7 +330,7 @@ public class ServiceService {
         }
         // flag the service
         try {
-            Flag flag = new Flag(FlagType.service, loggedInUser.getId(), serviceId);
+            Flag flag = new Flag(FlagType.service, loggedInUser.getId(), serviceId, FlagStatus.active);
             return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
