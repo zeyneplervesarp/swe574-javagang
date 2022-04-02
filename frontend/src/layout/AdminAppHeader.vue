@@ -1,7 +1,7 @@
 <template>
 <div style="position: relative">
 <base-nav type="default" effect="dark" expand>
-    <a class="navbar-brand" href="#">SocialHub CMS</a>
+    <a class="navbar-brand" href="#">SocialHub Admin</a>
 
     <div class="row" slot="content-header" slot-scope="{closeMenu}">
         <div class="col-6 collapse-brand">
@@ -20,11 +20,11 @@
                 Services
             </a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link nav-link-icon" href="#">
                 Profile
             </a>
-        </li>
+        </li> -->
         <!-- <base-dropdown tag="li" title="Settings">
           <a class="dropdown-item" href="#">Action</a>
           <a class="dropdown-item" href="#">Another action</a>

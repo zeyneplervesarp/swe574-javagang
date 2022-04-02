@@ -3,8 +3,8 @@
         <div class="container">
             <div class="row row-grid align-items-center my-md">
                 <div class="col-lg-6">
-                    <h3 class="text-primary font-weight-light mb-2">Thank you for visiting socialhub!</h3>
-                    <h4 class="mb-0 font-weight-light">You can visit the source code from link</h4>
+                    <!-- <h3 class="text-primary font-weight-light mb-2">Thank you for visiting socialhub!</h3> -->
+                    <!-- <h4 class="mb-0 font-weight-light">You can visit the source code from link</h4> -->
                 </div>
                 <div class="col-lg-6 text-lg-center btn-wrapper">
                     <!-- <a target="_blank" rel="noopener" href="https://twitter.com/creativetim"
@@ -22,11 +22,11 @@
                        data-original-title="Follow us">
                         <i class="fa fa-dribbble"></i>
                     </a> -->
-                    <a target="_blank" rel="noopener" href="hhttps://github.com/ecesari/software-development-practice"
+                    <!-- <a target="_blank" rel="noopener" href="hhttps://github.com/ecesari/software-development-practice"
                        class="btn btn-neutral btn-icon-only btn-github btn-round btn-lg" data-toggle="tooltip"
                        data-original-title="Star on Github">
                         <i class="fa fa-github"></i>
-                    </a>
+                    </a> -->
                 </div>
             </div>
             <hr>
