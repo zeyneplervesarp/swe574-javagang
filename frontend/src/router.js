@@ -2,6 +2,8 @@ import Vue from "vue";
 import Router from "vue-router";
 import AppHeader from "./layout/AppHeader";
 import AppFooter from "./layout/AppFooter";
+import AdminAppHeader from "./layout/AdminAppHeader";
+import AdminAppFooter from "./layout/AdminAppFooter";
 import Components from "./views/Components.vue";
 import Landing from "./views/Landing.vue";
 import Home from "./views/Home.vue";
@@ -17,6 +19,7 @@ import AttendingServices from "./views/AttendingServices.vue";
 import FollowingUserServices from "./views/FollowingUserServices.vue";
 import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
+import AdminDashboard from "./views/AdminDashboard.vue";
 Vue.use(Router);
 
 const ifNotAuthenticated = (to, from, next) => {
@@ -48,7 +51,7 @@ export default new Router({
         header: AppHeader,
         default: Home,
         footer: AppFooter
-      }
+      },
     }, {
       path: "/components",
       name: "components",
@@ -187,6 +190,16 @@ export default new Router({
         header: AppHeader,
         default: FollowingUserServices,
         footer: AppFooter,
+
+      }
+    },
+    {
+      path: "/adminDashboard",
+      name: "adminDashboard",
+      components: {
+        header: AdminAppHeader,
+        default: AdminDashboard,
+        footer: AdminAppFooter,
 
       }
     },
