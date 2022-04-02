@@ -243,7 +243,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void Register_ShouldReturnUserType() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER,0);
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
         var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER);
