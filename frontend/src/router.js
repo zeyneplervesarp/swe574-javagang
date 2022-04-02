@@ -19,7 +19,7 @@ import AttendingServices from "./views/AttendingServices.vue";
 import FollowingUserServices from "./views/FollowingUserServices.vue";
 import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
-import AdminDashboard from "./views/AdminDashboard.vue";
+import AdminServices from "./views/AdminServices.vue";
 Vue.use(Router);
 
 const ifNotAuthenticated = (to, from, next) => {
@@ -194,11 +194,11 @@ export default new Router({
       }
     },
     {
-      path: "/adminDashboard",
-      name: "adminDashboard",
+      path: "/admin/services",
+      name: "adminServices",
       components: {
         header: AdminAppHeader,
-        default: AdminDashboard,
+        default: AdminServices,
         footer: AdminAppFooter,
 
       }
