@@ -4,6 +4,7 @@ import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
 import org.slf4j.Logger;
@@ -93,6 +94,7 @@ class LoadDatabase {
             var service = new Service(null,
                     "Film Analysis",
                     "I will be teaching film analysis. This is a service that is open to people who do not have any experience in film analysis",
+                    LocationType.physical,
                     "SineBU, Boğaziçi University, Istanbul",
                     LocalDateTime.of(2022, 1, 19, 18, 0),
                     2,
@@ -109,6 +111,7 @@ class LoadDatabase {
             var service2 = new Service(null,
                     "Football!",
                     "I will be teaching how to play football! We can have a small match afterwards as well.",
+                    LocationType.physical,
                     "Istanbul",
                     LocalDateTime.of(2022, 2, 20, 20, 0),
                     3,
@@ -122,6 +125,7 @@ class LoadDatabase {
             var service3 = new Service(null,
                     "Eminönü Tour",
                     "Hey everyone! I'm a professional tourist and I would like to give you a tour of Eminönü. We will start and finish at Eminönü Meydan. We will be visiting many historical places as well as bazaars. We will also visit popular restaurants.",
+                    LocationType.physical,
                     "Eminönü, Istanbul",
                     LocalDateTime.of(2021, 12, 15, 12, 0),
                     4,
@@ -135,6 +139,7 @@ class LoadDatabase {
             var service4 = new Service(null,
                     "Pet My Dog",
                     "Well technically this is a service from my dog but anyways you can come to Maçka Park and pet my cute dog. He won't bite(I can't promise). He's definitely worth your time.",
+                    LocationType.physical,
                     "Maçka Park, Istanbul",
                     LocalDateTime.of(2022, 2, 23, 13, 0),
                     1,
@@ -150,6 +155,7 @@ class LoadDatabase {
             var service5 = new Service(null,
                     "Talk in spanish",
                     "I'm a native spanish speaker and I would love to have  a chat with you and help you out if you are learning the language or want to improve yourselves.",
+                    LocationType.physical,
                     "Maçka Park, Istanbul",
                     LocalDateTime.of(2022, 2, 23, 13, 0),
                     1,
@@ -166,6 +172,7 @@ class LoadDatabase {
             var service6 = new Service(null,
                     "Camping 101",
                     "Going camping for the first time can be a challenge. Let's all go camping and I will teach you the basics like making a fire, tent making and cooking. You can go enjoy the nature afterwards",
+                    LocationType.physical,
                     "Yedigöller, Bolu",
                     LocalDateTime.of(2022, 4, 23, 13, 0),
                     6,
@@ -182,6 +189,7 @@ class LoadDatabase {
             var service7 = new Service(null,
                     "How to cook a lasagna",
                     "I'll be teaching how to cook lasagna, everyone is welcome.",
+                    LocationType.physical,
                     "Maçka Park, Istanbul",
                     LocalDateTime.of(2022, 5, 15, 16, 0),
                     2,
