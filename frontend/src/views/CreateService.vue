@@ -108,25 +108,42 @@
                 </div>
                 <br />
                 <div class="col-lg-12">
-                  <div class="form-group">
-                    <GmapAutocomplete
-                      class="form-control"
-                      addon-left-icon="ni ni-pin-3"
-                      @place_changed="setPlace"
-                    />
-                  </div>
-                  <div class="text-center">
-                    <base-button v-if="serviceInputs.location != ''" type="secondary"
-                      ><GmapMap
-                        :center="coordinates"
-                        :zoom="13"
-                        map-type-id="roadmap"
-                        style="width: 500px; height: 300px"
-                        ref="mapRef"
-                        
-                      >
-                        <GmapMarker :position="coordinates" /> </GmapMap
-                    ></base-button>
+                  <select 
+                    v-model="serviceInputs.locationType"
+                    placeholder="Select Location Type">
+                    <option>physical</option>
+                    <option>online</option>
+                  </select>
+                </div>
+                <br/>
+                <div class="col-lg-12" v-if="serviceInputs.locationType === 'online'">
+                <base-input
+                    placeholder="Meeting Link"
+                    v-model="serviceInputs.location"
+                  ></base-input>
+                </div>
+                <div v-if="serviceInputs.locationType === 'physical'">
+                  <div class="col-lg-12" >
+                    <div class="form-group">
+                      <GmapAutocomplete
+                        class="form-control"
+                        addon-left-icon="ni ni-pin-3"
+                        @place_changed="setPlace"
+                      />
+                    </div>
+                    <div class="text-center">
+                      <base-button v-if="serviceInputs.location != ''" type="secondary"
+                        ><GmapMap
+                          :center="coordinates"
+                          :zoom="13"
+                          map-type-id="roadmap"
+                          style="width: 500px; height: 300px"
+                          ref="mapRef"
+                          
+                        >
+                          <GmapMarker :position="coordinates" /> </GmapMap
+                      ></base-button>
+                    </div>
                   </div>
                 </div>
                 <div class="text-center">
@@ -168,6 +185,7 @@ export default {
   data() {
     return {
       serviceInputs: {
+        locationType: "",
         location: "",
         time: "",
         header: "",
