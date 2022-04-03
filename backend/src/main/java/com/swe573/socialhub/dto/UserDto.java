@@ -24,7 +24,7 @@ public class UserDto {
     private UserType userType;
     private long flagCount;
 
-    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long ratingCount) {
+    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount) {
         this.id = id;
         this.ratingSummary = ratingSummary;
         this.username = username;
@@ -40,7 +40,7 @@ public class UserDto {
         this.following = following;
         this.tags = tags;
         this.userType = userType;
-        this.flagCount = ratingCount;
+        this.flagCount = flagCount;
     }
     public String getEmail() {
         return email;
