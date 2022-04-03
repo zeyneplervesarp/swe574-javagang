@@ -4,6 +4,7 @@ import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ class LoadDatabase {
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
     @Bean
-    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository) {
+    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository) {
 
         return args -> {
 
@@ -193,6 +194,22 @@ class LoadDatabase {
                         add(tag5);
                     }});
 
+            var service8 = new Service(null,
+                    "Candle meditation",
+                    "I'll be guiding you to meditate with assistnace of a candle!",
+                    "Okyanusfly Fitness Center",
+                    LocalDateTime.of(2022, 1, 15, 16, 0),
+                    2,
+                    10,
+                    2,
+                    user2,
+                    41.00805947202053, 29.139052057272078,
+                    new HashSet<Tag>() {{
+                        add(tag5);
+                    }});
+
+            service8.setStatus(ServiceStatus.COMPLETED);
+
             var mockEvent = new Event(
                     null,
                     "Programming Meetup",
@@ -218,6 +235,8 @@ class LoadDatabase {
             serviceRepository.save(service5);
             serviceRepository.save(service6);
             serviceRepository.save(service7);
+            serviceRepository.save(service8);
+
 
             serviceRepository.findAll().forEach(s -> {
                 log.info("Preloaded " + s);
@@ -247,6 +266,9 @@ class LoadDatabase {
             var approval106 = saveAndGetApproval(approvalRepository, user3, service7, ApprovalStatus.APPROVED);
             var approval107 = saveAndGetApproval(approvalRepository, user4, service7, ApprovalStatus.APPROVED);
             var approval108 = saveAndGetApproval(approvalRepository, user5, service7, ApprovalStatus.APPROVED);
+            var approval113 = saveAndGetApproval(approvalRepository, user4, service8, ApprovalStatus.APPROVED);
+            var approval114 = saveAndGetApproval(approvalRepository, user5, service8, ApprovalStatus.APPROVED);
+
 
             var approval109 = saveAndGetApproval(eventApprovalRepository, user2, mockEvent, ApprovalStatus.PENDING);
             var approval110 = saveAndGetApproval(eventApprovalRepository, user3, mockEvent, ApprovalStatus.APPROVED);
@@ -289,6 +311,11 @@ class LoadDatabase {
             });
             //endregion
 
+            //region Rating
+            var rating1 = saveRatingForService(ratingRepository, user4, service8, 2);
+            var rating2 = saveRatingForService(ratingRepository, user5, service8, 2);
+            //endregion
+
         };
     }
 
@@ -321,5 +348,11 @@ class LoadDatabase {
         var approval = new UserEventApproval(new UserEventApprovalKey(user1.getId(), event.getId()), user1, event, approved);
         approvalRepository.save(approval);
         return approval;
+    }
+
+    private Rating saveRatingForService(RatingRepository ratingRepository, User user1, Service service, int ratingParam){
+        var rating = new Rating(service,ratingParam,user1);
+        ratingRepository.save(rating);
+        return rating;
     }
 }
