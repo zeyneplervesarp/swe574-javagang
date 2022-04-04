@@ -187,6 +187,15 @@
             <span class="nav-link-inner--text">Log In </span>
           </a>
         </li>
+        <li v-if="userLoggedIn" class="nav-item d-none d-lg-block ml-lg-4">
+          <a
+            href="#/admin/services"
+            rel="noopener"
+            class="btn btn-default btn-icon"
+          >
+            <span class="nav-link-inner--text">Admin</span>
+          </a>
+        </li>
         <li>
           <base-dropdown v-if="userLoggedIn" class="nav-item">
             <base-button
@@ -211,6 +220,7 @@
               >Pending Requests</router-link
             >
             <div class="dropdown-divider"></div>
+
             <a
               href="#"
               v-on:click="EmptyLocalStorage"

@@ -205,7 +205,7 @@
   </div>
 </template>
 <script>
-import BaseButton from "../../assets/components/BaseButton.vue";
+import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
