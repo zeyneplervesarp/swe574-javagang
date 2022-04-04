@@ -87,11 +87,11 @@ export default {
     },
     FlagService(serviceId)
     {
-        return http.post(process.env.VUE_APP_API + 'service/flag/' + serviceId)
+        return http.post(process.env.VUE_APP_API + 'service/flag/' + serviceId, null, true)
     },
     FlagUser(userId) 
     {
-        return http.post(process.env.VUE_APP_API + "user/flag/" + userId)
+        return http.post(process.env.VUE_APP_API + "user/flag/" + userId, null, true)
     }
 
 }
