@@ -202,7 +202,7 @@ class LoadDatabase {
                     2,
                     10,
                     2,
-                    user2,
+                    user1,
                     41.00805947202053, 29.139052057272078,
                     new HashSet<Tag>() {{
                         add(tag5);
