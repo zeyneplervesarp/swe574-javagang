@@ -14,11 +14,16 @@ public class Badge {
     User owner;
     private BadgeType badgeType;
 
+    public Badge() {
+
+    }
 
     public Badge(User owner, BadgeType badgeType) {
         this.owner = owner;
         this.badgeType = badgeType;
     }
+
+
 
     public Long getId() {
         return id;
