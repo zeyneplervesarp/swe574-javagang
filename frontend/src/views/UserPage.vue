@@ -92,10 +92,22 @@
         </card>
       </div>
     </section>
+    <div
+      v-if="!isOwnProfile"
+        class="mt-2 py-5 border-top text-center">
+        <base-button
+          block
+          type="primary"
+          class="mb-3"
+          @click="Flag()"
+        > Flag User
+        </base-button>
+      </div>
   </div>
 </template>
 <script>
 import apiRegister from "../api/register";
+import swal from "sweetalert2";
 export default {
   components: {},
   data() {
@@ -131,6 +143,15 @@ export default {
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
         console.log("ok.");
+      });
+    },
+    Flag() {
+      var userId = this.$route.params.userId;
+
+      apiRegister.FlagUser(userId).then((r) => {
+        swal.fire({
+        text: "You successfully flagged the user.",
+        });
       });
     },
     FollowUser() {

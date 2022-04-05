@@ -187,6 +187,17 @@
                 </div>
               </div>
             </div>
+            <div
+              v-if="!userData.ownsService"
+              class="mt-2 py-5 border-top text-center">
+                <base-button
+                      block
+                      type="primary"
+                      class="mb-3"
+                      @click="Flag()"
+                    > Flag Service
+                    </base-button>
+            </div>
           </div>
         </card>
       </div>
@@ -194,7 +205,7 @@
   </div>
 </template>
 <script>
-import BaseButton from "../../assets/components/BaseButton.vue";
+import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
@@ -288,6 +299,15 @@ export default {
 
       apiRegister.SendUserServiceApproval(serviceId).then((r) => {
         location.reload();
+      });
+    },
+    Flag() {
+      var serviceId = this.$route.params.service_id;
+
+      apiRegister.FlagService(serviceId).then((r) => {
+        swal.fire({
+          text: "You successfully flagged the service",
+        });
       });
     },
     ConfirmServiceOverCreator() {
