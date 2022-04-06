@@ -7,6 +7,7 @@ import com.swe573.socialhub.domain.UserServiceApproval;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import com.swe573.socialhub.enums.BadgeType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
@@ -43,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class UserServiceUnitTests {
+public class UserServiceTests {
 
     @TestConfiguration
     static class ServiceServiceUnitTestsConfiguration {
