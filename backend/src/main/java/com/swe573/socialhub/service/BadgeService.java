@@ -18,6 +18,11 @@ public class BadgeService {
     @Autowired
     private BadgeRepository repository;
 
+    public BadgeService(BadgeRepository repository)
+    {
+        this.repository = repository;
+    }
+
 
     public List<BadgeDto> getAllBadges() {
         try {
@@ -42,7 +47,7 @@ public class BadgeService {
     }
 
 
-    private BadgeDto mapToDto(Badge badge) {
+    public BadgeDto mapToDto(Badge badge) {
         return new BadgeDto(badge.getId(), badge.getBadgeType());
     }
 
