@@ -205,6 +205,7 @@ class LoadDatabase {
             var service8 = new Service(null,
                     "Candle meditation",
                     "I'll be guiding you to meditate with assistnace of a candle!",
+                    LocationType.Physical,
                     "Okyanusfly Fitness Center",
                     LocalDateTime.of(2022, 1, 15, 16, 0),
                     2,
