@@ -62,17 +62,18 @@ public class BadgeService {
         return new Badge(owner, type);
     }
 
-    public void checkNewcomerBadgeForServiceApproval(User user) {
+    public User checkNewcomerBadge(User user) {
         //check if user has 10 services, if so remove their newcomer badge
         var userBadges = user.getBadges();
         var userHasNewcomerBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.newcomer);
         var participatedServiceCount = user.getServiceApprovalSet().stream().filter(x->x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
-        var participatedServiceIsMoreThanRequiredBadgeCount = participatedServiceCount >= 9;
+        var participatedServiceIsMoreThanRequiredBadgeCount = participatedServiceCount >= 10;
         if (userHasNewcomerBadge && participatedServiceIsMoreThanRequiredBadgeCount)
         {
             var badge = userBadges.stream().filter(x->x.getBadgeType() == BadgeType.newcomer).findFirst().get();
-            user.getBadges().remove(badge);
-            userRepository.save(user);
+            user.removeBadge(badge);
         }
+
+        return user;
     }
 }

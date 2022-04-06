@@ -116,12 +116,15 @@ public class UserServiceApprovalService {
         var service = request.get().getService();
         var current = service.getAttendingUserCount();
         service.setAttendingUserCount(current + 1);
-        if (status == ApprovalStatus.APPROVED)
-            badgeService.checkNewcomerBadgeForServiceApproval(entity.getUser());
+
 
         try {
             var returnData = repository.save(entity);
-
+            if (status == ApprovalStatus.APPROVED)
+            {
+                var updatedUser = badgeService.checkNewcomerBadge(returnData.getUser());
+                userRepository.save(updatedUser);
+            }
 
             notificationService.sendNotification("Your request for service " + service.getHeader() + " has been " + status.name().toLowerCase(), "/service/" + entity.getId(), entity.getUser());
         } catch (DataException e) {

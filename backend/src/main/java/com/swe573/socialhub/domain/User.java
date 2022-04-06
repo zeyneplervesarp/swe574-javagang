@@ -14,8 +14,8 @@ public class User {
     private String username;
     private String email;
     private String bio;
-    private  String latitude;
-    private  String longitude;
+    private String latitude;
+    private String longitude;
     private String formattedAddress;
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -41,10 +41,10 @@ public class User {
     Set<UserFollowing> followingUsers;
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
-    @OneToMany(mappedBy="rater")
+    @OneToMany(mappedBy = "rater")
     private Set<Rating> ratings;
     private UserType userType;
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Badge> badges;
 
     public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
@@ -255,5 +255,19 @@ public class User {
     @Override
     public String toString() {
         return "User{" + "id=" + this.id + ", username='" + this.username + '\'' + '}';
+    }
+
+    public void removeBadge(Badge badge) {
+
+        this.badges.remove(badge);
+
+    }
+
+    public void addServiceApproval(UserServiceApproval userServiceApproval) {
+        if (this.getServiceApprovalSet() == null)
+        {
+            this.serviceApprovalSet =  new HashSet<>();
+        }
+        this.serviceApprovalSet.add(userServiceApproval);
     }
 }
