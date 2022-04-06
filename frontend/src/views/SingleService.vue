@@ -87,7 +87,8 @@
               </h3>
               <div></div>
               <br />
-              <div class="text-center">
+              <!-- physical -->
+              <div class="text-center" v-if="serviceData.locationType === 'Physical'">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
@@ -102,6 +103,10 @@
                     <GmapMarker :position="coordinates" />
                   </GmapMap>
                 </base-button>
+              </div>
+              <!-- online -->
+              <div class="text-center">
+                <p> Meeting Link: {{serviceData.location}} </p>
               </div>
               <br />
               <div>
@@ -217,6 +222,7 @@ export default {
     return {
       serviceData: {
         location: "",
+        locationType: "",
         time: "",
         timeString: "",
         header: "",
