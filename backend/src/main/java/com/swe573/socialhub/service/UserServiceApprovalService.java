@@ -47,6 +47,9 @@ public class UserServiceApprovalService {
     @Autowired
     private RatingService ratingService;
 
+    @Autowired
+    private BadgeService badgeService;
+
 
     @Transactional
     public UserServiceApprovalDto RequestApproval(Principal principal, Long serviceId) {
@@ -113,9 +116,13 @@ public class UserServiceApprovalService {
         var service = request.get().getService();
         var current = service.getAttendingUserCount();
         service.setAttendingUserCount(current + 1);
+        if (status == ApprovalStatus.APPROVED)
+            badgeService.checkNewcomerBadgeForServiceApproval(entity.getUser());
 
         try {
             var returnData = repository.save(entity);
+
+
             notificationService.sendNotification("Your request for service " + service.getHeader() + " has been " + status.name().toLowerCase(), "/service/" + entity.getId(), entity.getUser());
         } catch (DataException e) {
             throw new IllegalArgumentException(e.getMessage());
