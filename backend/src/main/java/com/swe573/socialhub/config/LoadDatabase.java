@@ -231,8 +231,8 @@ class LoadDatabase {
 
 
             var serviceNewComer = new Service(null,
-                    "How to cook a lasagna",
-                    "I'll be teaching how to cook lasagna, everyone is welcome.",
+                    "D&D",
+                    "Let's play a game of D&D. I'll be the storyteller.",
                     "Maçka Park, Istanbul",
                     LocalDateTime.of(2022, 8, 15, 16, 0),
                     2,
