@@ -34,16 +34,16 @@ public class Service {
     }
 
     // constructor for online services
-    public Service(Long id, String header, String description, LocationType locationType, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, String meetingLink, Set<Tag> serviceTags) {
+    public Service(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
         this.locationType = locationType;
+        this.location = location;
         this.time = time;
         credit = minutes;
         this.quota = quota;
         this.createdUser = createdUser;
-        this.meetingLink = meetingLink;
         this.attendingUserCount = attendingUserCount;
         this.serviceTags = serviceTags;
         this.status = ServiceStatus.ONGOING;
@@ -124,11 +124,11 @@ public class Service {
     }
 
     public String getLocation() {
-        return meetingLink;
+        return location;
     }
 
-    public void setLocation(String meetingLink) {
-        this.meetingLink = meetingLink;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public LocalDateTime getTime() {
