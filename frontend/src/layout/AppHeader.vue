@@ -187,7 +187,7 @@
             <span class="nav-link-inner--text">Log In </span>
           </a>
         </li>
-        <li v-if="userLoggedIn" class="nav-item d-none d-lg-block ml-lg-4">
+        <li v-if="userLoggedIn && userIsAdmin" class="nav-item d-none d-lg-block ml-lg-4">
           <a
             href="#/admin/services"
             rel="noopener"
@@ -251,6 +251,7 @@ export default {
       notificationMessage: "You have no new messages",
       hasNewNotification: false,
       r: {},
+      userIsAdmin: false
     };
   },
   mounted() {
@@ -271,6 +272,10 @@ export default {
             "You have " + unreadCount + " new messages";
         }
       });
+      apiRegister.GetProfile().then(r => {
+        var compare = r.userType.localeCompare("ADMIN");
+        this.userIsAdmin = compare == 0;
+      })
     } else {
       this.userLoggedIn = false;
     }
