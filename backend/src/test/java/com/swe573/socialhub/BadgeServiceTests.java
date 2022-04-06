@@ -88,11 +88,31 @@ public class BadgeServiceTests {
         }});
 
 
-        var updatedUser = service.checkNewcomerBadge(mockUser);
+        var updatedUser = service.checkBadgesAfterApproval(mockUser);
 
         assertEquals(0, updatedUser.getBadges().stream().count());
         assertFalse(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.newcomer));
 
+    }
+
+    @Test
+    public void checkServiceApproval_AddsRegularBadge() {
+        var mockUser = new User();
+        mockUser.setId(0L);
+        mockUser.setServiceApprovalSet(new HashSet<>() {{
+            for (int i = 0; i < 20; i++) {
+                var approval = new UserServiceApproval();
+                approval.setApprovalStatus(ApprovalStatus.APPROVED);
+                add(approval);
+            }
+        }});
+        mockUser.setBadges(new HashSet<>());
+
+
+        var updatedUser = service.checkBadgesAfterApproval(mockUser);
+
+        assertEquals(1, updatedUser.getBadges().stream().count());
+        assertTrue(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.regular));
     }
 
     @Test

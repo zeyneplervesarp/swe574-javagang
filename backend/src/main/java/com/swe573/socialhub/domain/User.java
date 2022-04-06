@@ -263,11 +263,12 @@ public class User {
 
     }
 
-    public void addServiceApproval(UserServiceApproval userServiceApproval) {
-        if (this.getServiceApprovalSet() == null)
+
+    public void addBadge(Badge badge) {
+        if (this.badges == null)
         {
-            this.serviceApprovalSet =  new HashSet<>();
+            this.badges =  new HashSet<>();
         }
-        this.serviceApprovalSet.add(userServiceApproval);
+        this.badges.add(badge);
     }
 }
