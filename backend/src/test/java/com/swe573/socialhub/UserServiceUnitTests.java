@@ -258,6 +258,7 @@ public class UserServiceUnitTests {
         var user = new User(new Random().nextLong(),"testUsername","testMail","testBio",null,new Random().nextInt(15),"testLatitude","tetstLongitude","testAddress", UserType.USER);
         user.setFollowingUsers(new HashSet<>());
         user.setFollowedBy(new HashSet<>());
+        user.setBadges(new HashSet<>());
 
 
         Mockito.when(userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING)).thenReturn(new ArrayList<>());
