@@ -24,9 +24,9 @@ public class UserDto {
     private RatingSummaryDto ratingSummary;
     private UserType userType;
     private long flagCount;
-    private List<Badge> badges;
+    private List<BadgeDto> badges;
 
-    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount, List<Badge> badges) {
+    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount, List<BadgeDto> badges) {
         this.id = id;
         this.ratingSummary = ratingSummary;
         this.username = username;
@@ -189,11 +189,11 @@ public class UserDto {
         this.flagCount = flagCount;
     }
 
-    public List<Badge> getBadges() {
+    public List<BadgeDto> getBadges() {
         return badges;
     }
 
-    public void setBadges(List<Badge> badges) {
+    public void setBadges(List<BadgeDto> badges) {
         this.badges = badges;
     }
 }

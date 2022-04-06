@@ -202,7 +202,9 @@ public class UserService {
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
                 ratingService.getUserRatingSummary(user),
-                user.getUserType(), flagCount);
+                user.getUserType(),
+                flagCount,
+                user.getBadges().stream().map(x-> new BadgeDto(x.getId(),x.getBadgeType())).collect(Collectors.toUnmodifiableList()));
 
 
     }

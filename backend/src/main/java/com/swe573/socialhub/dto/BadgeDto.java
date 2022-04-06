@@ -9,21 +9,15 @@ public class
 
 BadgeDto implements Serializable {
     private final Long id;
-    private final UserDto owner;
     private final BadgeType badgeType;
 
-    public BadgeDto(Long id, UserDto owner, BadgeType badgeType) {
+    public BadgeDto(Long id, BadgeType badgeType) {
         this.id = id;
-        this.owner = owner;
         this.badgeType = badgeType;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public UserDto getOwner() {
-        return owner;
     }
 
     public BadgeType getBadgeType() {
@@ -36,20 +30,18 @@ BadgeDto implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         BadgeDto entity = (BadgeDto) o;
         return Objects.equals(this.id, entity.id) &&
-                Objects.equals(this.owner, entity.owner) &&
                 Objects.equals(this.badgeType, entity.badgeType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, owner, badgeType);
+        return Objects.hash(id, badgeType);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" +
                 "id = " + id + ", " +
-                "owner = " + owner + ", " +
                 "badgeType = " + badgeType + ")";
     }
 }
