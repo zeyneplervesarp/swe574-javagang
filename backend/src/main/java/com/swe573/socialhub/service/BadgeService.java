@@ -1,25 +1,15 @@
 package com.swe573.socialhub.service;
 
 import com.swe573.socialhub.domain.Badge;
-import com.swe573.socialhub.domain.Tag;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.BadgeDto;
-import com.swe573.socialhub.dto.TagDto;
 import com.swe573.socialhub.enums.BadgeType;
 import com.swe573.socialhub.repository.BadgeRepository;
-import com.swe573.socialhub.repository.TagRepository;
-import com.swe573.socialhub.repository.UserRepository;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
