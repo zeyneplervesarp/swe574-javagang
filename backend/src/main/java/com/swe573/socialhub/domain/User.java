@@ -41,11 +41,11 @@ public class User {
     Set<UserFollowing> followingUsers;
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
-
     @OneToMany(mappedBy="rater")
     private Set<Rating> ratings;
-
     private UserType userType;
+    @OneToMany(mappedBy = "owner")
+    Set<Badge> badges;
 
     public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
         this.id = id;
@@ -242,6 +242,14 @@ public class User {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public Set<Badge> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(Set<Badge> badges) {
+        this.badges = badges;
     }
 
     @Override
