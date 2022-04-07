@@ -234,7 +234,7 @@ public class UserServiceUnitTests {
         var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER, 0);
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
-        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER);
+        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER, 5);
         Mockito.when(repository.save(Mockito.any(User.class))).thenReturn(user);
         assertEquals(testUser.getUsername(), user.getUsername());
         assertEquals(testUser.getBio(), user.getBio());
@@ -247,7 +247,7 @@ public class UserServiceUnitTests {
         var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER, 0);
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
-        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER);
+        var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER, 5);
         Mockito.when(repository.save(Mockito.any(User.class))).thenReturn(user);
         assertEquals(testUser.getUserType(), UserType.USER);
     }
@@ -255,7 +255,7 @@ public class UserServiceUnitTests {
     @Test
     public void MapToDto_ShouldReturnSameFields()
     {
-        var user = new User(new Random().nextLong(),"testUsername","testMail","testBio",null,new Random().nextInt(15),"testLatitude","tetstLongitude","testAddress", UserType.USER);
+        var user = new User(new Random().nextLong(),"testUsername","testMail","testBio",null,new Random().nextInt(15),"testLatitude","tetstLongitude","testAddress", UserType.USER, 5);
         user.setFollowingUsers(new HashSet<>());
         user.setFollowedBy(new HashSet<>());
 

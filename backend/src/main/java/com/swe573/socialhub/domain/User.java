@@ -47,7 +47,9 @@ public class User {
 
     private UserType userType;
 
-    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
+    private int reputationPoint;
+
+    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType, int reputationPoint) {
         this.id = id;
         this.bio = bio;
         this.username = username;
@@ -58,6 +60,7 @@ public class User {
         this.userTags = userTags;
         this.balance = balance;
         this.userType = userType;
+        this.reputationPoint = reputationPoint;
     }
 
     public User() {
@@ -242,6 +245,14 @@ public class User {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public int getReputationPoint() {
+        return reputationPoint;
+    }
+
+    public void setReputationPoint(int reputationPoint) {
+        this.reputationPoint = reputationPoint;
     }
 
     @Override
