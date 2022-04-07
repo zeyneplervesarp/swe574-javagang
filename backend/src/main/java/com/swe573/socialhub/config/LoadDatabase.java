@@ -315,9 +315,17 @@ class LoadDatabase {
             //endregion
 
             //region Flagging
+
             //miranda is flagging users and cannot avoid getting flagged
             var flag1 = saveFlagForTargetUser(flagRepository, user1, user4.getId());
             var flag2 = saveFlagForTargetUser(flagRepository, user4, user1.getId());
+
+            //miranda flags service6
+            var flag3 = saveFlagForTargetService(flagRepository, user1, service6);
+
+            //miranda flags the mockevent
+            var flag4 = saveFlagForTargetEvent(flagRepository, user1, mockEvent);
+
             //endregion
 
         };
@@ -362,6 +370,18 @@ class LoadDatabase {
 
     private Flag saveFlagForTargetUser(FlagRepository flagRepository, User user1, long targetUserId){
         var flag = new Flag(FlagType.user, user1.getId(), targetUserId, FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+    }
+
+    private Flag saveFlagForTargetService(FlagRepository flagRepository, User user1, Service service){
+        var flag = new Flag(FlagType.service, user1.getId(), service.getId(), FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+    }
+
+    private Flag saveFlagForTargetEvent(FlagRepository flagRepository, User user1, Event event) {
+        Flag flag = new Flag(FlagType.event, user1.getId(), event.getId(), FlagStatus.active);
         flagRepository.save(flag);
         return flag;
     }
