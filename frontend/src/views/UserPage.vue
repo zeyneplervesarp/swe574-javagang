@@ -62,6 +62,10 @@
                     <span class="heading">{{ userData.balanceOnHold }}</span>
                     <span class="description">Credits on Hold</span>
                   </div>
+                  <div v-if="isOwnProfile">
+                    <span class="heading">{{ userData.reputationPoint }}</span>
+                    <span class="description">Reputation Points</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -118,6 +122,7 @@ export default {
         bio: "",
         balance: 0,
         balanceOnHold: 0,
+        reputationPoint: 0,
         following: [],
         followedBy: [],
         tags: []
@@ -139,6 +144,7 @@ export default {
         this.userData.bio = r.bio;
         this.userData.balance = r.balance;
         this.userData.balanceOnHold = r.balanceOnHold;
+        this.userData.reputationPoint = r.reputationPoint;
         this.userData.following = r.following;
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
