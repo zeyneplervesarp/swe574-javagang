@@ -12,6 +12,7 @@ import Register from "./views/Register.vue";
 import Profile from "./views/Profile.vue";
 import UserPage from "./views/UserPage.vue";
 import CreateService from "./views/CreateService.vue";
+import EditService from "./views/EditService.vue";
 import SingleService from "./views/SingleService.vue";
 import MyServices from "./views/MyServices.vue";
 import AllServices from "./views/AllServices.vue";
@@ -130,6 +131,17 @@ export default new Router({
         header: AppHeader,
         default: SingleService,
         footer: AppFooter,
+
+      }
+    },
+    {
+      path: "/service/edit/:service_id",
+      name: "editService",
+      components: {
+        header: AppHeader,
+        default: EditService,
+        footer: AppFooter,
+        
 
       }
     },
