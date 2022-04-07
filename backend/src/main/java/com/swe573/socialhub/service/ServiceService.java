@@ -149,34 +149,45 @@ public class ServiceService {
     }
 
     @Transactional
-    public Long save(Principal principal, ServiceDto dto) {
+    public Long upsert(Principal principal, ServiceDto dto) {
         //check token => if username is null, throw an error
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
         if (loggedInUser == null)
             throw new IllegalArgumentException("User doesn't exist.");
 
         try {
+            var entityExists = false;
+            if (dto.getId() != null)
+                entityExists = serviceRepository.findById(dto.getId()).isPresent();
             var entity = mapToEntity(dto);
-            entity.setCreatedUser(loggedInUser);
 
-            var tags = dto.getServiceTags();
-            if (tags != null) {
-                for (TagDto tagDto : tags) {
-                    var addedTag = tagRepository.findById(tagDto.getId());
-                    if (addedTag.isEmpty()) {
-                        throw new IllegalArgumentException("There is no tag with this Id.");
+
+                entity.setCreatedUser(loggedInUser);
+
+                var tags = dto.getServiceTags();
+                if (tags != null) {
+                    for (TagDto tagDto : tags) {
+                        var addedTag = tagRepository.findById(tagDto.getId());
+                        if (addedTag.isEmpty()) {
+                            throw new IllegalArgumentException("There is no tag with this Id.");
+                        }
+                        entity.addTag(addedTag.get());
                     }
-                    entity.addTag(addedTag.get());
                 }
+                //check pending credits and balance if the sum is above 20 => throw an error
+                var currentUserBalance = userService.getBalanceToBe(loggedInUser);
+                var balanceToBe = currentUserBalance + dto.getMinutes();
+                if (balanceToBe >= 20)
+                    throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
+
+
+            if (entityExists)
+            {
+                entity.setId(dto.getId());
             }
-            //check pending credits and balance if the sum is above 20 => throw an error
-            var currentUserBalance = userService.getBalanceToBe(loggedInUser);
-            var balanceToBe = currentUserBalance + dto.getMinutes();
-            if (balanceToBe >= 20)
-                throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
-
-
             var savedEntity = serviceRepository.save(entity);
+
+
             return savedEntity.getId();
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
