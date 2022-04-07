@@ -3,9 +3,7 @@ package com.swe573.socialhub.config;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
-import com.swe573.socialhub.enums.ApprovalStatus;
-import com.swe573.socialhub.enums.ServiceStatus;
-import com.swe573.socialhub.enums.UserType;
+import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,7 @@ class LoadDatabase {
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
     @Bean
-    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository) {
+    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository, FlagRepository flagRepository) {
 
         return args -> {
 
@@ -316,6 +314,12 @@ class LoadDatabase {
             var rating2 = saveRatingForService(ratingRepository, user5, service8, 2);
             //endregion
 
+            //region Flagging
+            //miranda is flagging users and cannot avoid getting flagged
+            var flag1 = saveFlagForTargetUser(flagRepository, user1, user4.getId());
+            var flag2 = saveFlagForTargetUser(flagRepository, user4, user1.getId());
+            //endregion
+
         };
     }
 
@@ -354,5 +358,11 @@ class LoadDatabase {
         var rating = new Rating(service,ratingParam,user1);
         ratingRepository.save(rating);
         return rating;
+    }
+
+    private Flag saveFlagForTargetUser(FlagRepository flagRepository, User user1, long targetUserId){
+        var flag = new Flag(FlagType.user, user1.getId(), targetUserId, FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
     }
 }
