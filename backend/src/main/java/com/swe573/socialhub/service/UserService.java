@@ -90,6 +90,7 @@ public class UserService {
         userEntity.setPassword(passwordHash);
         userEntity.setUsername(dto.getUsername());
         userEntity.setBalance(5);
+        userEntity.setReputationPoint(10);
         userEntity.setLongitude(dto.getLongitude());
         userEntity.setLatitude(dto.getLatitude());
         userEntity.setFormattedAddress(dto.getFormattedAddress());
@@ -202,7 +203,8 @@ public class UserService {
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
                 ratingService.getUserRatingSummary(user),
-                user.getUserType(), flagCount);
+                user.getUserType(), flagCount, user.getReputationPoint());
+
 
 
     }
