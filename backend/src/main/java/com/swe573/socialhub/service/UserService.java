@@ -348,7 +348,7 @@ public class UserService {
                 throw new IllegalArgumentException("You need to be admin to perform this action");
             }
             // dismiss all flags for user
-            flagRepository.dismissFlagsForUser(FlagStatus.inactive, FlagType.user, dismissFlagUserId);
+            flagRepository.dismissFlags(FlagStatus.inactive, FlagType.user, dismissFlagUserId);
         } catch(Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

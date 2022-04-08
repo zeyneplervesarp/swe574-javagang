@@ -16,8 +16,6 @@ public interface FlagRepository extends JpaRepository<Flag, Long> {
 
     @Modifying
     @Query("UPDATE Flag f SET f.status = :status WHERE f.type = :type AND f.flaggedEntity = :entityId")
-    void dismissFlagsForUser(@Param("status") FlagStatus status, @Param("type") FlagType type, @Param("entityId") Long id);
-
-
+    void dismissFlags(@Param("status") FlagStatus status, @Param("type") FlagType type, @Param("entityId") Long id);
 
 }
