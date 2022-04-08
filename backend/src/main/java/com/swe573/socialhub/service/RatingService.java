@@ -64,6 +64,15 @@ public class RatingService {
         final var existingRatings = repository.findRatingByRaterAndService(loggedInUser, service);
         if (existingRatings.isEmpty()) {
             final var ratingEntity = new Rating(service, rating, loggedInUser);
+            // update reputation points of service giver.
+            User serviceGiver = service.getCreatedUser();
+            int serviceGiverRepPoints = serviceGiver.getReputationPoint() + rating;
+            serviceGiver.setReputationPoint(serviceGiverRepPoints);
+            userRepository.save(serviceGiver);
+            // update reputation points of rating giver.
+            int userRepPoints = loggedInUser.getReputationPoint() + 1;
+            loggedInUser.setReputationPoint(userRepPoints);
+            userRepository.save(loggedInUser);
             return repository.save(ratingEntity);
         }
 
