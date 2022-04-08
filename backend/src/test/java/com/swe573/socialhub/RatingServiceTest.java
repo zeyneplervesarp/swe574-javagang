@@ -109,29 +109,6 @@ public class RatingServiceTest {
     }
 
     @Test
-    public void RatingService_persists_validRatingUpdatedRepPoints() {
-        final var mockSvcId = 0L;
-        final var mockUserId = 0L;
-        final var validApproval = new UserServiceApproval();
-        var mockUser = new User();
-        mockUser.setId(mockUserId);
-        mockUser.setReputationPoint(5);
-        validApproval.setUser(mockUser);
-        Mockito.when(approvalRepository
-                .findUserServiceApprovalByService_IdAndApprovalStatus(mockSvcId, ApprovalStatus.APPROVED)).thenReturn(List.of(validApproval));
-
-        final var expected = new Rating();
-        expected.setRating(3);
-        Mockito.when(ratingRepository.save(Mockito.any())).thenReturn(expected);
-
-        final var result = ratingService.addOrUpdateRating(mockPrincipal, mockSvcId, 3);
-        mockUser = userRepository.getById(mockUserId);
-        User serviceGiver = userRepository.getById(result.getService().getCreatedUser().getId());
-        Assertions.assertEquals(6, mockUser.getReputationPoint());
-        Assertions.assertEquals(8, serviceGiver.getReputationPoint());
-    }
-
-    @Test
     public void RatingService_returns_accurateSummaryForService() {
         final var svc = new Service();
         final var r1 = new Rating();
