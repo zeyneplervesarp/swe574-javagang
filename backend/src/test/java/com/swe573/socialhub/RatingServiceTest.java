@@ -8,7 +8,6 @@ import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.service.RatingService;
-import com.swe573.socialhub.service.SearchService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ public class RatingServiceTest {
 
     private RatingService service;
 
-    private final Principal mockPrincipal = new UserServiceUnitTests.MockPrincipal("test");
+    private final Principal mockPrincipal = new UserServiceTests.MockPrincipal("test");
 
     private final Long mockSvcId = 0L;
 
