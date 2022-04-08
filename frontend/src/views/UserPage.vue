@@ -74,6 +74,13 @@
                 {{ userData.username }}
                 <span class="font-weight-light"></span>
               </h3>
+                    <badge
+                    v-for="(badge, index) in userData.badges"
+                    :key="index"
+                    v-bind:type="GetClass(index)"
+                    rounded
+                    >{{ badge.badgeType }}</badge
+                  >
             </div>
             <div class="mt-5 py-5 border-top text-center">
               <div class="row justify-content-center">
@@ -138,7 +145,8 @@ export default {
         flagCount: 0,
         following: [],
         followedBy: [],
-        tags: []
+        tags: [],
+        badges: []
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
@@ -167,6 +175,7 @@ export default {
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
         this.userData.flagCount = r.flagCount;
+        this.userData.badges = r.badges;
         console.log("ok.");
       });
     },

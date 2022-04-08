@@ -70,15 +70,18 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+
     @PostMapping
-    public ResponseEntity<Long> saveService(Principal principal, @Validated @RequestBody ServiceDto service) {
+    public ResponseEntity<Long> upsertService(Principal principal, @Validated @RequestBody ServiceDto service) {
         try {
-            var result = serviceService.save(principal, service);
+            var result = serviceService.upsert(principal, service);
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
 
 
     @GetMapping("/approve/{serviceId}")
