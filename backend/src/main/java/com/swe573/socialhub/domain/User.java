@@ -41,6 +41,7 @@ public class User {
     Set<UserFollowing> followingUsers;
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
+
     @OneToMany(mappedBy = "rater")
     private Set<Rating> ratings;
     private UserType userType;
@@ -133,10 +134,15 @@ public class User {
     }
 
     public Set<Service> getCreatedServices() {
+        if (this.createdServices == null)
+        {
+            this.createdServices = new HashSet<>();
+        }
         return createdServices;
     }
 
     public void setCreatedServices(Set<Service> createdServices) {
+
         this.createdServices = createdServices;
     }
 
