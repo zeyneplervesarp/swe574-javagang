@@ -3,8 +3,10 @@ package com.swe573.socialhub.config;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
+import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.LocationType;
+import com.swe573.socialhub.enums.BadgeType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
@@ -26,7 +28,9 @@ class LoadDatabase {
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
     @Bean
-    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository) {
+
+    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository, BadgeRepository badgeRepository, FlagRepository flagRepository) {
+      
 
         return args -> {
 
@@ -57,6 +61,8 @@ class LoadDatabase {
 
             //region User
 
+            var userAdmin = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN);
+
             var user1 = saveAndGetUser(userRepository, passwordEncoder, "miranda", "miranda.osborne@gmail.com", "Gamer. Award-winning music buff. Social media maven. Zombie fan. Student. Professional internet fanatic. Thinker. Freelance baconaholic.", new HashSet<Tag>() {{
                 add(tag2);
                 add(tag5);
@@ -82,7 +88,7 @@ class LoadDatabase {
                 add(tag2);
             }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER);
 
-            var user6 = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN);
+            var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER);
 
             userRepository.findAll().forEach(user -> {
                 log.info("Preloaded " + user);
@@ -235,6 +241,21 @@ class LoadDatabase {
                         add(tag6);
                     }});
 
+
+            var serviceNewComer = new Service(null,
+                    "D&D",
+                    "Let's play a game of D&D. I'll be the storyteller.",
+                    "Maçka Park, Istanbul",
+                    LocalDateTime.of(2022, 8, 15, 16, 0),
+                    2,
+                    10,
+                    1,
+                    userNewcomer,
+                    41.045570653598446, 28.993261953340998,
+                    new HashSet<Tag>() {{
+                        add(tag5);
+                    }});
+
             eventRepository.save(mockEvent);
 
             serviceRepository.save(service);
@@ -245,6 +266,7 @@ class LoadDatabase {
             serviceRepository.save(service6);
             serviceRepository.save(service7);
             serviceRepository.save(service8);
+            serviceRepository.save(serviceNewComer);
 
 
             serviceRepository.findAll().forEach(s -> {
@@ -277,6 +299,8 @@ class LoadDatabase {
             var approval108 = saveAndGetApproval(approvalRepository, user5, service7, ApprovalStatus.APPROVED);
             var approval113 = saveAndGetApproval(approvalRepository, user4, service8, ApprovalStatus.APPROVED);
             var approval114 = saveAndGetApproval(approvalRepository, user5, service8, ApprovalStatus.APPROVED);
+            var approval115 = saveAndGetApproval(approvalRepository, userNewcomer, service7, ApprovalStatus.APPROVED);
+            var approval116 = saveAndGetApproval(approvalRepository, user1, serviceNewComer, ApprovalStatus.APPROVED);
 
 
             var approval109 = saveAndGetApproval(eventApprovalRepository, user2, mockEvent, ApprovalStatus.PENDING);
@@ -325,6 +349,32 @@ class LoadDatabase {
             var rating2 = saveRatingForService(ratingRepository, user5, service8, 2);
             //endregion
 
+
+            //region Flagging
+
+            //miranda is flagging users and cannot avoid getting flagged
+            var flag1 = saveFlagForTargetUser(flagRepository, user1, user4.getId());
+            var flag2 = saveFlagForTargetUser(flagRepository, user4, user1.getId());
+
+            //miranda flags service6
+            var flag3 = saveFlagForTargetService(flagRepository, user1, service6);
+
+            //miranda flags the mockevent
+            var flag4 = saveFlagForTargetEvent(flagRepository, user1, mockEvent);
+
+
+            //region Badge
+            var badge1 = saveAndGetBadge(badgeRepository,user1, BadgeType.guru);
+            var badge2 = saveAndGetBadge(badgeRepository,user1, BadgeType.superMentor);
+            var badge3 = saveAndGetBadge(badgeRepository,user1, BadgeType.regular);
+            var badge4 = saveAndGetBadge(badgeRepository, userNewcomer,BadgeType.newcomer);
+            var badge5 = saveAndGetBadge(badgeRepository, user2,BadgeType.mentor);
+            var badge6 = saveAndGetBadge(badgeRepository, user3,BadgeType.mentor);
+            var badge7 = saveAndGetBadge(badgeRepository, user4,BadgeType.regular);
+            var badge8 = saveAndGetBadge(badgeRepository, user4,BadgeType.superMentor);
+
+            //endregion
+
         };
     }
 
@@ -363,5 +413,30 @@ class LoadDatabase {
         var rating = new Rating(service,ratingParam,user1);
         ratingRepository.save(rating);
         return rating;
+    }
+
+
+    private Flag saveFlagForTargetUser(FlagRepository flagRepository, User user1, long targetUserId){
+        var flag = new Flag(FlagType.user, user1.getId(), targetUserId, FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+    }
+
+    private Flag saveFlagForTargetService(FlagRepository flagRepository, User user1, Service service){
+        var flag = new Flag(FlagType.service, user1.getId(), service.getId(), FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+    }
+
+    private Flag saveFlagForTargetEvent(FlagRepository flagRepository, User user1, Event event) {
+        Flag flag = new Flag(FlagType.event, user1.getId(), event.getId(), FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+
+    private Badge saveAndGetBadge(BadgeRepository badgeRepository, User user, BadgeType badgeType) {
+        var badge = new Badge(user, badgeType);
+        badgeRepository.save(badge);
+        return badge;
+
     }
 }

@@ -14,8 +14,8 @@ public class User {
     private String username;
     private String email;
     private String bio;
-    private  String latitude;
-    private  String longitude;
+    private String latitude;
+    private String longitude;
     private String formattedAddress;
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -42,10 +42,11 @@ public class User {
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
 
-    @OneToMany(mappedBy="rater")
+    @OneToMany(mappedBy = "rater")
     private Set<Rating> ratings;
-
     private UserType userType;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Badge> badges;
 
     public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
         this.id = id;
@@ -133,10 +134,15 @@ public class User {
     }
 
     public Set<Service> getCreatedServices() {
+        if (this.createdServices == null)
+        {
+            this.createdServices = new HashSet<>();
+        }
         return createdServices;
     }
 
     public void setCreatedServices(Set<Service> createdServices) {
+
         this.createdServices = createdServices;
     }
 
@@ -244,8 +250,31 @@ public class User {
         this.userType = userType;
     }
 
+    public Set<Badge> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(Set<Badge> badges) {
+        this.badges = badges;
+    }
+
     @Override
     public String toString() {
         return "User{" + "id=" + this.id + ", username='" + this.username + '\'' + '}';
+    }
+
+    public void removeBadge(Badge badge) {
+
+        this.badges.remove(badge);
+
+    }
+
+
+    public void addBadge(Badge badge) {
+        if (this.badges == null)
+        {
+            this.badges =  new HashSet<>();
+        }
+        this.badges.add(badge);
     }
 }

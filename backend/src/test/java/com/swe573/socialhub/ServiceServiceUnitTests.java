@@ -108,7 +108,7 @@ public class ServiceServiceUnitTests {
         Mockito.when(userService.getBalanceToBe(testUser)).thenReturn(testUser.getBalance());
 
 
-        assertThrows(IllegalArgumentException.class, () -> service.save(mockUser, testService));
+        assertThrows(IllegalArgumentException.class, () -> service.upsert(mockUser, testService));
     }
 
     @Test
