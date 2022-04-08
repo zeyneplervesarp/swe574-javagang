@@ -74,6 +74,10 @@
                     <span class="heading">{{ serviceData.minutes }}</span>
                     <span class="description">Credits</span>
                   </div>
+                  <div v-if="userIsAdmin">
+                    <span class="heading">{{ serviceData.flagCount }}</span>
+                    <span class="description">FlagCount</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -194,11 +198,19 @@
             </div> -->
   
             <div
-              v-if="!userData.ownsService"
+              v-if="!userData.ownsService && !userIsAdmin"
               class="mt-2 py-5 border-top text-center"
             >
               <base-button block type="primary" class="mb-3" @click="Flag()">
                 Flag Service
+              </base-button>
+            </div>
+            <div
+              v-if="userIsAdmin"
+              class="mt-2 py-5 border-top text-center"
+            >
+              <base-button block type="primary" class="mb-3" @click="DismissFlags()">
+                Dismiss Flags
               </base-button>
             </div>
           </div>
@@ -233,6 +245,7 @@ export default {
         status: "",
         datePassed: false,
         participantUserList: [],
+        flagCount: 0,
       },
       userData: {
         hasServiceRequest: "",
@@ -243,11 +256,17 @@ export default {
         lat: 0,
         lng: 0,
       },
+      userIsAdmin: false
     };
   },
   mounted() {
     this.GetService();
     this.GetUserDetails();
+
+    apiRegister.GetProfile().then(r => {
+        var compare = r.userType.localeCompare("ADMIN");
+        this.userIsAdmin = compare == 0;
+      })
   },
   computed: {},
   methods: {
@@ -270,6 +289,7 @@ export default {
         this.serviceData.datePassed = r.showServiceOverButton;
         this.coordinates.lat = r.latitude;
         this.coordinates.lng = r.longitude;
+        this.serviceData.flagCount = r.flagCount;
       });
     },
     GetUserDetails() {
@@ -312,6 +332,18 @@ export default {
           text: "You successfully flagged the service",
         });
       });
+    },
+    DismissFlags() {
+      var serviceId = this.$route.params.service_id;
+
+      apiRegister.DismissFlagsForService(serviceId).then((r) => {
+        swal.fire( {
+          text: "You've dismissed all flags for this service."
+        });
+        location.reload();     
+
+      });
+      location.reload();     
     },
     ConfirmServiceOverCreator() {
       modal.confirm(

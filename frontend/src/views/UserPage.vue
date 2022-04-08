@@ -62,6 +62,10 @@
                     <span class="heading">{{ userData.balanceOnHold }}</span>
                     <span class="description">Credits on Hold</span>
                   </div>
+                  <div v-if="userIsAdmin && !isOwnProfile">
+                    <span class="heading">{{ userData.flagCount }}</span>
+                    <span class="description">Flag Count</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -131,6 +135,7 @@ export default {
         bio: "",
         balance: 0,
         balanceOnHold: 0,
+        flagCount: 0,
         following: [],
         followedBy: [],
         tags: []
@@ -161,6 +166,7 @@ export default {
         this.userData.following = r.following;
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
+        this.userData.flagCount = r.flagCount;
         console.log("ok.");
       });
     },
