@@ -3,6 +3,7 @@ package com.swe573.socialhub.config;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
+import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.BadgeType;
 import com.swe573.socialhub.enums.ServiceStatus;
@@ -26,7 +27,9 @@ class LoadDatabase {
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
     @Bean
-    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository, BadgeRepository badgeRepository) {
+
+    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository, BadgeRepository badgeRepository, FlagRepository flagRepository) {
+      
 
         return args -> {
 
@@ -337,6 +340,20 @@ class LoadDatabase {
             var rating2 = saveRatingForService(ratingRepository, user5, service8, 2);
             //endregion
 
+
+            //region Flagging
+
+            //miranda is flagging users and cannot avoid getting flagged
+            var flag1 = saveFlagForTargetUser(flagRepository, user1, user4.getId());
+            var flag2 = saveFlagForTargetUser(flagRepository, user4, user1.getId());
+
+            //miranda flags service6
+            var flag3 = saveFlagForTargetService(flagRepository, user1, service6);
+
+            //miranda flags the mockevent
+            var flag4 = saveFlagForTargetEvent(flagRepository, user1, mockEvent);
+
+
             //region Badge
             var badge1 = saveAndGetBadge(badgeRepository,user1, BadgeType.guru);
             var badge2 = saveAndGetBadge(badgeRepository,user1, BadgeType.superMentor);
@@ -346,6 +363,7 @@ class LoadDatabase {
             var badge6 = saveAndGetBadge(badgeRepository, user3,BadgeType.mentor);
             var badge7 = saveAndGetBadge(badgeRepository, user4,BadgeType.regular);
             var badge8 = saveAndGetBadge(badgeRepository, user4,BadgeType.superMentor);
+
             //endregion
 
         };
@@ -388,9 +406,28 @@ class LoadDatabase {
         return rating;
     }
 
+
+    private Flag saveFlagForTargetUser(FlagRepository flagRepository, User user1, long targetUserId){
+        var flag = new Flag(FlagType.user, user1.getId(), targetUserId, FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+    }
+
+    private Flag saveFlagForTargetService(FlagRepository flagRepository, User user1, Service service){
+        var flag = new Flag(FlagType.service, user1.getId(), service.getId(), FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+    }
+
+    private Flag saveFlagForTargetEvent(FlagRepository flagRepository, User user1, Event event) {
+        Flag flag = new Flag(FlagType.event, user1.getId(), event.getId(), FlagStatus.active);
+        flagRepository.save(flag);
+        return flag;
+
     private Badge saveAndGetBadge(BadgeRepository badgeRepository, User user, BadgeType badgeType) {
         var badge = new Badge(user, badgeType);
         badgeRepository.save(badge);
         return badge;
+
     }
 }
