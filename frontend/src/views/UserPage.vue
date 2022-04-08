@@ -43,7 +43,7 @@
                 </div>
               </div>
               <div class="col-lg-4 order-lg-1">
-                <div class="card-profile-stats d-flex justify-content-center">
+                <div class="card-profile-stats d-flex justify-content-left">
                   <div>
                     <span class="heading">{{ userData.following.length }}</span>
                     <span class="description">Following</span>
@@ -62,7 +62,7 @@
                     <span class="heading">{{ userData.balanceOnHold }}</span>
                     <span class="description">Credits on Hold</span>
                   </div>
-                  <div v-if="isOwnProfile">
+                  <div>
                     <span class="heading">{{ userData.reputationPoint }}</span>
                     <span class="description">Reputation Points</span>
                   </div>
