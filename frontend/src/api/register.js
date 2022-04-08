@@ -92,6 +92,10 @@ export default {
     FlagUser(userId) 
     {
         return http.post(process.env.VUE_APP_API + "user/flag/" + userId, null, true)
+    },
+    DismissFlagsForUser(userId)
+    {
+        return http.post(process.env.VUE_APP_API + "user/flag/dismiss/" + userId, null, true)
     }
 
 }

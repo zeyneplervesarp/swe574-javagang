@@ -88,21 +88,34 @@
              
               </div>
             </div>
+            <div 
+              v-if="userIsAdmin && !isOwnProfile"
+              class="mt-2 py-5 border-top text-center">
+                <base-button
+                  block
+                  type="primary"
+                  class="mb-3"
+                  @click="DismissFlags()"
+                > Dismiss Flags
+                </base-button>
+             </div>
+            <div
+            v-if="!userIsAdmin && !isOwnProfile"
+            class="mt-2 py-5 border-top text-center">
+              <base-button
+                block
+                type="primary"
+                class="mb-3"
+                @click="Flag()"
+              > Flag User
+              </base-button>
+            </div>
           </div>
         </card>
       </div>
+      
     </section>
-    <div
-      v-if="!isOwnProfile"
-        class="mt-2 py-5 border-top text-center">
-        <base-button
-          block
-          type="primary"
-          class="mb-3"
-          @click="Flag()"
-        > Flag User
-        </base-button>
-      </div>
+    
   </div>
 </template>
 <script>
@@ -124,11 +137,17 @@ export default {
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
+      userIsAdmin: false
     };
   },
   mounted() {
     this.GetProfile();
     this.AlreadyFollowing();
+
+    apiRegister.GetProfile().then(r => {
+        var compare = r.userType.localeCompare("ADMIN");
+        this.userIsAdmin = compare == 0;
+      })
   },
   methods: {
     GetProfile() {
@@ -151,6 +170,15 @@ export default {
       apiRegister.FlagUser(userId).then((r) => {
         swal.fire({
         text: "You successfully flagged the user.",
+        });
+      });
+    },
+    DismissFlags() {
+      var userId = this.$route.params.userId;
+
+      apiRegister.DismissFlagsForUser(userId).then((r) => {
+        swal.fire({
+          text: "You dismissed all flags for this user.",
         });
       });
     },
