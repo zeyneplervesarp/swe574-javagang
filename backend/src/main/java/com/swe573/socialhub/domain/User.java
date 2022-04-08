@@ -14,8 +14,8 @@ public class User {
     private String username;
     private String email;
     private String bio;
-    private  String latitude;
-    private  String longitude;
+    private String latitude;
+    private String longitude;
     private String formattedAddress;
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -42,7 +42,7 @@ public class User {
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
 
-    @OneToMany(mappedBy="rater")
+    @OneToMany(mappedBy = "rater")
     private Set<Rating> ratings;
 
     private UserType userType;
@@ -133,10 +133,15 @@ public class User {
     }
 
     public Set<Service> getCreatedServices() {
+        if (this.createdServices == null)
+        {
+            this.createdServices = new HashSet<>();
+        }
         return createdServices;
     }
 
     public void setCreatedServices(Set<Service> createdServices) {
+
         this.createdServices = createdServices;
     }
 
