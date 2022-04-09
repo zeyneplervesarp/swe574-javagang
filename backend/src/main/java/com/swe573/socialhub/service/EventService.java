@@ -2,6 +2,7 @@ package com.swe573.socialhub.service;
 
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.EventDto;
+import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
@@ -50,6 +51,22 @@ public class EventService {
 
 
         return list;
+    }
+
+    @Transactional
+    public EventDto deleteEvent(Long eventId, Principal principal) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        }
+        final var eventToDelete = eventRepository.findById(eventId);
+        if (eventToDelete.isEmpty()) {
+            throw new IllegalArgumentException("Service does not exist.");
+        }
+        final var event = eventToDelete.get();
+        final var dto = mapToDto(event, Optional.of(loggedInUser));
+        eventRepository.delete(event);
+        return dto;
     }
 
     public List<EventDto> findAllEvents(Principal principal, Boolean getOngoingOnly, ServiceFilter filter, ServiceSortBy sortBy) {
