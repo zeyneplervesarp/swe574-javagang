@@ -1,5 +1,7 @@
 package com.swe573.socialhub.domain;
 
+import com.swe573.socialhub.enums.UserType;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,8 +14,8 @@ public class User {
     private String username;
     private String email;
     private String bio;
-    private  String latitude;
-    private  String longitude;
+    private String latitude;
+    private String longitude;
     private String formattedAddress;
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -24,8 +26,14 @@ public class User {
     private Set<Tag> userTags;
     @OneToMany(mappedBy = "createdUser")
     private Set<Service> createdServices;
+
+    @OneToMany(mappedBy = "createdUser")
+    private Set<Event> createdEvents;
     @OneToMany(mappedBy = "user")
-    Set<UserServiceApproval> approvalSet;
+    Set<UserServiceApproval> serviceApprovalSet;
+
+    @OneToMany(mappedBy = "user")
+    Set<UserEventApproval> eventApprovalSet;
     private Integer balance;
     @OneToMany(mappedBy = "receiver")
     Set<Notification> notificationSet;
@@ -34,7 +42,13 @@ public class User {
     @OneToMany(mappedBy = "followedUser")
     Set<UserFollowing> followedBy;
 
-    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress) {
+    @OneToMany(mappedBy = "rater")
+    private Set<Rating> ratings;
+    private UserType userType;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Badge> badges;
+
+    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
         this.id = id;
         this.bio = bio;
         this.username = username;
@@ -44,10 +58,19 @@ public class User {
         this.formattedAddress = formattedAddress;
         this.userTags = userTags;
         this.balance = balance;
+        this.userType = userType;
     }
 
     public User() {
 
+    }
+
+    public Set<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(Set<Rating> ratings) {
+        this.ratings = ratings;
     }
 
     public String getPassword() {
@@ -111,11 +134,24 @@ public class User {
     }
 
     public Set<Service> getCreatedServices() {
+        if (this.createdServices == null)
+        {
+            this.createdServices = new HashSet<>();
+        }
         return createdServices;
     }
 
     public void setCreatedServices(Set<Service> createdServices) {
+
         this.createdServices = createdServices;
+    }
+
+    public Set<Event> getCreatedEvents() {
+        return createdEvents;
+    }
+
+    public void setCreatedEvents(Set<Event> createdEvents) {
+        this.createdEvents = createdEvents;
     }
 
     public Integer getBalance() {
@@ -134,12 +170,20 @@ public class User {
         this.userTags = userTags;
     }
 
-    public Set<UserServiceApproval> getApprovalSet() {
-        return approvalSet;
+    public Set<UserServiceApproval> getServiceApprovalSet() {
+        return serviceApprovalSet;
     }
 
-    public void setApprovalSet(Set<UserServiceApproval> approvalSet) {
-        this.approvalSet = approvalSet;
+    public void setServiceApprovalSet(Set<UserServiceApproval> approvalSet) {
+        this.serviceApprovalSet = approvalSet;
+    }
+
+    public Set<UserEventApproval> getEventApprovalSet() {
+        return eventApprovalSet;
+    }
+
+    public void setEventApprovalSet(Set<UserEventApproval> eventApprovalSet) {
+        this.eventApprovalSet = eventApprovalSet;
     }
 
     public Set<Notification> getNotificationSet() {
@@ -198,8 +242,39 @@ public class User {
         this.followedBy = followedBy;
     }
 
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public Set<Badge> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(Set<Badge> badges) {
+        this.badges = badges;
+    }
+
     @Override
     public String toString() {
         return "User{" + "id=" + this.id + ", username='" + this.username + '\'' + '}';
+    }
+
+    public void removeBadge(Badge badge) {
+
+        this.badges.remove(badge);
+
+    }
+
+
+    public void addBadge(Badge badge) {
+        if (this.badges == null)
+        {
+            this.badges =  new HashSet<>();
+        }
+        this.badges.add(badge);
     }
 }

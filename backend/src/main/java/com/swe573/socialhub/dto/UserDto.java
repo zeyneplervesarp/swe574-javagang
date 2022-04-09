@@ -1,5 +1,8 @@
 package com.swe573.socialhub.dto;
 
+import com.swe573.socialhub.domain.Badge;
+import com.swe573.socialhub.enums.UserType;
+
 import java.util.List;
 
 public class UserDto {
@@ -18,11 +21,14 @@ public class UserDto {
     private List<String> followedBy;
     private List<String>  following;
     private List<TagDto> tags;
+    private RatingSummaryDto ratingSummary;
+    private UserType userType;
+    private long flagCount;
+    private List<BadgeDto> badges;
 
-
-
-    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags) {
+    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount, List<BadgeDto> badges) {
         this.id = id;
+        this.ratingSummary = ratingSummary;
         this.username = username;
         this.email = email;
         this.bio = bio;
@@ -35,6 +41,9 @@ public class UserDto {
         this.followedBy = followedBy;
         this.following = following;
         this.tags = tags;
+        this.userType = userType;
+        this.flagCount = flagCount;
+        this.badges = badges;
     }
     public String getEmail() {
         return email;
@@ -154,5 +163,37 @@ public class UserDto {
 
     public void setTags(List<TagDto> tags) {
         this.tags = tags;
+    }
+
+    public RatingSummaryDto getRatingSummary() {
+        return ratingSummary;
+    }
+
+    public void setRatingSummary(RatingSummaryDto ratingSummary) {
+        this.ratingSummary = ratingSummary;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public long getFlagCount() {
+        return flagCount;
+    }
+
+    public void setFlagCount(long flagCount) {
+        this.flagCount = flagCount;
+    }
+
+    public List<BadgeDto> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(List<BadgeDto> badges) {
+        this.badges = badges;
     }
 }

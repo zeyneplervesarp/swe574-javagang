@@ -1,10 +1,11 @@
 package com.swe573.socialhub.service;
 
+import com.swe573.socialhub.domain.Badge;
+import com.swe573.socialhub.domain.Flag;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.domain.UserFollowing;
 import com.swe573.socialhub.dto.*;
-import com.swe573.socialhub.enums.ApprovalStatus;
-import com.swe573.socialhub.enums.ServiceStatus;
+import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.config.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +36,16 @@ public class UserService {
     private ServiceRepository serviceRepository;
 
     @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private FlagRepository flagRepository;
+
+    @Autowired
     private UserServiceApprovalRepository userServiceApprovalRepository;
+
+    @Autowired
+    private UserEventApprovalRepository userEventApprovalRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -55,6 +63,9 @@ public class UserService {
 
     @Autowired
     private UserFollowingRepository userFollowingRepository;
+
+    @Autowired
+    private RatingService ratingService;
 
 
     @Transactional
@@ -76,6 +87,7 @@ public class UserService {
         userEntity.setLongitude(dto.getLongitude());
         userEntity.setLatitude(dto.getLatitude());
         userEntity.setFormattedAddress(dto.getFormattedAddress());
+        userEntity.setUserType(UserType.USER);
 
         //set tags
         var tags = dto.getUserTags();
@@ -88,6 +100,12 @@ public class UserService {
                 userEntity.addTag(addedTag.get());
             }
         }
+
+        //add newcomer badge
+        var badge = new Badge(userEntity, BadgeType.newcomer);
+        userEntity.setBadges(new HashSet<>() {{
+            add(badge);
+        }});
 
 
         try {
@@ -167,8 +185,7 @@ public class UserService {
 
         var approvalList = userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING);
         var balanceOnHold = approvalList.stream().mapToInt(o -> o.getService().getCredit()).sum();
-
-
+        long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.user, user.getId(), FlagStatus.active);
 
         return new UserDto(
                 user.getId(),
@@ -183,8 +200,11 @@ public class UserService {
                 user.getFormattedAddress(),
                 user.getFollowedBy().stream().map(u -> u.getFollowingUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
-                user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList())
-        );
+                user.getTags().stream().map(x -> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
+                ratingService.getUserRatingSummary(user),
+                user.getUserType(),
+                flagCount,
+                user.getBadges().stream().map(x -> new BadgeDto(x.getId(), x.getBadgeType())).collect(Collectors.toUnmodifiableList()));
 
 
     }
@@ -214,12 +234,28 @@ public class UserService {
             throw new IllegalArgumentException("Service doesn't exist.");
         }
         var service = serviceOptional.get();
-        var ownsService = service.getCreatedUser().getId() == loggedInUser.getId();
+        var ownsService = Objects.equals(service.getCreatedUser().getId(), loggedInUser.getId());
         var userServiceApproval = userServiceApprovalRepository.findUserServiceApprovalByServiceAndUser(service, loggedInUser);
-        var attendsService = userServiceApproval.isPresent() && userServiceApproval.get().getApprovalStatus().name() == "APPROVED";
-        var dto = new UserServiceDto(userServiceApproval != null && !userServiceApproval.isEmpty(), ownsService, attendsService);
+        var attendsService = userServiceApproval.isPresent() && userServiceApproval.get().getApprovalStatus().name().equals("APPROVED");
+        var dto = new UserServiceDto(userServiceApproval != null && userServiceApproval.isPresent(), ownsService, attendsService);
         return dto;
 
+    }
+
+    public UserEventDto getUserEventDetails(Principal principal, Long eventId) {
+        final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+        if (loggedInUser == null)
+            throw new IllegalArgumentException("User doesn't exist.");
+        var eventOptional = eventRepository.findById(eventId);
+        if (eventOptional == null) {
+            throw new IllegalArgumentException("Event doesn't exist.");
+        }
+        var event = eventOptional.get();
+        var ownsEvent = Objects.equals(event.getCreatedUser().getId(), loggedInUser.getId());
+        var userEventApproval = userEventApprovalRepository.findUserEventApprovalByEventAndUser(event, loggedInUser);
+        var attendsEvent = userEventApproval.isPresent() && userEventApproval.get().getApprovalStatus().name().equals("APPROVED");
+        var dto = new UserEventDto(userEventApproval != null && userEventApproval.isPresent(), ownsEvent, attendsEvent);
+        return dto;
     }
 
     public int getBalanceToBe(User user) {
@@ -257,8 +293,6 @@ public class UserService {
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-
-
     }
 
     public Boolean followControl(Principal principal, Long userId) {
@@ -270,9 +304,38 @@ public class UserService {
             //check if there is already a following entity
             var entityResult = userFollowingRepository.findUserFollowingByFollowingUserAndFollowedUser(loggedInUser, userToFollow);
             var entityExists = entityResult.isPresent();
-
-
             return entityExists;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Flag flagUser(Principal principal, Long toFlagUserId) {
+        // get current user and user to flag
+        final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+        User userToFlag = repository.findById(toFlagUserId).get();
+        // check for existing flags for duplicates
+        Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
+        if (existingFlag.isPresent()) {
+            throw new IllegalArgumentException("You have already flagged user " + userToFlag.getUsername());
+        }
+        // flag the user
+        try {
+            // create flag
+            Flag flag = new Flag(FlagType.user, loggedInUser.getId(), toFlagUserId, FlagStatus.active);
+            return flagRepository.save(flag);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Boolean checkExistingFlag(Principal principal, Long toFlagUserId) {
+        try {
+            // get current user and user to flag
+            final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+            // check for existing flags for duplicates
+            Optional<Flag> existingFlag = flagRepository.findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUser.getId(), toFlagUserId, FlagType.user);
+            return existingFlag.isPresent();
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

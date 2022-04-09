@@ -1,5 +1,6 @@
 package com.swe573.socialhub.domain;
 
+import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.enums.ServiceStatus;
 
 import javax.persistence.*;
@@ -13,11 +14,12 @@ public class Service {
     public Service() {
 
     }
-
-    public Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+    // constructor for physical services
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
+        this.locationType = LocationType.Physical;
         this.location = location;
         this.time = time;
         credit = minutes;
@@ -28,6 +30,24 @@ public class Service {
         this.attendingUserCount = attendingUserCount;
         this.serviceTags = serviceTags;
         this.status = ServiceStatus.ONGOING;
+        this.isFeatured = false;
+    }
+
+    // constructor for online services
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+        this.id = id;
+        this.header = header;
+        this.description = description;
+        this.locationType = LocationType.Online;
+        this.location = location;
+        this.time = time;
+        credit = minutes;
+        this.quota = quota;
+        this.createdUser = createdUser;
+        this.attendingUserCount = attendingUserCount;
+        this.serviceTags = serviceTags;
+        this.status = ServiceStatus.ONGOING;
+        this.isFeatured = false;
     }
 
     private @Id
@@ -35,14 +55,22 @@ public class Service {
     Long id;
     private String header;
     private String description;
+    private LocationType locationType;
     private String location;
     private LocalDateTime time;
     private int credit;
     private int quota;
     private int attendingUserCount;
+    private String meetingLink;
     private Double latitude;
     private Double longitude;
     private ServiceStatus status;
+    private boolean isFeatured;
+
+    @OneToMany(mappedBy="service")
+    private Set<Rating> ratings;
+
+
     @ManyToOne
     @JoinColumn(name = "createdUser")
     User createdUser;
@@ -56,7 +84,13 @@ public class Service {
     @OneToMany(mappedBy = "service")
     Set<UserServiceApproval> approvalSet;
 
+    public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, serviceTags);
+    }
 
+    public static Service createPhysical(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, latitude, longitude, serviceTags);
+    }
 
 
     public User getCreatedUser() {
@@ -85,6 +119,14 @@ public class Service {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public LocationType getLocationType() {
+        return locationType;
+    }
+
+    public void setLocationType(LocationType locationType) {
+        this.locationType = locationType;
     }
 
     public String getLocation() {
@@ -171,7 +213,21 @@ public class Service {
         this.status = status;
     }
 
+    public Set<Rating> getRatings() {
+        return ratings;
+    }
 
+    public void setRatings(Set<Rating> ratings) {
+        this.ratings = ratings;
+    }
+
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    public void setFeatured(boolean featured) {
+        isFeatured = featured;
+    }
 
     @Override
     public String toString() {

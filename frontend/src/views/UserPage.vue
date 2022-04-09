@@ -70,6 +70,13 @@
                 {{ userData.username }}
                 <span class="font-weight-light"></span>
               </h3>
+                    <badge
+                    v-for="(badge, index) in userData.badges"
+                    :key="index"
+                    v-bind:type="GetClass(index)"
+                    rounded
+                    >{{ badge.badgeType }}</badge
+                  >
             </div>
             <div class="mt-5 py-5 border-top text-center">
               <div class="row justify-content-center">
@@ -92,10 +99,22 @@
         </card>
       </div>
     </section>
+    <div
+      v-if="!isOwnProfile"
+        class="mt-2 py-5 border-top text-center">
+        <base-button
+          block
+          type="primary"
+          class="mb-3"
+          @click="Flag()"
+        > Flag User
+        </base-button>
+      </div>
   </div>
 </template>
 <script>
 import apiRegister from "../api/register";
+import swal from "sweetalert2";
 export default {
   components: {},
   data() {
@@ -108,7 +127,8 @@ export default {
         balanceOnHold: 0,
         following: [],
         followedBy: [],
-        tags: []
+        tags: [],
+        badges: []
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
@@ -130,7 +150,17 @@ export default {
         this.userData.following = r.following;
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
+        this.userData.badges = r.badges;
         console.log("ok.");
+      });
+    },
+    Flag() {
+      var userId = this.$route.params.userId;
+
+      apiRegister.FlagUser(userId).then((r) => {
+        swal.fire({
+        text: "You successfully flagged the user.",
+        });
       });
     },
     FollowUser() {
