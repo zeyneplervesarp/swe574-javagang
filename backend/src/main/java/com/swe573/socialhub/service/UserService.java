@@ -139,6 +139,21 @@ public class UserService {
         }
     }
 
+    public UserDto deleteUser(Long userId, Principal principal) {
+        final var loggedInUser = repository.findUserByUsername(principal.getName()).get();
+        if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        }
+        final var userToDelete = repository.findById(userId);
+        if (userToDelete.isEmpty()) {
+            throw new IllegalArgumentException("User does not exist.");
+        }
+        final var user = userToDelete.get();
+        final var dto = mapUserToDTO(user);
+        repository.delete(user);
+        return dto;
+    }
+
     public JwtDto createAuthenticationToken(LoginDto authenticationRequest) throws AuthenticationException {
         try {
             authenticationManager.authenticate(
