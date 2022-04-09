@@ -3,6 +3,7 @@ package com.swe573.socialhub;
 
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.ServiceDto;
+import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.ServiceRepository;
@@ -99,7 +100,7 @@ public class ServiceServiceUnitTests {
         testUser.setId(1L);
         testUser.setUsername("test user");
 
-        var testService = new ServiceDto(1L, "Test Service", ",", "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null, 0l);
+        var testService = new ServiceDto(1L, "Test Service", ",", LocationType.Physical, "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null, 0l);
 
 
         var mockUser = new MockPrincipal(testUser.getUsername());
@@ -107,7 +108,7 @@ public class ServiceServiceUnitTests {
         Mockito.when(userService.getBalanceToBe(testUser)).thenReturn(testUser.getBalance());
 
 
-        assertThrows(IllegalArgumentException.class, () -> service.save(mockUser, testService));
+        assertThrows(IllegalArgumentException.class, () -> service.upsert(mockUser, testService));
     }
 
     @Test

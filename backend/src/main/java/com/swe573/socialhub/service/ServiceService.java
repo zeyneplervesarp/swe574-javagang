@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @org.springframework.stereotype.Service
 public class ServiceService {
@@ -55,85 +56,86 @@ public class ServiceService {
     }
 
     public List<ServiceDto> findAllServices(Principal principal, Boolean getOngoingOnly, ServiceFilter filter, ServiceSortBy sortBy) {
-        //set getongoinonly and get all service entities
-        if (filter == ServiceFilter.all) getOngoingOnly = true;
         var entities = serviceRepository.findAll();
         //get logged in user
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
 
+        final var filteredEntityStream = filterStream(
+                entities.stream(),
+                sortBy,
+                getOngoingOnly || filter == ServiceFilter.all,
+                filter,
+                loggedInUser
+        );
+
+        final var dtoStream = filteredEntityStream
+                .map(service -> mapToDto(service, Optional.of(loggedInUser)));
+
+        final var sortedDtoStream = sortStream(dtoStream, sortBy);
+
+        return sortedDtoStream.collect(Collectors.toUnmodifiableList());
+    }
+
+    private Stream<Service> filterStream(Stream<Service> stream, ServiceSortBy sortBy, Boolean getOngoingOnly, ServiceFilter filter, User loggedInUser) {
+        var dtoStream = stream;
         //filter if getongoingonly
         if (getOngoingOnly) {
-            entities = entities.stream().filter(x -> x.getTime().isAfter(LocalDateTime.now())).collect(Collectors.toUnmodifiableList());
+            dtoStream = dtoStream.filter(x -> x.getTime().isAfter(LocalDateTime.now()));
         }
+
+        final var pickedDistanceFilter = sortBy != null && (sortBy.equals(ServiceSortBy.distanceAsc) || sortBy.equals(ServiceSortBy.distanceDesc));
+        if (pickedDistanceFilter) {
+            dtoStream = dtoStream.filter(service -> service.getLocationType().equals(LocationType.Physical));
+        }
+        if (filter == null) return dtoStream;
+
         //filter by filter
         switch (filter) {
             case createdByUser:
-                entities = entities.stream().filter(x -> x.getCreatedUser() == loggedInUser).collect(Collectors.toUnmodifiableList());
-                break;
+                return dtoStream.filter(x -> x.getCreatedUser() == loggedInUser);
             case first3:
-                entities = entities.stream().limit(3).collect(Collectors.toUnmodifiableList());
-                break;
+                return dtoStream.limit(3);
             case attending:
-                entities = entities.stream().filter(x -> x.getApprovalSet().stream().anyMatch(y -> y.getUser() == loggedInUser && y.getApprovalStatus() == ApprovalStatus.APPROVED)).collect(Collectors.toUnmodifiableList());
-                break;
+                return dtoStream.filter(x -> x.getApprovalSet().stream().anyMatch(y -> y.getUser() == loggedInUser && y.getApprovalStatus() == ApprovalStatus.APPROVED));
             case followingUser:
                 var followingUsers = loggedInUser.getFollowingUsers();
-                var tempList = new ArrayList<Service>();
+                var followedUserIds = followingUsers.stream()
+                        .map(UserFollowing::getFollowedUser)
+                        .map(User::getId)
+                        .collect(Collectors.toUnmodifiableSet());
 
-                for(UserFollowing followingUser: followingUsers)
-                {
-                    var user = followingUser.getFollowedUser();
-                    tempList.addAll(entities.stream().filter(x -> x.getCreatedUser() == user).collect(Collectors.toUnmodifiableList()));
-
-                }
-                entities = tempList;
-                break;
-            default:
-                // code block
+                return dtoStream.filter(service -> followedUserIds.contains(service.getCreatedUser().getId()));
+            case all:
+                return dtoStream;
         }
+        return dtoStream;
+    }
 
-
-        //map to dto and return list
-        var list = entities.stream().map(service -> mapToDto(service, Optional.of(loggedInUser))).collect(Collectors.toUnmodifiableList());
-
-
-        if (sortBy != null)
-        //if sortBy is not null, sort
+    private Stream<ServiceDto> sortStream(Stream<ServiceDto> stream, ServiceSortBy sortBy) {
+        if (sortBy == null) return stream;
         {
             switch (sortBy) {
                 case distanceAsc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(ServiceDto::getDistanceToUser))
-                            .collect(Collectors.toList());
-                    break;
+                    return stream
+                            .sorted(Comparator.comparing(ServiceDto::getDistanceToUser));
                 case distanceDesc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(ServiceDto::getDistanceToUser).reversed())
-                            .collect(Collectors.toList());
-                    break;
+                    return stream
+                            .sorted(Comparator.comparing(ServiceDto::getDistanceToUser).reversed());
                 case createdDateAsc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(ServiceDto::getId))
-                            .collect(Collectors.toList());
-                    break;
+                    return stream
+                            .sorted(Comparator.comparing(ServiceDto::getId));
                 case createdDateDesc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(ServiceDto::getId).reversed())
-                            .collect(Collectors.toList());
-                    break;
+                    return stream
+                            .sorted(Comparator.comparing(ServiceDto::getId).reversed());
                 case serviceDateAsc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(ServiceDto::getTime))
-                            .collect(Collectors.toList());
-                    break;
+                    return stream
+                            .sorted(Comparator.comparing(ServiceDto::getTime));
                 case serviceDateDesc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(ServiceDto::getTime).reversed())
-                            .collect(Collectors.toList());
-                    break;
+                    return stream
+                            .sorted(Comparator.comparing(ServiceDto::getTime).reversed());
             }
         }
-        return list;
+        return stream;
     }
 
     public Optional<ServiceDto> findById(Long id) {
@@ -149,34 +151,45 @@ public class ServiceService {
     }
 
     @Transactional
-    public Long save(Principal principal, ServiceDto dto) {
+    public Long upsert(Principal principal, ServiceDto dto) {
         //check token => if username is null, throw an error
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
         if (loggedInUser == null)
             throw new IllegalArgumentException("User doesn't exist.");
 
         try {
+            var entityExists = false;
+            if (dto.getId() != null)
+                entityExists = serviceRepository.findById(dto.getId()).isPresent();
             var entity = mapToEntity(dto);
-            entity.setCreatedUser(loggedInUser);
 
-            var tags = dto.getServiceTags();
-            if (tags != null) {
-                for (TagDto tagDto : tags) {
-                    var addedTag = tagRepository.findById(tagDto.getId());
-                    if (addedTag.isEmpty()) {
-                        throw new IllegalArgumentException("There is no tag with this Id.");
+
+                entity.setCreatedUser(loggedInUser);
+
+                var tags = dto.getServiceTags();
+                if (tags != null) {
+                    for (TagDto tagDto : tags) {
+                        var addedTag = tagRepository.findById(tagDto.getId());
+                        if (addedTag.isEmpty()) {
+                            throw new IllegalArgumentException("There is no tag with this Id.");
+                        }
+                        entity.addTag(addedTag.get());
                     }
-                    entity.addTag(addedTag.get());
                 }
+                //check pending credits and balance if the sum is above 20 => throw an error
+                var currentUserBalance = userService.getBalanceToBe(loggedInUser);
+                var balanceToBe = currentUserBalance + dto.getMinutes();
+                if (balanceToBe >= 20)
+                    throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
+
+
+            if (entityExists)
+            {
+                entity.setId(dto.getId());
             }
-            //check pending credits and balance if the sum is above 20 => throw an error
-            var currentUserBalance = userService.getBalanceToBe(loggedInUser);
-            var balanceToBe = currentUserBalance + dto.getMinutes();
-            if (balanceToBe >= 20)
-                throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
-
-
             var savedEntity = serviceRepository.save(entity);
+
+
             return savedEntity.getId();
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
@@ -288,7 +301,7 @@ public class ServiceService {
 
         Double distanceToUser;
 
-        if (loggedInUser.isPresent()) {
+        if (loggedInUser.isPresent() && service.getLocationType().equals(LocationType.Physical)) {
 
             distanceToUser = getDistance(service.getLatitude(), service.getLongitude(), loggedInUser.get().getLatitude(), loggedInUser.get().getLongitude());
 
@@ -298,11 +311,15 @@ public class ServiceService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
         long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount);
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount);
     }
 
+
     private Service mapToEntity(ServiceDto dto) {
-        return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
+        if(dto.getLocationType().equals(LocationType.Online))
+            return Service.createOnline(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, null);
+        else
+            return Service.createPhysical(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
     }
 
     private double getDistance(double lat1, double lng1, String lat2, String lng2) {

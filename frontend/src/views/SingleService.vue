@@ -59,10 +59,11 @@
               <div class="col-lg-4 order-lg-1">
                 <div class="card-profile-stats d-flex justify-content-center">
                   <div @click="OpenParticipantModal()">
-                    <a href="#"><span class="heading">{{
-                      serviceData.attendingUserCount
-                    }}</span>
-                    <span class="description">Participants</span>
+                    <a href="#"
+                      ><span class="heading">{{
+                        serviceData.attendingUserCount
+                      }}</span>
+                      <span class="description">Participants</span>
                     </a>
                   </div>
                   <div>
@@ -87,7 +88,8 @@
               </h3>
               <div></div>
               <br />
-              <div class="text-center">
+              <!-- physical -->
+              <div class="text-center" v-if="serviceData.locationType === 'Physical'">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
@@ -103,14 +105,65 @@
                   </GmapMap>
                 </base-button>
               </div>
+              <!-- online -->
+              <div class="text-center">
+                <p> Meeting Link: {{serviceData.location}} </p>
+              </div>
               <br />
+
               <div>
-                <!-- <i class="ni ni-square-pin"></i> : {{ serviceData.location }} -->
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
-              <!-- <div>
-                <i class="ni ni-single-02"></i>: {{ serviceData.quota }} people
-              </div> -->
+              <div   v-if="
+                userData.attendsService &&
+                serviceData.status === 'COMPLETED'
+              "
+              class="row justify-content-center">
+                <star-rating
+                  :star-size="20"
+                  @rating-selected="SetRating"
+                  :read-only="ratingData.readOnly"
+                ></star-rating>
+              </div>
+            </div>
+                      <div
+              v-if="userData.ownsService"
+              class="mt-1 py-3  text-center"
+            >
+              <div class="row justify-content-center">
+                <div class="col-lg-9">
+                  <base-button @click="GoToServiceEdit()" type="warning"
+                    >Edit Service</base-button
+                  >
+                  <base-button
+                    v-if="
+                      serviceData.datePassed && serviceData.status === 'ONGOING'
+                    "
+                    @click="ConfirmServiceOverCreator"
+                    type="success"
+                    >Service Is Over?</base-button
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-if="
+                userData.attendsService &&
+                serviceData.datePassed &&
+                serviceData.status === 'APPROVED'
+              "
+              class="mt-2 py-5 text-center"
+            >
+              <div class="row justify-content-center">
+                <div class="col-lg-9">
+                  <base-button
+                    @click="ConfirmServiceOverAttendee"
+                    type="success"
+                    >Service Is Over?</base-button
+                  >
+                </div>
+              </div>
             </div>
             <div class="mt-2 py-5 border-top text-center">
               <div class="row justify-content-center">
@@ -129,7 +182,7 @@
                 </div>
               </div>
             </div>
-            <div class="mt-2 py-5 border-top text-center">
+            <!-- <div class="mt-2 py-5 border-top text-center">
               <div class="row justify-content-center">
                 <div class="col-lg-9">
                   <p>
@@ -151,7 +204,8 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
+
             <div
               v-if="
                 userData.ownsService &&
@@ -168,35 +222,13 @@
                 </div>
               </div>
             </div>
-
-            <div
-              v-if="
-                userData.attendsService &&
-                serviceData.datePassed &&
-                serviceData.status === 'APPROVED'
-              "
-              class="mt-2 py-5 border-top text-center"
-            >
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button
-                    @click="ConfirmServiceOverAttendee"
-                    type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
-              </div>
-            </div>
             <div
               v-if="!userData.ownsService"
-              class="mt-2 py-5 border-top text-center">
-                <base-button
-                      block
-                      type="primary"
-                      class="mb-3"
-                      @click="Flag()"
-                    > Flag Service
-                    </base-button>
+              class="mt-2 py-5 border-top text-center"
+            >
+              <base-button block type="primary" class="mb-3" @click="Flag()">
+                Flag Service
+              </base-button>
             </div>
           </div>
         </card>
@@ -209,14 +241,16 @@ import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
+import StarRating from "vue-star-rating";
 import register from "../api/register";
 
 export default {
-  components: { BaseButton },
+  components: { BaseButton, StarRating },
   data() {
     return {
       serviceData: {
         location: "",
+        locationType: "",
         time: "",
         timeString: "",
         header: "",
@@ -235,6 +269,9 @@ export default {
         hasServiceRequest: "",
         ownsService: "",
         attendsService: false,
+      },
+      ratingData:{
+        readOnly : false
       },
       coordinates: {
         lat: 0,
@@ -313,7 +350,6 @@ export default {
     ConfirmServiceOverCreator() {
       modal.confirm(
         "Do you accept that the service is over?",
-        // "The participants' and your balance will be updated",
         "A notification will be sent to attendees to request their approval for system completion",
 
         this.SendServiceOverApprovalForCreator
@@ -328,8 +364,7 @@ export default {
     ConfirmServiceOverAttendee() {
       modal.confirm(
         "Do you accept that the service is over?",
-        // "The participants' and your balance will be updated",
-        "A notification will be sent to the creator and the service will be complete",
+        "A notification will be sent to the creator and the service will be complete. You can rate the service after it is over.",
 
         this.SendServiceOverApprovalForAttendee
       );
@@ -345,16 +380,21 @@ export default {
       var htmlText = "";
       var i = 0;
       for (i = 0; i < this.serviceData.participantUserList.length; i++) {
-        var text = "<hr>"
+        var text = "<hr>";
         var username = this.serviceData.participantUserList[i].username;
         var id = this.serviceData.participantUserList[i].id;
-        text += "<p><a target='_blank' href='#/profile/"+ id+"'>"+ username +"</a></p>";        
-        htmlText += text;        
+        text +=
+          "<p><a target='_blank' href='#/profile/" +
+          id +
+          "'>" +
+          username +
+          "</a></p>";
+        htmlText += text;
       }
 
       swal.fire({
         title: "<strong>Who is going?</strong>",
-        icon: 'question',
+        icon: "question",
         html: htmlText,
         showCloseButton: true,
       });
@@ -365,6 +405,24 @@ export default {
           text: r,
         });
       });
+    },
+    SetRating: function (rating) {
+      var id = this.$route.params.service_id;
+      apiRegister.RateService(id, rating).then((r) => {
+        this.ratingData.readOnly = true;
+        swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Your rating has been saved",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      });
+    },
+    GoToServiceEdit() {
+      var serviceId = this.$route.params.service_id;
+      var url = "#/service/edit/" + serviceId;
+      window.location.href = url;
     },
   },
 };

@@ -44,7 +44,7 @@ public class RatingServiceTest {
 
     private RatingService ratingService;
 
-    private final Principal mockPrincipal = new UserServiceUnitTests.MockPrincipal("test");
+    private final Principal mockPrincipal = new UserServiceTests.MockPrincipal("test");
 
     private final Long mockSvcId = 0L;
 

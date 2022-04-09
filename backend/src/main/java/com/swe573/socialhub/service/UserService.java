@@ -1,14 +1,11 @@
 package com.swe573.socialhub.service;
 
+import com.swe573.socialhub.domain.Badge;
 import com.swe573.socialhub.domain.Flag;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.domain.UserFollowing;
 import com.swe573.socialhub.dto.*;
-import com.swe573.socialhub.enums.ApprovalStatus;
-import com.swe573.socialhub.enums.FlagStatus;
-import com.swe573.socialhub.enums.FlagType;
-import com.swe573.socialhub.enums.ServiceStatus;
-import com.swe573.socialhub.enums.UserType;
+import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.config.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,6 +101,12 @@ public class UserService {
                 userEntity.addTag(addedTag.get());
             }
         }
+
+        //add newcomer badge
+        var badge = new Badge(userEntity, BadgeType.newcomer);
+        userEntity.setBadges(new HashSet<>() {{
+            add(badge);
+        }});
 
 
         try {
@@ -201,12 +201,12 @@ public class UserService {
                 user.getFormattedAddress(),
                 user.getFollowedBy().stream().map(u -> u.getFollowingUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
-                user.getTags().stream().map(x-> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
+                user.getTags().stream().map(x -> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
                 ratingService.getUserRatingSummary(user),
-                user.getUserType(), flagCount, user.getReputationPoint());
-
-
-
+                user.getUserType(),
+                flagCount,
+                user.getReputationPoint(),
+                user.getBadges().stream().map(x -> new BadgeDto(x.getId(), x.getBadgeType())).collect(Collectors.toUnmodifiableList()));
     }
 
     public UserDto getUserByUsername(String userName, Principal principal) {
