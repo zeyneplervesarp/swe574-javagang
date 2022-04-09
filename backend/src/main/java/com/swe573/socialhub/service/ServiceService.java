@@ -3,6 +3,7 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
+import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
@@ -286,6 +287,22 @@ public class ServiceService {
         } else {
             throw new IllegalArgumentException("No services have been found");
         }
+    }
+
+    @Transactional
+    public ServiceDto deleteService(Long serviceId, Principal principal) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        }
+        final var serviceToDelete = serviceRepository.findById(serviceId);
+        if (serviceToDelete.isEmpty()) {
+            throw new IllegalArgumentException("Service does not exist.");
+        }
+        final var service = serviceToDelete.get();
+        final var dto = mapToDto(service, Optional.of(loggedInUser));
+        serviceRepository.delete(service);
+        return dto;
     }
 
     private ServiceDto mapToDto(Service service, Optional<User> loggedInUser) {
