@@ -15,11 +15,11 @@ public class Service {
 
     }
     // constructor for physical services
-    public Service(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
-        this.locationType = locationType;
+        this.locationType = LocationType.Physical;
         this.location = location;
         this.time = time;
         credit = minutes;
@@ -34,11 +34,11 @@ public class Service {
     }
 
     // constructor for online services
-    public Service(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
-        this.locationType = locationType;
+        this.locationType = LocationType.Online;
         this.location = location;
         this.time = time;
         credit = minutes;
@@ -84,7 +84,13 @@ public class Service {
     @OneToMany(mappedBy = "service")
     Set<UserServiceApproval> approvalSet;
 
+    public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, serviceTags);
+    }
 
+    public static Service createPhysical(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, latitude, longitude, serviceTags);
+    }
 
 
     public User getCreatedUser() {

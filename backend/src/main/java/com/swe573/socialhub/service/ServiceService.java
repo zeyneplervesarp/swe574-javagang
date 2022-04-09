@@ -315,9 +315,9 @@ public class ServiceService {
 
     private Service mapToEntity(ServiceDto dto) {
         if(dto.getLocationType().equals(LocationType.Online))
-            return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocationType(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, null);
+            return Service.createOnline(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, null);
         else
-            return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocationType(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
+            return Service.createPhysical(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
     }
 
     private double getDistance(double lat1, double lng1, String lat2, String lng2) {
