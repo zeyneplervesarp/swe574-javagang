@@ -33,29 +33,22 @@
                   <base-input
                     placeholder="Header"
                     addon-left-icon="ni ni-align-left-2"
-                    v-model="serviceInputs.header"
+                    v-model="serviceData.header"
                   ></base-input>
                 </div>
                 <div class="col-lg-12">
                   <textarea
                     class="form-control form-control-alternative"
-                    v-model="serviceInputs.description"
+                    v-model="serviceData.description"
                     rows="3"
                     placeholder="Write a description of the service here ..."
                   ></textarea>
                   <br />
                 </div>
-                <!-- <div class="col-lg-12">
-                  <base-input
-                    placeholder="Location"
-                    addon-left-icon="ni ni-pin-3"
-                    v-model="serviceInputs.location"
-                  ></base-input>
-                </div> -->
                 <div class="col-lg-12">
                   <date-picker
                     input-class="form-control"
-                    v-model="serviceInputs.time"
+                    v-model="serviceData.time"
                     type="datetime"
                   ></date-picker>
                 </div>
@@ -64,7 +57,7 @@
                   <input
                     type="number"
                     class="form-control"
-                    v-model="serviceInputs.quota"
+                    v-model="serviceData.quota"
                     placeholder="Quota"
                   />
                 </div>
@@ -73,28 +66,14 @@
                   <input
                     type="number"
                     class="form-control"
-                    v-model="serviceInputs.minutes"
+                    v-model="serviceData.minutes"
                     placeholder="Credits"
                   />
                   <br />
                 </div>
-                <!-- <div class="col-lg-12">
-                  <base-input
-                    placeholder="Latitude"
-                    addon-left-icon="ni ni-pin-3"
-                    v-model="serviceInputs.latitude"
-                  ></base-input>
-                </div>
-                <div class="col-lg-12">
-                  <base-input
-                    placeholder="Longitude"
-                    addon-left-icon="ni ni-pin-3"
-                    v-model="serviceInputs.longitude"
-                  ></base-input>
-                </div> -->
                 <div class="col-lg-12">
                   <multiselect
-                    v-model="serviceInputs.serviceTags"
+                    v-model="serviceData.serviceTags"
                     :options="tags"
                     :multiple="true"
                     :close-on-select="false"
@@ -108,47 +87,26 @@
                 </div>
                 <br />
                 <div class="col-lg-12">
-                <multiselect
-                    v-model="serviceInputs.locationType"
-                    :options="locationTypes"
-                    :multiple="false"
-                    :close-on-select="false"
-                    :searchable="false"
-                    :show-labels="false"
-                    :taggable="true" 
-                    placeholder="Choose location type"
-                  ></multiselect>
-                  
-                </div>
-                <br/>
-                <div class="col-lg-12" v-if="serviceInputs.locationType === 'Online'">
-                <base-input
-                    placeholder="Meeting Link"
-                    v-model="serviceInputs.location"
-                  ></base-input>
-                </div>
-                <div v-if="serviceInputs.locationType === 'Physical'">
-                  <div class="col-lg-12" >
-                    <div class="form-group">
-                      <GmapAutocomplete
-                        class="form-control"
-                        addon-left-icon="ni ni-pin-3"
-                        @place_changed="setPlace"
-                      />
-                    </div>
-                    <div class="text-center">
-                      <base-button v-if="serviceInputs.location != ''" type="secondary"
-                        ><GmapMap
-                          :center="coordinates"
-                          :zoom="13"
-                          map-type-id="roadmap"
-                          style="width: 500px; height: 300px"
-                          ref="mapRef"
-                          
-                        >
-                          <GmapMarker :position="coordinates" /> </GmapMap
-                      ></base-button>
-                    </div>
+                  <div class="form-group">
+                    <GmapAutocomplete
+                      class="form-control"
+                      addon-left-icon="ni ni-pin-3"
+                      :placeholder="serviceData.location"
+                      @place_changed="setPlace"
+                    />
+                  </div>
+                  <div class="text-center">
+                    <base-button v-if="serviceData.location != ''" type="secondary"
+                      ><GmapMap
+                        :center="coordinates"
+                        :zoom="13"
+                        map-type-id="roadmap"
+                        style="width: 500px; height: 300px"
+                        ref="mapRef"
+                        
+                      >
+                        <GmapMarker :position="coordinates" /> </GmapMap
+                    ></base-button>
                   </div>
                 </div>
                 <div class="text-center">
@@ -156,7 +114,7 @@
                     v-on:click="SendService"
                     type="success"
                     class="my-4"
-                    >Create service</base-button
+                    >Edit</base-button
                   >
                 </div>
               </form>
@@ -174,7 +132,6 @@
 import apiRegister from "../api/register";
 import DatePicker from "vue2-datepicker";
 import Multiselect from "vue-multiselect";
-import BaseDropdown from "@/components/BaseDropdown";
 import MyMap from "./components/Map.vue";
 import register from '../api/register';
 
@@ -183,16 +140,17 @@ export default {
     DatePicker,
     Multiselect,
     MyMap,
-    BaseDropdown,
   },
   mounted() {
     this.GetGeoLocation();
     this.GetTags();
+    this.GetService();
+    this.GetUserDetails();
   },
   data() {
     return {
-      serviceInputs: {
-        locationType: "",
+      serviceData: {
+        id:"",
         location: "",
         time: "",
         header: "",
@@ -203,22 +161,56 @@ export default {
         latitude: "",
         longitude: "",
         serviceTags: [],
+        timeString: "",
+        createdUserName: "",
+        status: "",
+        datePassed: false,
+        participantUserList: [],
+      },
+      userData: {
+        ownsService: "",
       },
       coordinates: {
         lat: 0,
         lng: 0,
       },
       tags: [],
-        locationTypes: ["Physical", "Online"],
     };
   },
   methods: {
-    debug() {
-        console.log(this.serviceInputs.locationType);
+     GetService() {
+      var id = this.$route.params.service_id;
+      apiRegister.GetService(id).then((r) => {
+        this.serviceData.location = r.location;
+        this.serviceData.time = r.time;
+        this.serviceData.timeString = r.timeString;
+        this.serviceData.header = r.header;
+        this.serviceData.minutes = r.minutes;
+        this.serviceData.description = r.description;
+        this.serviceData.quota = r.quota;
+        this.serviceData.createdUserIdId = r.createdUserIdId;
+        this.serviceData.createdUserName = r.createdUserName;
+        this.serviceData.serviceTags = r.serviceTags;
+        this.serviceData.attendingUserCount = r.attendingUserCount;
+        this.serviceData.status = r.status;
+        this.serviceData.participantUserList = r.participantUserList;
+        this.serviceData.datePassed = r.showServiceOverButton;
+        this.coordinates.lat = r.latitude;
+        this.coordinates.lng = r.longitude;
+        this.serviceData.id = r.id;
+      });
+    },
+      GetUserDetails() {
+      var id = this.$route.params.service_id;
+      apiRegister.GetUserServiceDetails(id).then((r) => {
+        this.userData.hasServiceRequest = r.hasServiceRequest;
+        this.userData.ownsService = r.ownsService;
+        this.userData.attendsService = r.attendsService;
+      });
     },
     SendService() {
       console.log("Send service started");
-      apiRegister.CreateService(this.serviceInputs).then((r) => {
+      apiRegister.CreateService(this.serviceData).then((r) => {
         console.log("Send service ok");
         document.location.href = "#/service/" + r;
       });
@@ -229,8 +221,8 @@ export default {
       }
     },
     ShowPosition(position) {
-      this.serviceInputs.latitude = position.coords.latitude;
-      this.serviceInputs.longitude = position.coords.longitude;
+      this.serviceData.latitude = position.coords.latitude;
+      this.serviceData.longitude = position.coords.longitude;
       this.coordinates.lat = position.coords.latitude;
       this.coordinates.lng = position.coords.longitude;
     },
@@ -244,9 +236,9 @@ export default {
       var lng = place.geometry.location.lng();
       var name = place.name;
       var formattedAddress = place.formatted_address;
-      this.serviceInputs.latitude = lat;
-      this.serviceInputs.longitude = lng;
-      this.serviceInputs.location = formattedAddress;
+      this.serviceData.latitude = lat;
+      this.serviceData.longitude = lng;
+      this.serviceData.location = formattedAddress;
       this.coordinates.lat = lat;
       this.coordinates.lng = lng;
     },

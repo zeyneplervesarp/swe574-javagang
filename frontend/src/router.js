@@ -2,6 +2,8 @@ import Vue from "vue";
 import Router from "vue-router";
 import AppHeader from "./layout/AppHeader";
 import AppFooter from "./layout/AppFooter";
+import AdminAppHeader from "./layout/AdminAppHeader";
+import AdminAppFooter from "./layout/AdminAppFooter";
 import Components from "./views/Components.vue";
 import Landing from "./views/Landing.vue";
 import Home from "./views/Home.vue";
@@ -10,6 +12,7 @@ import Register from "./views/Register.vue";
 import Profile from "./views/Profile.vue";
 import UserPage from "./views/UserPage.vue";
 import CreateService from "./views/CreateService.vue";
+import EditService from "./views/EditService.vue";
 import SingleService from "./views/SingleService.vue";
 import MyServices from "./views/MyServices.vue";
 import AllServices from "./views/AllServices.vue";
@@ -17,6 +20,7 @@ import AttendingServices from "./views/AttendingServices.vue";
 import FollowingUserServices from "./views/FollowingUserServices.vue";
 import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
+import AdminServices from "./views/AdminServices.vue";
 Vue.use(Router);
 
 const ifNotAuthenticated = (to, from, next) => {
@@ -48,7 +52,7 @@ export default new Router({
         header: AppHeader,
         default: Home,
         footer: AppFooter
-      }
+      },
     }, {
       path: "/components",
       name: "components",
@@ -131,6 +135,17 @@ export default new Router({
       }
     },
     {
+      path: "/service/edit/:service_id",
+      name: "editService",
+      components: {
+        header: AppHeader,
+        default: EditService,
+        footer: AppFooter,
+        
+
+      }
+    },
+    {
       path: "/myServices",
       name: "myServices",
       components: {
@@ -187,6 +202,16 @@ export default new Router({
         header: AppHeader,
         default: FollowingUserServices,
         footer: AppFooter,
+
+      }
+    },
+    {
+      path: "/admin/services",
+      name: "adminServices",
+      components: {
+        header: AdminAppHeader,
+        default: AdminServices,
+        footer: AdminAppFooter,
 
       }
     },

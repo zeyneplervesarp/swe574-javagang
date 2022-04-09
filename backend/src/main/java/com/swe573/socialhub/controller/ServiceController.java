@@ -70,10 +70,12 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+
     @PostMapping
-    public ResponseEntity<Long> saveService(Principal principal, @Validated @RequestBody ServiceDto service) {
+    public ResponseEntity<Long> upsertService(Principal principal, @Validated @RequestBody ServiceDto service) {
         try {
-            var result = serviceService.save(principal, service);
+            var result = serviceService.upsert(principal, service);
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
@@ -81,10 +83,44 @@ public class ServiceController {
     }
 
 
+
     @GetMapping("/approve/{serviceId}")
     public void App(Principal principal, @PathVariable Long serviceId) {
         try {
             serviceService.approve(principal,serviceId);
+        }
+        catch (RuntimeException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @PostMapping("/feature/{serviceId}")
+    public ServiceDto featureService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            return serviceService.featureService(serviceId, principal);
+        }
+        catch (RuntimeException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @DeleteMapping("/feature/{serviceId}")
+    public ServiceDto unfeatureService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            return serviceService.removeFromFeaturedServices(serviceId, principal);
+        }
+        catch (RuntimeException e)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/feature")
+    public List<ServiceDto> getFeaturedServices(Principal principal) {
+        try {
+            return serviceService.getAllFeaturedServices(principal);
         }
         catch (RuntimeException e)
         {

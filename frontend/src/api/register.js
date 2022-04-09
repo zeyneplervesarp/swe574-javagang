@@ -82,6 +82,18 @@ export default {
     },
     RateService(serviceId, rating) {
         return http.post(process.env.VUE_APP_API + 'rating/service/' + serviceId + "/" + rating, null, true)
+    },    
+    AddTag(tag)
+    {
+        return http.post(process.env.VUE_APP_API + 'tags', tag,false)
+    },
+    FlagService(serviceId)
+    {
+        return http.post(process.env.VUE_APP_API + 'service/flag/' + serviceId, null, true)
+    },
+    FlagUser(userId) 
+    {
+        return http.post(process.env.VUE_APP_API + "user/flag/" + userId, null, true)
     }
 
 }

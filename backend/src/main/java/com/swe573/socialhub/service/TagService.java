@@ -6,9 +6,16 @@ import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,6 +57,31 @@ public class TagService {
         }
 
 
+    }
+
+    public Boolean keywordIsIllegal(Tag dto)
+    {
+        try
+        {
+            //get the swear-words resource and add them to a list
+            URL res = getClass().getClassLoader().getResource("swear-words");
+            File file = Paths.get(res.toURI()).toFile();
+            var path = file.toPath();
+            List<String> lines = Files.readAllLines(path);
+
+            for(String line : lines){
+                if (dto.getName().toLowerCase(Locale.ROOT).contains(line))
+                {
+                    return true;
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            return true;
+        }
+        return false;
     }
 
 

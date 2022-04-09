@@ -1,5 +1,6 @@
 package com.swe573.socialhub.dto;
 
+import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.enums.ServiceStatus;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ public class ServiceDto implements Serializable {
     private final Long id;
     private final String Header;
     private final String Description;
+    private final LocationType LocationType;
     private final String Location;
     private final LocalDateTime Time;
     private final int Minutes;
@@ -31,11 +33,13 @@ public class ServiceDto implements Serializable {
     private final Double DistanceToUser;
     private final List<UserDto> ParticipantUserList;
     private final RatingSummaryDto ratingSummary;
+    private final Long flagCount;
 
-    public ServiceDto(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary) {
+    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount) {
         this.id = id;
         Header = header;
         Description = description;
+        LocationType = locationType;
         Location = location;
         Time = time;
         Minutes = minutes;
@@ -52,6 +56,7 @@ public class ServiceDto implements Serializable {
 
         DistanceToUser = distanceToUser;
         ParticipantUserList = participantUserList;
+        this.flagCount = flagCount;
         if (DistanceToUser != null && DistanceToUser != 0)
         {
             DecimalFormat df = new DecimalFormat("0.00");
@@ -78,6 +83,10 @@ public class ServiceDto implements Serializable {
 
     public String getDescription() {
         return Description;
+    }
+
+    public com.swe573.socialhub.enums.LocationType getLocationType() {
+        return LocationType;
     }
 
     public String getLocation() {
@@ -127,6 +136,10 @@ public class ServiceDto implements Serializable {
 
     public Double getDistanceToUser() {
         return DistanceToUser;
+    }
+
+    public Long getFlagCount() {
+        return flagCount;
     }
 
     @Override

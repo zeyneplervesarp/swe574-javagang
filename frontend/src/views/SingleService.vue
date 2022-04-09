@@ -88,7 +88,8 @@
               </h3>
               <div></div>
               <br />
-              <div class="text-center">
+              <!-- physical -->
+              <div class="text-center" v-if="serviceData.locationType === 'Physical'">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
@@ -103,6 +104,10 @@
                     <GmapMarker :position="coordinates" />
                   </GmapMap>
                 </base-button>
+              </div>
+              <!-- online -->
+              <div class="text-center">
+                <p> Meeting Link: {{serviceData.location}} </p>
               </div>
               <br />
 
@@ -119,6 +124,45 @@
                   @rating-selected="SetRating"
                   :read-only="ratingData.readOnly"
                 ></star-rating>
+              </div>
+            </div>
+                      <div
+              v-if="userData.ownsService"
+              class="mt-1 py-3  text-center"
+            >
+              <div class="row justify-content-center">
+                <div class="col-lg-9">
+                  <base-button @click="GoToServiceEdit()" type="warning"
+                    >Edit Service</base-button
+                  >
+                  <base-button
+                    v-if="
+                      serviceData.datePassed && serviceData.status === 'ONGOING'
+                    "
+                    @click="ConfirmServiceOverCreator"
+                    type="success"
+                    >Service Is Over?</base-button
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-if="
+                userData.attendsService &&
+                serviceData.datePassed &&
+                serviceData.status === 'APPROVED'
+              "
+              class="mt-2 py-5 text-center"
+            >
+              <div class="row justify-content-center">
+                <div class="col-lg-9">
+                  <base-button
+                    @click="ConfirmServiceOverAttendee"
+                    type="success"
+                    >Service Is Over?</base-button
+                  >
+                </div>
               </div>
             </div>
             <div class="mt-2 py-5 border-top text-center">
@@ -178,24 +222,13 @@
                 </div>
               </div>
             </div>
-
             <div
-              v-if="
-                userData.attendsService &&
-                serviceData.datePassed &&
-                serviceData.status === 'APPROVED'
-              "
+              v-if="!userData.ownsService"
               class="mt-2 py-5 border-top text-center"
             >
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button
-                    @click="ConfirmServiceOverAttendee"
-                    type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
-              </div>
+              <base-button block type="primary" class="mb-3" @click="Flag()">
+                Flag Service
+              </base-button>
             </div>
           </div>
         </card>
@@ -204,7 +237,7 @@
   </div>
 </template>
 <script>
-import BaseButton from "../../assets/components/BaseButton.vue";
+import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
@@ -217,6 +250,7 @@ export default {
     return {
       serviceData: {
         location: "",
+        locationType: "",
         time: "",
         timeString: "",
         header: "",
@@ -304,6 +338,15 @@ export default {
         location.reload();
       });
     },
+    Flag() {
+      var serviceId = this.$route.params.service_id;
+
+      apiRegister.FlagService(serviceId).then((r) => {
+        swal.fire({
+          text: "You successfully flagged the service",
+        });
+      });
+    },
     ConfirmServiceOverCreator() {
       modal.confirm(
         "Do you accept that the service is over?",
@@ -375,6 +418,11 @@ export default {
           timer: 1500,
         });
       });
+    },
+    GoToServiceEdit() {
+      var serviceId = this.$route.params.service_id;
+      var url = "#/service/edit/" + serviceId;
+      window.location.href = url;
     },
   },
 };

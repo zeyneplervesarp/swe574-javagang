@@ -149,34 +149,45 @@ public class ServiceService {
     }
 
     @Transactional
-    public Long save(Principal principal, ServiceDto dto) {
+    public Long upsert(Principal principal, ServiceDto dto) {
         //check token => if username is null, throw an error
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
         if (loggedInUser == null)
             throw new IllegalArgumentException("User doesn't exist.");
 
         try {
+            var entityExists = false;
+            if (dto.getId() != null)
+                entityExists = serviceRepository.findById(dto.getId()).isPresent();
             var entity = mapToEntity(dto);
-            entity.setCreatedUser(loggedInUser);
 
-            var tags = dto.getServiceTags();
-            if (tags != null) {
-                for (TagDto tagDto : tags) {
-                    var addedTag = tagRepository.findById(tagDto.getId());
-                    if (addedTag.isEmpty()) {
-                        throw new IllegalArgumentException("There is no tag with this Id.");
+
+                entity.setCreatedUser(loggedInUser);
+
+                var tags = dto.getServiceTags();
+                if (tags != null) {
+                    for (TagDto tagDto : tags) {
+                        var addedTag = tagRepository.findById(tagDto.getId());
+                        if (addedTag.isEmpty()) {
+                            throw new IllegalArgumentException("There is no tag with this Id.");
+                        }
+                        entity.addTag(addedTag.get());
                     }
-                    entity.addTag(addedTag.get());
                 }
+                //check pending credits and balance if the sum is above 20 => throw an error
+                var currentUserBalance = userService.getBalanceToBe(loggedInUser);
+                var balanceToBe = currentUserBalance + dto.getMinutes();
+                if (balanceToBe >= 20)
+                    throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
+
+
+            if (entityExists)
+            {
+                entity.setId(dto.getId());
             }
-            //check pending credits and balance if the sum is above 20 => throw an error
-            var currentUserBalance = userService.getBalanceToBe(loggedInUser);
-            var balanceToBe = currentUserBalance + dto.getMinutes();
-            if (balanceToBe >= 20)
-                throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
-
-
             var savedEntity = serviceRepository.save(entity);
+
+
             return savedEntity.getId();
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
@@ -297,12 +308,16 @@ public class ServiceService {
         }
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
-
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service));
+        long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount);
     }
 
+
     private Service mapToEntity(ServiceDto dto) {
-        return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
+        if(dto.getLocationType().equals(LocationType.Online))
+            return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocationType(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, null);
+        else
+            return new Service(null, dto.getHeader(), dto.getDescription(), dto.getLocationType(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null);
     }
 
     private double getDistance(double lat1, double lng1, String lat2, String lng2) {
@@ -330,7 +345,7 @@ public class ServiceService {
         }
         // flag the service
         try {
-            Flag flag = new Flag(FlagType.service, loggedInUser.getId(), serviceId);
+            Flag flag = new Flag(FlagType.service, loggedInUser.getId(), serviceId, FlagStatus.active);
             return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
@@ -347,5 +362,56 @@ public class ServiceService {
         }
     }
 
+    private User validateAdmin(Principal principal) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName());
+        if (loggedInUser.isEmpty())
+            throw new IllegalArgumentException("User doesn't exist.");
+        if (loggedInUser.get().getUserType() != UserType.ADMIN)
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        return loggedInUser.get();
+    }
 
+    private static int MAX_FEATURED_SERVICE_COUNT = 3;
+
+    public ServiceDto featureService(Long serviceId, Principal principal) {
+        final var admin = validateAdmin(principal);
+
+        final var previouslyFeatured = serviceRepository.findFeatured();
+        if (previouslyFeatured.size() >= MAX_FEATURED_SERVICE_COUNT)
+            throw new IllegalArgumentException("Already have " + MAX_FEATURED_SERVICE_COUNT + " services featured. Unfeature one before proceeding.");
+
+
+        final var svc = serviceRepository.findById(serviceId);
+        if (svc.isEmpty())
+            throw new IllegalArgumentException("Service doesn't exist.");
+
+        svc.get().setFeatured(true);
+
+        return mapToDto(svc.get(), Optional.of(admin));
+    }
+
+    public List<ServiceDto> getAllFeaturedServices(Principal principal) {
+        final Optional<User> loggedInUser;
+        if (principal == null)
+            loggedInUser = Optional.empty();
+        else
+            loggedInUser = userRepository.findUserByUsername(principal.getName());
+        return serviceRepository
+                .findFeatured()
+                .stream()
+                .map(s -> mapToDto(s, loggedInUser))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public ServiceDto removeFromFeaturedServices(Long serviceId, Principal principal) {
+        final var admin = validateAdmin(principal);
+
+        final var svc = serviceRepository.findById(serviceId);
+        if (svc.isEmpty())
+            throw new IllegalArgumentException("Service doesn't exist.");
+
+        svc.get().setFeatured(false);
+
+        return mapToDto(svc.get(), Optional.of(admin));
+    }
 }

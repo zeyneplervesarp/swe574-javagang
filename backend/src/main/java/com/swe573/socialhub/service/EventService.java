@@ -268,8 +268,8 @@ public class EventService {
         }
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
-
-        return new EventDto(event.getId(), event.getHeader(), event.getDescription(), event.getLocation(), event.getTime(), event.getMinutes(), event.getQuota(), attending, event.getCreatedUser().getId(), event.getCreatedUser().getUsername(), event.getLatitude(), event.getLongitude(), list, event.getStatus(), pending, distanceToUser, attendingUserList);
+        long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.event, event.getId(), FlagStatus.active);
+        return new EventDto(event.getId(), event.getHeader(), event.getDescription(), event.getLocation(), event.getTime(), event.getMinutes(), event.getQuota(), attending, event.getCreatedUser().getId(), event.getCreatedUser().getUsername(), event.getLatitude(), event.getLongitude(), list, event.getStatus(), pending, distanceToUser, attendingUserList, flagCount);
     }
 
     private Event mapToEntity(EventDto dto) {
@@ -301,7 +301,7 @@ public class EventService {
         }
         // flag the event
         try {
-            Flag flag = new Flag(FlagType.event, loggedInUser.getId(), eventId);
+            Flag flag = new Flag(FlagType.event, loggedInUser.getId(), eventId, FlagStatus.active);
             return flagRepository.save(flag);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());

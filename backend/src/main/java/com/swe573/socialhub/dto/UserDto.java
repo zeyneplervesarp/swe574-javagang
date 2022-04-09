@@ -1,5 +1,6 @@
 package com.swe573.socialhub.dto;
 
+import com.swe573.socialhub.domain.Badge;
 import com.swe573.socialhub.enums.UserType;
 
 import java.util.List;
@@ -22,9 +23,10 @@ public class UserDto {
     private List<TagDto> tags;
     private RatingSummaryDto ratingSummary;
     private UserType userType;
+    private long flagCount;
+    private List<BadgeDto> badges;
 
-
-    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType) {
+    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount, List<BadgeDto> badges) {
         this.id = id;
         this.ratingSummary = ratingSummary;
         this.username = username;
@@ -40,6 +42,8 @@ public class UserDto {
         this.following = following;
         this.tags = tags;
         this.userType = userType;
+        this.flagCount = flagCount;
+        this.badges = badges;
     }
     public String getEmail() {
         return email;
@@ -175,5 +179,21 @@ public class UserDto {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public long getFlagCount() {
+        return flagCount;
+    }
+
+    public void setFlagCount(long flagCount) {
+        this.flagCount = flagCount;
+    }
+
+    public List<BadgeDto> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(List<BadgeDto> badges) {
+        this.badges = badges;
     }
 }
