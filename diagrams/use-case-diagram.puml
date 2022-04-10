@@ -1,11 +1,21 @@
 @startuml UseCase
 
-User --> (Create events)
-User --> (Request event participation)
-User --> (Approve event participation)
+
+User <|-up- Admin
+Admin --> (Review flags)
+Admin --> (Remove events)
+Admin --> (Remove users)
+Admin --> (Pick featured services)
+User --> (Flag users)
+User --> (Flag services)
+User --> (Create services)
+User --> (Request service participation)
+User --> (Approve service participation)
 User --> (Follow users)
-User --> (View events)
-User --> (View event details)
-Reader --> (View events)
+User --> (View user details)
+User --> (View services)
+User --> (View service details)
+User --> (Rate joined services)
+Reader --> (View services)
 
 @enduml
