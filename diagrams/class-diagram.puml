@@ -9,6 +9,9 @@ class User {
     double Longitude
     string FormattedAddress
     int Credits
+    int reputationPoint
+    int flagCount
+
    
     void FollowUser(int userId)
     void Register(string username,string email,string bio,string password,string tags,string latitude,string longitude,string formattedAddress)
@@ -31,16 +34,19 @@ class Service {
     string Id
     string Header
     string Description
+    LocationType LocationType
     string Location
     DateTime Time
     int Credits
     DateTime CreatedDateTime
+    DateTİme CancellationDate
     int CreatedUserId
     int Quota    
     double Latitude
     double Longitude
     string FormattedAddress
     ServiceStatus Status
+    int FlagCount
     List<Service> GetAll()
     List<Service> GetSorted(SortType sortType)
     Service GetById(int serviceId)
@@ -50,7 +56,13 @@ class Service {
 }
 
 Service "*" *-- "*" Tag 
-Service "1" *-- "*" ServiceStatus 
+Service "1" *-- "*" ServiceStatus
+Service -- LocationType
+
+enum LocationType {
+    PHYSICAL,
+    ONLINE
+}
 
 enum ServiceStatus
 {
@@ -70,7 +82,7 @@ enum SortType
     createdDateAsc
 }
 
-class Tag{
+class Tag {
     int Id
     string Name
 }
@@ -193,8 +205,6 @@ class Flag {
 Flag "*" --* "1" FlagType 
 Flag "*" --* "1" FlagStatus 
 Flag "*" --* "1" Service 
-Flag "*" --* "1" User 
-
-
+Flag "*" --* "1" User
 
 @enduml
