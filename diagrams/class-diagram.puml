@@ -96,9 +96,9 @@ enum ApprovalStatus {
 }
 
 class Notification {
-    string Id
-    string UserId
-    string Message
+    int Id
+    int UserId
+    int Message
     bool Read
     List<Notification> GetNotificationsByUser(int userId)
 
@@ -106,5 +106,30 @@ class Notification {
 
 
 User "1" --* "*" Notification
+
+
+class UserRating {
+    int Id
+    int UserId
+    int Rating
+    void AddUserRating(string userId, int rating)
+    List<Rating> GetUserRatings(int serviceId)
+
+}
+
+User "1" --* "*" UserRating
+
+
+class ServiceRating {
+    int Id
+    int ServiceId
+    int Rating
+    void AddServiceRating(string serviceId, int rating)
+    List<Rating> GetServiceRatings(int serviceId)
+
+}
+Service "1" --* "*" ServiceRating 
+
+
 
 @enduml
