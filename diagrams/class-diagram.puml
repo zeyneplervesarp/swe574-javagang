@@ -13,14 +13,16 @@ class User {
     void FollowUser(int userId)
     void Register(string username,string email,string bio,string password,string tags,string latitude,string longitude,string formattedAddress)
     void Login (string username, string password)
-    User GetUser(int userId)
-    List<User> GetAllUsers(int userId)
+    User GetProfile(int userId)
+    void FlagUser(int userId)
 
 }
 
 
 User "1" *-- "*" Service : creates
+
 User "*" -- "*" User : follows
+User "1" -- "*" User : flags
 User "*" -- "*" Tag : interests
 User "1" -- "*" Notification
 
@@ -129,6 +131,69 @@ class ServiceRating {
 
 }
 Service "1" --* "*" ServiceRating 
+
+class Admin {
+    string Id
+    string Name
+    string EmailAddress
+    string Password
+
+  
+   
+    void DismissFlags(int serviceId)
+    void DeleteUser(int userId)
+    void DeleteService(int serviceId)
+    void EditService(int serviceId)
+    User GetUser(int userId)
+    User GetService(int serviceId)
+    List<User> GetAllUsers(int userId)
+    void FeatureServices(List<Service> services)
+    void Login (string username, string password)    
+
+}
+
+enum BadgeType {
+    newcomer
+    mentor
+    superMentor
+    regular
+    communityBuilder
+    guru
+    
+}
+
+class Badge {
+    int Id
+    User user
+    BadgeType type
+}
+
+Badge "*" --* "1" BadgeType 
+User "1" --* "*" Badge: earns 
+
+enum FlagStatus {
+    active
+    inactive
+}
+
+enum FlagType {
+    service
+    event
+    user
+}
+
+class Flag {
+    int Id
+    FlagType type
+    User flaggingUser
+    User flaggedUser
+    FlagStatus status
+}
+
+Flag "*" --* "1" FlagType 
+Flag "*" --* "1" FlagStatus 
+Flag "*" --* "1" Service 
+Flag "*" --* "1" User 
 
 
 
