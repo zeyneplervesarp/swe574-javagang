@@ -1,0 +1,52 @@
+@startuml Sequence
+
+mainframe admin - feature service
+
+title "Admin - Feature Service Diagram"
+actor Admin
+participant ServiceService
+database db
+
+group feature service
+
+activate Admin
+Admin -> ServiceService : FeatureService(serviceId)
+activate ServiceService
+ServiceService -> db :findFeatured()
+db -> ServiceService: featured services
+deactivate db
+alt max feature count is reached
+    ServiceService -> Admin: featured count error
+else max count not reached
+
+ServiceService -> db :findServiceById(serviceId)
+activate db
+db -> ServiceService: service
+deactivate db
+alt service found
+    ServiceService -> Admin: featured service
+else service not found
+    ServiceService -> Admin: service not found error
+deactivate ServiceService
+end
+end
+end group
+
+group unfeature service
+
+Admin -> ServiceService : UnfeatureService(serviceId)
+activate ServiceService
+ServiceService -> db : findServiceById(serviceId)
+activate db
+db -> ServiceService: service
+alt service found
+    ServiceService -> Admin: enfeatured service
+else service not found
+    ServiceService -> Admin: service not found error
+deactivate ServiceService
+end
+end group
+
+
+
+@enduml

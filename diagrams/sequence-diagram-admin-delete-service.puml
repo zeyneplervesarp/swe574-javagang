@@ -1,0 +1,26 @@
+@startuml Sequence
+
+mainframe admin - delete service
+
+title "Admin - Delete Service Diagram"
+actor Admin
+participant ServiceService
+database db
+
+activate Admin
+Admin -> ServiceService: deleteService(serviceId)
+activate ServiceService
+ServiceService -> db: findById(serviceId)
+activate db
+db -> ServiceService: service
+deactivate db
+alt service found
+    ServiceService -> db: delete(service)
+    activate db
+    db --> ServiceService: ok
+    deactivate db
+    ServiceService -> Admin: deleted service
+else service not found
+    ServiceService -> Admin: service not found error
+end
+@enduml
