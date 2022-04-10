@@ -1,0 +1,55 @@
+@startuml Sequence
+
+mainframe flag user & service
+
+title "Flag User & Service"
+actor User
+participant ServiceService
+participant UserService
+database db
+
+group flag user
+activate User
+
+User -> UserService: flagUser(userId)
+activate UserService
+UserService -> db: findById(serviceId)
+activate db
+db -> UserService: user
+deactivate db
+
+alt requested flag doesn't exists
+    UserService -> db: save(flag)
+    activate db
+    db --> UserService: ok
+    deactivate db
+    UserService -> User: flag
+else requested flag exists
+    UserService -> User: already flagged user error
+    deactivate UserService
+end
+end group
+
+
+group flag service
+User -> ServiceService: flagService(serviceId)
+activate ServiceService
+ServiceService -> db: findById(serviceId)
+activate db
+db -> ServiceService: service
+deactivate db
+
+alt requested flag doesn't exists
+    ServiceService -> db: save(flag)
+    activate db
+    db --> ServiceService: ok
+    deactivate db
+    ServiceService -> User: flag
+else requested flag exists
+    ServiceService -> User: already flagged service error
+    deactivate ServiceService
+end
+deactivate User
+end service
+
+@enduml

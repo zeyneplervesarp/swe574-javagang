@@ -1,0 +1,26 @@
+@startuml Sequence
+
+mainframe admin - delete user
+
+title "Admin - Delete User Diagram"
+actor Admin
+participant UserService
+database db
+
+activate Admin
+Admin -> UserService: deleteUser(userId)
+activate UserService
+UserService -> db: findById(serviceId)
+activate db
+db -> UserService: user
+deactivate db
+alt user found
+    UserService -> db: delete(user)
+    activate db
+    db --> UserService: ok
+    deactivate db
+    UserService -> Admin: deleted user
+else user not found
+    UserService -> Admin: user not found error
+end
+@enduml
