@@ -67,6 +67,12 @@ public class UserService {
     @Autowired
     private RatingService ratingService;
 
+    @Autowired
+    private UserServiceApprovalRepository svcApprovalRepository;
+
+    @Autowired
+    private UserEventApprovalRepository eventApprovalRepository;
+
 
     @Transactional
     public UserDto register(UserDto dto) {
@@ -137,6 +143,29 @@ public class UserService {
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    @Transactional
+    public UserDto deleteUser(Long userId, Principal principal) {
+        final var loggedInUser = repository.findUserByUsername(principal.getName()).get();
+        if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        }
+        final var userToDelete = repository.findById(userId);
+        if (userToDelete.isEmpty()) {
+            throw new IllegalArgumentException("User does not exist.");
+        }
+
+        final var dto = mapUserToDTO(userToDelete.get());
+
+        svcApprovalRepository.deleteAll(userToDelete.get().getServiceApprovalSet());
+        eventApprovalRepository.deleteAll(userToDelete.get().getEventApprovalSet());
+
+        userToDelete.get().setEventApprovalSet(Collections.emptySet());
+        userToDelete.get().setServiceApprovalSet(Collections.emptySet());
+
+        repository.delete(userToDelete.get());
+        return dto;
     }
 
     public JwtDto createAuthenticationToken(LoginDto authenticationRequest) throws AuthenticationException {

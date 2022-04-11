@@ -65,6 +65,15 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/user/{userId}")
+    public UserDto deleteUser(Principal principal, @PathVariable String userId) {
+        try {
+            return service.deleteUser(Long.valueOf(userId), principal);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/user/getServiceDetails/{serviceId}")
     public UserServiceDto getServiceDetails(Principal principal, @PathVariable Long serviceId) {
         try {

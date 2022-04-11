@@ -61,6 +61,15 @@ public class ServiceController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ServiceDto> deleteService(@PathVariable(value = "id") long id, Principal principal) {
+        try {
+            return ResponseEntity.ok(serviceService.deleteService(id, principal));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/userService")
     public ResponseEntity<List<ServiceDto>> getListByUser(Principal principal) {
         try {
