@@ -159,4 +159,14 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    @PostMapping("/flag/dismiss/{serviceId}")
+    public ResponseEntity<Boolean> dismissFlags(Principal principal, @PathVariable Long serviceId) {
+        try {
+            serviceService.dismissFlags(principal, serviceId);
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
 }

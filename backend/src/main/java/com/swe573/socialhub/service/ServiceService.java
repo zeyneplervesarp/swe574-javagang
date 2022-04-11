@@ -354,6 +354,19 @@ public class ServiceService {
         }
     }
 
+    @Transactional
+    public void dismissFlags(Principal principal, Long serviceId) {
+        try {
+            final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+            if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+                throw new IllegalArgumentException("You need to be admin to perform this action");
+            }
+            flagRepository.dismissFlags(FlagStatus.inactive, FlagType.service, serviceId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
     public Boolean checkForExistingFlag(Principal principal, Long serviceId) {
         try {
             final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();

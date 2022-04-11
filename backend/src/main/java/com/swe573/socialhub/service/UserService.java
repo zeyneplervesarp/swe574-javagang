@@ -339,7 +339,21 @@ public class UserService {
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
 
+    @Transactional
+    public void dismissFlags(Principal principal, Long dismissFlagUserId) {
+        try {
+            final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
+            // can't do this action if the user is not admin
+            if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+                throw new IllegalArgumentException("You need to be admin to perform this action");
+            }
+            // dismiss all flags for user
+            flagRepository.dismissFlags(FlagStatus.inactive, FlagType.user, dismissFlagUserId);
+        } catch(Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
 
     }
 }

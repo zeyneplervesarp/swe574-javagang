@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.PostUpdate;
 import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
 import java.util.List;
@@ -129,6 +130,13 @@ public class UserController {
         }
     }
 
-
-
+    @PostMapping("/user/flag/dismiss/{userId}")
+    public ResponseEntity<Boolean> dismissFlags(Principal principal, @PathVariable Long userId) {
+        try {
+            service.dismissFlags(principal, userId);
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
 }
