@@ -45,13 +45,6 @@
                   ></textarea>
                   <br />
                 </div>
-                <!-- <div class="col-lg-12">
-                  <base-input
-                    placeholder="Location"
-                    addon-left-icon="ni ni-pin-3"
-                    v-model="serviceInputs.location"
-                  ></base-input>
-                </div> -->
                 <div class="col-lg-12">
                   <date-picker
                     input-class="form-control"
@@ -78,20 +71,6 @@
                   />
                   <br />
                 </div>
-                <!-- <div class="col-lg-12">
-                  <base-input
-                    placeholder="Latitude"
-                    addon-left-icon="ni ni-pin-3"
-                    v-model="serviceInputs.latitude"
-                  ></base-input>
-                </div>
-                <div class="col-lg-12">
-                  <base-input
-                    placeholder="Longitude"
-                    addon-left-icon="ni ni-pin-3"
-                    v-model="serviceInputs.longitude"
-                  ></base-input>
-                </div> -->
                 <div class="col-lg-12">
                   <multiselect
                     v-model="serviceInputs.serviceTags"
@@ -99,7 +78,7 @@
                     :multiple="true"
                     :close-on-select="false"
                     :show-labels="false"
-                    :taggable="true" 
+                    :taggable="true"
                     @tag="addTag"
                     placeholder="Pick a tag or enter a new one"
                     label="name"
@@ -108,27 +87,29 @@
                 </div>
                 <br />
                 <div class="col-lg-12">
-                <multiselect
+                  <multiselect
                     v-model="serviceInputs.locationType"
                     :options="locationTypes"
                     :multiple="false"
                     :close-on-select="false"
                     :searchable="false"
                     :show-labels="false"
-                    :taggable="true" 
+                    :taggable="true"
                     placeholder="Choose location type"
                   ></multiselect>
-                  
                 </div>
-                <br/>
-                <div class="col-lg-12" v-if="serviceInputs.locationType === 'Online'">
-                <base-input
+                <br />
+                <div
+                  class="col-lg-12"
+                  v-if="serviceInputs.locationType === 'Online'"
+                >
+                  <base-input
                     placeholder="Meeting Link"
                     v-model="serviceInputs.location"
                   ></base-input>
                 </div>
                 <div v-if="serviceInputs.locationType === 'Physical'">
-                  <div class="col-lg-12" >
+                  <div class="col-lg-12">
                     <div class="form-group">
                       <GmapAutocomplete
                         class="form-control"
@@ -137,14 +118,15 @@
                       />
                     </div>
                     <div class="text-center">
-                      <base-button v-if="serviceInputs.location != ''" type="secondary"
+                      <base-button
+                        v-if="serviceInputs.location != ''"
+                        type="secondary"
                         ><GmapMap
                           :center="coordinates"
                           :zoom="13"
                           map-type-id="roadmap"
                           style="width: 500px; height: 300px"
                           ref="mapRef"
-                          
                         >
                           <GmapMarker :position="coordinates" /> </GmapMap
                       ></base-button>
@@ -176,7 +158,7 @@ import DatePicker from "vue2-datepicker";
 import Multiselect from "vue-multiselect";
 import BaseDropdown from "@/components/BaseDropdown";
 import MyMap from "./components/Map.vue";
-import register from '../api/register';
+import register from "../api/register";
 
 export default {
   components: {
@@ -209,12 +191,12 @@ export default {
         lng: 0,
       },
       tags: [],
-        locationTypes: ["Physical", "Online"],
+      locationTypes: ["Physical", "Online"],
     };
   },
   methods: {
     debug() {
-        console.log(this.serviceInputs.locationType);
+      console.log(this.serviceInputs.locationType);
     },
     SendService() {
       console.log("Send service started");
@@ -250,12 +232,15 @@ export default {
       this.coordinates.lat = lat;
       this.coordinates.lng = lng;
     },
-    addTag (newTag) {
+    addTag(newTag) {
       const tag = {
-        name: newTag
-      }
-      register.AddTag(tag);
-    }
+        name: newTag,
+      };
+      register.AddTag(tag).then((r) => {
+        this.tags.push(tag);
+        this.serviceInputs.serviceTags.push(tag);
+      });
+    },
   },
 };
 </script>
