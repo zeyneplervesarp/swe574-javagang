@@ -90,6 +90,7 @@ public class UserService {
         userEntity.setPassword(passwordHash);
         userEntity.setUsername(dto.getUsername());
         userEntity.setBalance(5);
+        userEntity.setReputationPoint(10);
         userEntity.setLongitude(dto.getLongitude());
         userEntity.setLatitude(dto.getLatitude());
         userEntity.setFormattedAddress(dto.getFormattedAddress());
@@ -233,9 +234,8 @@ public class UserService {
                 ratingService.getUserRatingSummary(user),
                 user.getUserType(),
                 flagCount,
+                user.getReputationPoint(),
                 user.getBadges().stream().map(x -> new BadgeDto(x.getId(), x.getBadgeType())).collect(Collectors.toUnmodifiableList()));
-
-
     }
 
     public UserDto getUserByUsername(String userName, Principal principal) {

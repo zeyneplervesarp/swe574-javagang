@@ -43,7 +43,7 @@
                 </div>
               </div>
               <div class="col-lg-4 order-lg-1">
-                <div class="card-profile-stats d-flex justify-content-center">
+                <div class="card-profile-stats d-flex justify-content-left">
                   <div>
                     <span class="heading">{{ userData.following.length }}</span>
                     <span class="description">Following</span>
@@ -61,6 +61,11 @@
                   <div v-if="isOwnProfile">
                     <span class="heading">{{ userData.balanceOnHold }}</span>
                     <span class="description">Credits on Hold</span>
+                  </div>
+
+                  <div>
+                    <span class="heading">{{ userData.reputationPoint }}</span>
+                    <span class="description">Reputation Points</span>
                   </div>
                   <div v-if="userIsAdmin && !isOwnProfile">
                     <span class="heading">{{ userData.flagCount }}</span>
@@ -142,6 +147,7 @@ export default {
         bio: "",
         balance: 0,
         balanceOnHold: 0,
+        reputationPoint: 0,
         flagCount: 0,
         following: [],
         followedBy: [],
@@ -171,6 +177,7 @@ export default {
         this.userData.bio = r.bio;
         this.userData.balance = r.balance;
         this.userData.balanceOnHold = r.balanceOnHold;
+        this.userData.reputationPoint = r.reputationPoint;
         this.userData.following = r.following;
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
