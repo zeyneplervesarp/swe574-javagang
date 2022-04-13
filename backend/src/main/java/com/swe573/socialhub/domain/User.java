@@ -24,10 +24,10 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     private Set<Tag> userTags;
-    @OneToMany(mappedBy = "createdUser")
+    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Service> createdServices;
 
-    @OneToMany(mappedBy = "createdUser")
+    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Event> createdEvents;
     @OneToMany(mappedBy = "user")
     Set<UserServiceApproval> serviceApprovalSet;
@@ -35,11 +35,11 @@ public class User {
     @OneToMany(mappedBy = "user")
     Set<UserEventApproval> eventApprovalSet;
     private Integer balance;
-    @OneToMany(mappedBy = "receiver")
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Notification> notificationSet;
-    @OneToMany(mappedBy = "followingUser")
+    @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<UserFollowing> followingUsers;
-    @OneToMany(mappedBy = "followedUser")
+    @OneToMany(mappedBy = "followedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<UserFollowing> followedBy;
 
     @OneToMany(mappedBy = "rater")
