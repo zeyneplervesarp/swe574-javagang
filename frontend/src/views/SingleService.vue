@@ -442,13 +442,13 @@ export default {
       var id = this.$route.params.service_id;
       apiRegister.RateService(id, rating).then((r) => {
         this.ratingData.readOnly = true;
-        swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Your rating has been saved",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        // swal.fire({
+        //   position: "top-end",
+        //   icon: "success",
+        //   title: "Your rating has been saved",
+        //   showConfirmButton: false,
+        //   timer: 1500,
+        // });
       });
     },
     GoToServiceEdit() {
