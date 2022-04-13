@@ -60,7 +60,7 @@ class LoadDatabase {
 
             //region User
 
-            var userAdmin = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN);
+            var userAdmin = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN,0);
 
             var user1 = saveAndGetUser(userRepository, passwordEncoder, "miranda", "miranda.osborne@gmail.com", "Gamer. Award-winning music buff. Social media maven. Zombie fan. Student. Professional internet fanatic. Thinker. Freelance baconaholic.", new HashSet<Tag>() {{
                 add(tag2);
@@ -89,7 +89,7 @@ class LoadDatabase {
 
             var user6 = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN, 0);
 
-            var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER);
+            var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER,0);
 
             userRepository.findAll().forEach(user -> {
                 log.info("Preloaded " + user);
