@@ -259,6 +259,7 @@ public class User {
 
     public void setReputationPoint(int reputationPoint) {
         this.reputationPoint = reputationPoint;
+    }
 
     public Set<Badge> getBadges() {
         return badges;
