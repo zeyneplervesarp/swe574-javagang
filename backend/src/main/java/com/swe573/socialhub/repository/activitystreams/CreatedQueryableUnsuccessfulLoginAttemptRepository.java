@@ -19,6 +19,6 @@ public class CreatedQueryableUnsuccessfulLoginAttemptRepository implements Creat
 
     @Override
     public List<LoginAttempt> findAllByCreatedBetween(Date createdGt, Date createdLt, Pageable pageable) {
-        return loginAttemptRepository.findAllSuccessfulByCreatedBetween(createdGt, createdLt, pageable);
+        return loginAttemptRepository.findAllUnsuccessfulByCreatedBetween(createdGt, createdLt, pageable);
     }
 }
