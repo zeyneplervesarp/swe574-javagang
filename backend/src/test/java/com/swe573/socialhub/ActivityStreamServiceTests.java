@@ -3,6 +3,8 @@ package com.swe573.socialhub;
 import com.ibm.common.activitystreams.ASObject;
 import com.ibm.common.activitystreams.Activity;
 import com.swe573.socialhub.domain.LoginAttempt;
+import com.swe573.socialhub.domain.Service;
+import com.swe573.socialhub.domain.Tag;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.SearchMatchDto;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
@@ -88,7 +90,7 @@ public class ActivityStreamServiceTests {
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
-        Assertions.assertEquals(actorIdList.size(), 2);
+        Assertions.assertEquals(2, actorIdList.size());
         Assertions.assertTrue(actorIdList.contains("0"));
         Assertions.assertTrue(actorIdList.contains("1"));
     }
@@ -112,9 +114,40 @@ public class ActivityStreamServiceTests {
         var objectValueTypes = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getObject(a).objectTypeString())
                 .collect(Collectors.toList());
-        Assertions.assertEquals(objectValueTypes.size(), 2);
+        Assertions.assertEquals(2, objectValueTypes.size());
         Assertions.assertEquals(objectValueTypes.get(0), "login-attempt");
         Assertions.assertEquals(objectValueTypes.get(1), "user");
+    }
+
+    @Test
+    public void ActivityStreamService_canFind_CreatedServices() {
+        var loginUser1 = new User();
+        loginUser1.setId(0L);
+        loginUser1.setUsername("tester");
+
+        var loginUser2 = new User();
+        loginUser2.setId(1L);
+        loginUser2.setUsername("tester2");
+
+        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        testSvc1.setCreated(new Date(System.currentTimeMillis() - 3600 * 1000));
+        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        testSvc2.setCreated(new Date());
+
+
+        Mockito.when(serviceRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(List.of(testSvc1, testSvc2));
+
+        Mockito.when(userRepository.findAllByUsername(Mockito.any()))
+                .thenReturn(List.of(loginUser1, loginUser2));
+
+        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
+                .map(a -> getActor(a).id())
+                .collect(Collectors.toList());
+        Assertions.assertEquals(2, actorIdList.size());
+        Assertions.assertTrue(actorIdList.contains("0"));
+        Assertions.assertTrue(actorIdList.contains("1"));
     }
 
     private <A extends ASObject> ASObject getObject(A item) {
