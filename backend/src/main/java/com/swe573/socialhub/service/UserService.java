@@ -131,7 +131,7 @@ public class UserService {
         try {
             var userName = dto.getUsername();
             var dbResult = repository.findUserByUsername(userName);
-            if (!dbResult.isPresent()) {
+            if (dbResult.isEmpty()) {
                 loginAttemptRepository.save(new LoginAttempt(0L, userName, LoginAttemptType.WRONG_USERNAME, new Date()));
                 throw new IllegalArgumentException("Invalid username");
             }
