@@ -78,7 +78,7 @@ public class ActivityStreamServiceTests {
 
         var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_SUCCESSFUL), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
-                .map(a -> ((ASObject)((Activity) a).actor().iterator().next()).id())
+                .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
         Assertions.assertEquals(actorIdList.size(), 2);
         Assertions.assertTrue(actorIdList.contains("0"));
@@ -102,11 +102,19 @@ public class ActivityStreamServiceTests {
 
         var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_SUCCESSFUL), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
         var objectValueTypes = StreamSupport.stream(response.items().spliterator(), false)
-                .map(a -> ((ASObject)((Activity) a).object().iterator().next()).objectTypeString())
+                .map(a -> getObject(a).objectTypeString())
                 .collect(Collectors.toList());
         Assertions.assertEquals(objectValueTypes.size(), 2);
         Assertions.assertEquals(objectValueTypes.get(0), "login-attempt");
         Assertions.assertEquals(objectValueTypes.get(1), "user");
+    }
+
+    private <A extends ASObject> ASObject getObject(A item) {
+        return ((ASObject)((Activity) item).object().iterator().next());
+    }
+
+    private <A extends ASObject> ASObject getActor(A item) {
+        return ((ASObject)((Activity) item).actor().iterator().next());
     }
 
 
