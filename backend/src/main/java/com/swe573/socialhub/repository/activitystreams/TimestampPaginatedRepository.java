@@ -1,4 +1,4 @@
-package com.swe573.socialhub.repository;
+package com.swe573.socialhub.repository.activitystreams;
 
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 

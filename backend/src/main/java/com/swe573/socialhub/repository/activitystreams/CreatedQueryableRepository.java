@@ -1,4 +1,4 @@
-package com.swe573.socialhub.repository;
+package com.swe573.socialhub.repository.activitystreams;
 
 import com.swe573.socialhub.domain.LoginAttempt;
 import org.springframework.data.domain.Pageable;

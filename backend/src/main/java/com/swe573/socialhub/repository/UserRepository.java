@@ -18,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select s from User s where lower(s.bio) like lower(concat('%', :match, '%'))")
     List<User> findByBioLikeIgnoreCase(@Param("match") String stringToMatch, Pageable pageable);
+
+    @Query("select s from User s where s.username in ?1")
+    List<User> findAllByUsername(List<String> userNames);
 }
