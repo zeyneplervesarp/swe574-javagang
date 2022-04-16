@@ -12,11 +12,15 @@ public class TimestampBasedPagination {
     private final int size;
     private final Sort.Direction sortDirection;
 
+    private static final Date DEFAULT_GT = new Date(0L);
+    private static final Date DEFAULT_LT = new Date(Long.MAX_VALUE);
+
     public TimestampBasedPagination(Date greaterThan, Date lowerThan, int size, Sort.Direction sortDirection) {
-        this.greaterThan = greaterThan;
-        this.lowerThan = lowerThan;
+        if (size < 1) throw new IllegalArgumentException("Size must be greater than 1");
+        this.greaterThan = greaterThan != null ? greaterThan : DEFAULT_GT;
+        this.lowerThan = lowerThan != null ? lowerThan : DEFAULT_LT;
         this.size = size;
-        this.sortDirection = sortDirection;
+        this.sortDirection = sortDirection != null ? sortDirection : Sort.Direction.ASC;
     }
 
     public Date getGreaterThan() {
@@ -35,17 +39,13 @@ public class TimestampBasedPagination {
         return sortDirection;
     }
 
-    public Pageable toPageable(String sortBy) {
-        var sort = Sort.by(sortBy);
+    public Pageable toPageable() {
+        var sort = Sort.by("created");
         if (sortDirection == Sort.Direction.ASC) {
             sort = sort.ascending();
         } else {
             sort = sort.descending();
         }
         return PageRequest.of(0, size, sort);
-    }
-
-    public Pageable toPageable() {
-        return toPageable("created");
     }
 }
