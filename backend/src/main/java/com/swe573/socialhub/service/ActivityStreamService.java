@@ -11,6 +11,7 @@ import com.swe573.socialhub.domain.LoginAttempt;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
+import com.swe573.socialhub.enums.LoginAttemptType;
 import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.LoginAttemptRepository;
 import com.swe573.socialhub.repository.ServiceRepository;
@@ -90,8 +91,8 @@ public class ActivityStreamService {
                 .collect(Collectors.toUnmodifiableMap(User::getUsername, Function.identity()));
 
 
-        final var userLoginActivities = userLogins.stream()
-                .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(LoginAttempt::getCreated) : Comparator.comparing(LoginAttempt::getCreated).reversed())
+        final var userLoginActivities = userLogins
+                .stream()
                 .map(loginAttempt -> mapToActivity(loginAttempt, userCache.get(loginAttempt.getUsername())));
 
         final var serviceCreationActivities = createdServices
@@ -178,25 +179,23 @@ public class ActivityStreamService {
 
     private Activity mapToActivity(LoginAttempt loginAttempt, User user) {
         Objects.requireNonNull(loginAttempt);
-        switch (loginAttempt.getAttemptType()) {
-            case SUCCESSFUL:
-                Objects.requireNonNull(user);
-                return activity()
-                        .summary(user.getUsername() + " successfully logged in")
-                        .verb("login")
-                        .actor(mapToObject(user))
-                        .published(new DateTime(loginAttempt.getCreated()))
-                        .get();
-            default:
-                var obj = user != null ? mapToObject(user) : mapToObject(loginAttempt);
-                return activity()
-                        .summary("Someone tried to log in unsuccessfully")
-                        .verb("login-failed")
-                        .actor(object("unknown").displayName("Unknown person"))
-                        .object(obj)
-                        .published(new DateTime(loginAttempt.getCreated()))
-                        .get();
+        if (loginAttempt.getAttemptType() == LoginAttemptType.SUCCESSFUL) {
+            Objects.requireNonNull(user);
+            return activity()
+                    .summary(user.getUsername() + " successfully logged in")
+                    .verb("login")
+                    .actor(mapToObject(user))
+                    .published(new DateTime(loginAttempt.getCreated()))
+                    .get();
         }
+        var obj = user != null ? mapToObject(user) : mapToObject(loginAttempt);
+        return activity()
+                .summary("Someone tried to log in unsuccessfully")
+                .verb("login-failed")
+                .actor(object("unknown").displayName("Unknown person"))
+                .object(obj)
+                .published(new DateTime(loginAttempt.getCreated()))
+                .get();
     }
 
 }
