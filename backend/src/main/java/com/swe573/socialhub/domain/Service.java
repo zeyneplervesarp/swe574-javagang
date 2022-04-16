@@ -2,9 +2,11 @@ package com.swe573.socialhub.domain;
 
 import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.enums.ServiceStatus;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,6 +86,12 @@ public class Service {
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<UserServiceApproval> approvalSet;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created")
+    private Date created;
+
+
     public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
         return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, serviceTags);
     }
@@ -92,6 +100,13 @@ public class Service {
         return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, latitude, longitude, serviceTags);
     }
 
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
     public User getCreatedUser() {
         return createdUser;

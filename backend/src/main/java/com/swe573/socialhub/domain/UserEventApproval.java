@@ -2,8 +2,10 @@ package com.swe573.socialhub.domain;
 
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class UserEventApproval {
@@ -21,6 +23,19 @@ public class UserEventApproval {
     Event event;
 
     ApprovalStatus approvalStatus;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created")
+    private Date created;
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
     public UserEventApproval(UserEventApprovalKey id, User user, Event event, ApprovalStatus approvalStatus) {
         this.id = id;
