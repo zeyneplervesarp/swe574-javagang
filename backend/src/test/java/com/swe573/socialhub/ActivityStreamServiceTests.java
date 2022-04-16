@@ -131,15 +131,12 @@ public class ActivityStreamServiceTests {
 
         var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
         testSvc1.setCreated(new Date(System.currentTimeMillis() - 3600 * 1000));
-        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
         testSvc2.setCreated(new Date());
 
 
         Mockito.when(serviceRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(testSvc1, testSvc2));
-
-        Mockito.when(userRepository.findAllByUsername(Mockito.any()))
-                .thenReturn(List.of(loginUser1, loginUser2));
 
         var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)

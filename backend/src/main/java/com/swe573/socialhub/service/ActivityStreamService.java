@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.ibm.common.activitystreams.Makers.*;
 
@@ -53,7 +54,8 @@ public class ActivityStreamService {
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
 
         // data retrieval
-        var userLogins = new ArrayList<LoginAttempt>();
+        final var userLogins = new ArrayList<LoginAttempt>();
+        final var createdServices = new ArrayList<com.swe573.socialhub.domain.Service>();
 
         for (final var type : eventTypes) {
             switch (type) {
@@ -64,6 +66,7 @@ public class ActivityStreamService {
                     userLogins.addAll(successfulLoginAttemptRepository.findAllMatching(pagination));
                     break;
                 case SERVICE_CREATED:
+                    createdServices.addAll(serviceTimestampPaginatedRepository.findAllMatching(pagination));
                     break;
                 case SERVICE_JOIN_REQUESTED:
                     break;
@@ -87,14 +90,24 @@ public class ActivityStreamService {
                 .collect(Collectors.toUnmodifiableMap(User::getUsername, Function.identity()));
 
 
-        var activities = userLogins.stream()
+        final var userLoginActivities = userLogins.stream()
                 .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(LoginAttempt::getCreated) : Comparator.comparing(LoginAttempt::getCreated).reversed())
-                .map(loginAttempt -> mapToActivity(loginAttempt, userCache.get(loginAttempt.getUsername())))
-                .collect(Collectors.toList());
+                .map(loginAttempt -> mapToActivity(loginAttempt, userCache.get(loginAttempt.getUsername())));
 
-        // TODO: filter & sort one last time
+        final var serviceCreationActivities = createdServices
+                .stream()
+                .map(this::mapCreatedServiceActivity);
 
-        return mapToCollection(activities, pagination);
+        final var masterStream = Stream
+                .concat(
+                        userLoginActivities,
+                        serviceCreationActivities
+                )
+                .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(Activity::published) : Comparator.comparing(Activity::published).reversed())
+                .limit(pagination.getSize());
+
+
+        return mapToCollection(masterStream.collect(Collectors.toUnmodifiableList()), pagination);
     }
 
     private TimestampBasedPagination makeNextPagination(Date lastDate, TimestampBasedPagination currentPagination) {
@@ -138,11 +151,29 @@ public class ActivityStreamService {
                 .link("url", "/user/" + idString);
     }
 
+    private Supplier<? extends LinkValue> mapToObject(com.swe573.socialhub.domain.Service service) {
+        var idString = service.getId().toString();
+        return object("service")
+                .displayName(service.getHeader())
+                .id(idString)
+                .link("url", "/service/" + idString);
+    }
+
     private Supplier<? extends LinkValue> mapToObject(LoginAttempt loginAttempt) {
         var idString = loginAttempt.getId().toString();
         return object("login-attempt")
                 .displayName(loginAttempt.getAttemptType().toString())
                 .id(idString);
+    }
+
+    private Activity mapCreatedServiceActivity(com.swe573.socialhub.domain.Service service) {
+        return activity()
+                .summary(service.getCreatedUser().getUsername() + " created a service named " + service.getHeader())
+                .verb("create")
+                .actor(mapToObject(service.getCreatedUser()))
+                .object(mapToObject(service))
+                .published(new DateTime(service.getCreated()))
+                .get();
     }
 
     private Activity mapToActivity(LoginAttempt loginAttempt, User user) {
