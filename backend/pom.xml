@@ -17,6 +17,7 @@
         <java.version>11</java.version>
         <java.version>11</java.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -93,6 +94,17 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <!--  Activity Streams dependencies      -->
+        <dependency>
+            <groupId>com.ibm.common</groupId>
+            <artifactId>activitystreams</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/activitystreams-core-0.0.1-SNAPSHOT.jar</systemPath>
+        </dependency>
+
+
     </dependencies>
 
     <build>
