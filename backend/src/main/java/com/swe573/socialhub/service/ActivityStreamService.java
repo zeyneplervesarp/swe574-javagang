@@ -10,6 +10,7 @@ import com.swe573.socialhub.domain.LoginAttempt;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
+import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.LoginAttemptRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import com.swe573.socialhub.repository.activitystreams.CreatedQueryableSuccessfulLoginAttemptRepository;
@@ -78,6 +79,8 @@ public class ActivityStreamService {
                 .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(LoginAttempt::getCreated) : Comparator.comparing(LoginAttempt::getCreated).reversed())
                 .map(loginAttempt -> mapToActivity(loginAttempt, userCache.get(loginAttempt.getUsername())))
                 .collect(Collectors.toList());
+
+        // TODO: filter & sort one last time
 
         return mapToCollection(activities, pagination);
     }
