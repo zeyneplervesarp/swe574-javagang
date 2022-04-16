@@ -24,6 +24,14 @@ public class UserServiceApproval {
 
     ApprovalStatus approvalStatus;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "approved")
+    private Date approvedDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "denied")
+    private Date deniedDate;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
@@ -33,8 +41,12 @@ public class UserServiceApproval {
         return created;
     }
 
-    public void setCreated(Date created) {
-        this.created = created;
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public Date getDeniedDate() {
+        return deniedDate;
     }
 
     public UserServiceApproval(UserServiceApprovalKey id, User user, Service service, ApprovalStatus approvalStatus) {
@@ -42,6 +54,21 @@ public class UserServiceApproval {
         this.user = user;
         this.service = service;
         this.approvalStatus = approvalStatus;
+        synchronizeApprovalStatus();
+    }
+
+    private void synchronizeApprovalStatus() {
+        if (approvalStatus == null) return;
+        switch (approvalStatus) {
+            case PENDING:
+                break;
+            case APPROVED:
+                this.approvedDate = new Date();
+                break;
+            case DENIED:
+                this.deniedDate = new Date();
+                break;
+        }
     }
 
     public UserServiceApproval() {
@@ -80,6 +107,7 @@ public class UserServiceApproval {
 
     public void setApprovalStatus(ApprovalStatus approvalStatus) {
         this.approvalStatus = approvalStatus;
+        synchronizeApprovalStatus();
     }
 
     @Override
