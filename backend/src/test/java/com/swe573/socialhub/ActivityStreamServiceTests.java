@@ -94,13 +94,13 @@ public class ActivityStreamServiceTests {
         var wrongUserLogin = new LoginAttempt(312L, "tester", LoginAttemptType.WRONG_USERNAME, new Date(System.currentTimeMillis() - 3600 * 1000));
         var wrongPwLogin = new LoginAttempt(1123L, loginUser2.getUsername(), LoginAttemptType.WRONG_PASSWORD, new Date());
 
-        Mockito.when(loginAttemptRepository.findAllSuccessfulByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(loginAttemptRepository.findAllUnsuccessfulByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(wrongUserLogin, wrongPwLogin));
 
         Mockito.when(userRepository.findAllByUsername(Mockito.any()))
                 .thenReturn(List.of(loginUser2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_SUCCESSFUL), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_FAILED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
         var objectValueTypes = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getObject(a).objectTypeString())
                 .collect(Collectors.toList());
