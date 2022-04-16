@@ -9,7 +9,9 @@ import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.enums.LoginAttemptType;
 import com.swe573.socialhub.enums.SearchMatchType;
+import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.LoginAttemptRepository;
+import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import com.swe573.socialhub.service.ActivityStreamService;
 import com.swe573.socialhub.service.SearchService;
@@ -49,12 +51,18 @@ public class ActivityStreamServiceTests {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private EventRepository eventRepository;
+
+    @MockBean
+    private ServiceRepository serviceRepository;
+
     private ActivityStreamService service;
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        this.service = new ActivityStreamService(loginAttemptRepository, userRepository);
+        this.service = new ActivityStreamService(loginAttemptRepository, userRepository, serviceRepository, eventRepository);
     }
 
     @Test

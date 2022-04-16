@@ -6,13 +6,16 @@ import com.google.common.base.Supplier;
 import com.ibm.common.activitystreams.Activity;
 import com.ibm.common.activitystreams.Collection;
 import com.ibm.common.activitystreams.LinkValue;
+import com.swe573.socialhub.domain.Event;
 import com.swe573.socialhub.domain.LoginAttempt;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.LoginAttemptRepository;
+import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
+import com.swe573.socialhub.repository.activitystreams.CreatedQueryableRepository;
 import com.swe573.socialhub.repository.activitystreams.CreatedQueryableSuccessfulLoginAttemptRepository;
 import com.swe573.socialhub.repository.activitystreams.CreatedQueryableUnsuccessfulLoginAttemptRepository;
 import com.swe573.socialhub.repository.activitystreams.TimestampPaginatedRepository;
@@ -31,11 +34,20 @@ public class ActivityStreamService {
     private final TimestampPaginatedRepository<LoginAttempt> successfulLoginAttemptRepository;
     private final TimestampPaginatedRepository<LoginAttempt> unsuccessfulLoginAttemptRepository;
     private final UserRepository userRepository;
+    private final TimestampPaginatedRepository<com.swe573.socialhub.domain.Service> serviceTimestampPaginatedRepository;
+    private final TimestampPaginatedRepository<Event> eventTimestampPaginatedRepository;
 
-    public ActivityStreamService(LoginAttemptRepository loginAttemptRepository, UserRepository userRepository) {
+    public ActivityStreamService(
+            LoginAttemptRepository loginAttemptRepository,
+            UserRepository userRepository,
+            ServiceRepository serviceRepository,
+            EventRepository eventRepository
+    ) {
         this.successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
         this.unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
         this.userRepository = userRepository;
+        this.serviceTimestampPaginatedRepository = new TimestampPaginatedRepository<>(serviceRepository);
+        this.eventTimestampPaginatedRepository = new TimestampPaginatedRepository<>(eventRepository);
     }
 
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
