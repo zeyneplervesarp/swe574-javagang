@@ -24,6 +24,22 @@ public class UserEventApproval {
 
     ApprovalStatus approvalStatus;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "approved")
+    private Date approvedDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "denied")
+    private Date deniedDate;
+
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public Date getDeniedDate() {
+        return deniedDate;
+    }
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created")
@@ -42,6 +58,21 @@ public class UserEventApproval {
         this.user = user;
         this.event = event;
         this.approvalStatus = approvalStatus;
+        synchronizeApprovalStatus();
+    }
+
+    private void synchronizeApprovalStatus() {
+        if (approvalStatus == null) return;
+        switch (approvalStatus) {
+            case PENDING:
+                break;
+            case APPROVED:
+                this.approvedDate = new Date();
+                break;
+            case DENIED:
+                this.deniedDate = new Date();
+                break;
+        }
     }
 
     public UserEventApproval() {
@@ -82,6 +113,7 @@ public class UserEventApproval {
 
     public void setApprovalStatus(ApprovalStatus approvalStatus) {
         this.approvalStatus = approvalStatus;
+        synchronizeApprovalStatus();
     }
 
     @Override
