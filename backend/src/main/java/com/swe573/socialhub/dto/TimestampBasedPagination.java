@@ -1,5 +1,7 @@
 package com.swe573.socialhub.dto;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.Date;
@@ -31,5 +33,19 @@ public class TimestampBasedPagination {
 
     public Sort.Direction getSortDirection() {
         return sortDirection;
+    }
+
+    public Pageable toPageable(String sortBy) {
+        var sort = Sort.by(sortBy);
+        if (sortDirection == Sort.Direction.ASC) {
+            sort = sort.ascending();
+        } else {
+            sort = sort.descending();
+        }
+        return PageRequest.of(0, size, sort);
+    }
+
+    public Pageable toPageable() {
+        return toPageable("created");
     }
 }
