@@ -144,29 +144,6 @@ public class ActivityStreamService {
         return builder.get();
     }
 
-    private Supplier<? extends LinkValue> mapToObject(User user) {
-        var idString = user.getId().toString();
-        return object("user")
-                .displayName(user.getUsername())
-                .id(idString)
-                .link("url", "/user/" + idString);
-    }
-
-    private Supplier<? extends LinkValue> mapToObject(com.swe573.socialhub.domain.Service service) {
-        var idString = service.getId().toString();
-        return object("service")
-                .displayName(service.getHeader())
-                .id(idString)
-                .link("url", "/service/" + idString);
-    }
-
-    private Supplier<? extends LinkValue> mapToObject(LoginAttempt loginAttempt) {
-        var idString = loginAttempt.getId().toString();
-        return object("login-attempt")
-                .displayName(loginAttempt.getAttemptType().toString())
-                .id(idString);
-    }
-
     private Activity mapCreatedServiceActivity(com.swe573.socialhub.domain.Service service) {
         return activity()
                 .summary(service.getCreatedUser().getUsername() + " created a service named " + service.getHeader())
@@ -196,6 +173,29 @@ public class ActivityStreamService {
                 .object(obj)
                 .published(new DateTime(loginAttempt.getCreated()))
                 .get();
+    }
+
+    private Supplier<? extends LinkValue> mapToObject(User user) {
+        var idString = user.getId().toString();
+        return object("user")
+                .displayName(user.getUsername())
+                .id(idString)
+                .link("url", "/user/" + idString);
+    }
+
+    private Supplier<? extends LinkValue> mapToObject(com.swe573.socialhub.domain.Service service) {
+        var idString = service.getId().toString();
+        return object("service")
+                .displayName(service.getHeader())
+                .id(idString)
+                .link("url", "/service/" + idString);
+    }
+
+    private Supplier<? extends LinkValue> mapToObject(LoginAttempt loginAttempt) {
+        var idString = loginAttempt.getId().toString();
+        return object("login-attempt")
+                .displayName(loginAttempt.getAttemptType().toString())
+                .id(idString);
     }
 
 }
