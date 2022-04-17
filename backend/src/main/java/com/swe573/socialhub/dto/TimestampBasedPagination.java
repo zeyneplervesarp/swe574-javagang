@@ -13,7 +13,7 @@ public class TimestampBasedPagination {
     private final Sort.Direction sortDirection;
 
     private static final Date DEFAULT_GT = new Date(0L);
-    private static final Date DEFAULT_LT = new Date(Long.MAX_VALUE);
+    private static final Date DEFAULT_LT = new Date(System.currentTimeMillis() + System.currentTimeMillis());
 
     public TimestampBasedPagination(Date greaterThan, Date lowerThan, int size, Sort.Direction sortDirection) {
         if (size < 1) throw new IllegalArgumentException("Size must be greater than 1");

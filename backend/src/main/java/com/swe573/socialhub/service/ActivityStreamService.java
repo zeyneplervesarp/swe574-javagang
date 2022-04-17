@@ -72,18 +72,18 @@ public class ActivityStreamService {
     }
 
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
-        final var activityStreams = eventTypes
+        final var activities = eventTypes
                 .parallelStream()
-                .map(et -> mappers.get(et).fetchAndMap(pagination));
-        final var masterStream = flattenStreams(activityStreams)
+                .flatMap(et -> mappers.get(et).fetchAndMap(pagination))
                 .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(Activity::published) : Comparator.comparing(Activity::published).reversed())
-                .limit(pagination.getSize());
+                .limit(pagination.getSize())
+                .collect(Collectors.toUnmodifiableList());
 
-        return mapToCollection(masterStream.collect(Collectors.toUnmodifiableList()), pagination);
+        return mapToCollection(activities, pagination);
     }
 
     private <T> Stream<T> flattenStreams(Stream<Stream<T>> streams) {
-        return streams.reduce(Stream.empty(), Stream::concat);
+        return streams.flatMap(s -> s);
     }
 
     private String makeUrlString(TimestampBasedPagination pagination) {
