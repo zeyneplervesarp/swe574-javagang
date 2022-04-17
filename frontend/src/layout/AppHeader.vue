@@ -122,40 +122,12 @@
             </a>
           </div>
         </base-dropdown>
-        <!-- <base-dropdown v-if="userLoggedIn" tag="li" class="nav-item">
-          <a
-            slot="title"
-            href="#"
-            class="nav-link"
-            data-toggle="dropdown"
-            role="button"
-          >
-            <i class="ni ni-collection d-lg-none"></i>
-            <span class="nav-link-inner--text">Users</span>
-          </a>
-          <router-link to="/users" class="dropdown-item">All</router-link>
-          <router-link to="/users/following" class="dropdown-item"
-            >Following</router-link
-          >
-          <router-link to="/users/followedBy" class="dropdown-item"
-            >Followed By</router-link
-          >
-        </base-dropdown> -->
+        <base-input v-model="searchQuery" v-on:keyup.enter="OnEnter()" class="mt-3" alternative placeholder="Search" addon-right-icon="ni ni-zoom-split-in"></base-input>
+
+
       </ul>
       <ul class="navbar-nav align-items-lg-center ml-lg-auto">
-        <!-- <li class="nav-item">
-          <a
-            class="nav-link nav-link-icon"
-            href="https://github.com/ecesari/software-development-practice"
-            target="_blank"
-            rel="noopener"
-            data-toggle="tooltip"
-            title="Star us on Github"
-          >
-            <i class="fa fa-github"></i>
-            <span class="nav-link-inner--text d-lg-none">Github</span>
-          </a>
-        </li> -->
+     
 
         <li v-if="userLoggedIn" class="nav-item">
           <a
@@ -169,6 +141,7 @@
             ></i>
           </a>
         </li>
+
 
         <li v-if="!userLoggedIn" class="nav-item d-none d-lg-block ml-lg-4">
           <a href="#/register" rel="noopener" class="btn btn-neutral btn-icon">
@@ -234,6 +207,7 @@
             </a>
           </base-dropdown>
         </li>
+
       </ul>
     </base-nav>
   </header>
@@ -251,13 +225,11 @@ export default {
       notificationMessage: "You have no new messages",
       hasNewNotification: false,
       r: {},
-      userIsAdmin: false
+      userIsAdmin: false,
+      searchQuery:""
     };
   },
   mounted() {
-    var foo = process.env.VUE_APP_GOOGLE_MAP_KEY;
-    console.log("google keys");
-    console.log(foo);
     let token = JSON.parse(localStorage.getItem("token"));
 
     if (token) {
@@ -290,6 +262,9 @@ export default {
       localStorage.clear();
       document.location.href = "../";
     },
+    OnEnter() {
+       console.log(this.searchQuery)
+    }
   },
 };
 </script>
