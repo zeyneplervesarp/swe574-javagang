@@ -122,13 +122,16 @@
             </a>
           </div>
         </base-dropdown>
-        <base-input v-model="searchQuery" v-on:keyup.enter="OnEnter()" class="mt-3" alternative placeholder="Search" addon-right-icon="ni ni-zoom-split-in"></base-input>
-
-
+        <base-input
+          v-model="searchQuery"
+          v-on:keyup.enter="OnEnter()"
+          class="mt-3"
+          alternative
+          placeholder="Search"
+          addon-right-icon="ni ni-zoom-split-in"
+        ></base-input>
       </ul>
       <ul class="navbar-nav align-items-lg-center ml-lg-auto">
-     
-
         <li v-if="userLoggedIn" class="nav-item">
           <a
             class="nav-link nav-link-icon"
@@ -141,7 +144,6 @@
             ></i>
           </a>
         </li>
-
 
         <li v-if="!userLoggedIn" class="nav-item d-none d-lg-block ml-lg-4">
           <a href="#/register" rel="noopener" class="btn btn-neutral btn-icon">
@@ -160,7 +162,10 @@
             <span class="nav-link-inner--text">Log In </span>
           </a>
         </li>
-        <li v-if="userLoggedIn && userIsAdmin" class="nav-item d-none d-lg-block ml-lg-4">
+        <li
+          v-if="userLoggedIn && userIsAdmin"
+          class="nav-item d-none d-lg-block ml-lg-4"
+        >
           <a
             href="#/admin/services"
             rel="noopener"
@@ -207,7 +212,6 @@
             </a>
           </base-dropdown>
         </li>
-
       </ul>
     </base-nav>
   </header>
@@ -217,6 +221,7 @@ import BaseNav from "@/components/BaseNav";
 import BaseDropdown from "@/components/BaseDropdown";
 import CloseButton from "@/components/CloseButton";
 import apiRegister from "@/api/register.js";
+import swal from "sweetalert2";
 
 export default {
   data() {
@@ -226,7 +231,7 @@ export default {
       hasNewNotification: false,
       r: {},
       userIsAdmin: false,
-      searchQuery:""
+      searchQuery: "",
     };
   },
   mounted() {
@@ -244,10 +249,10 @@ export default {
             "You have " + unreadCount + " new messages";
         }
       });
-      apiRegister.GetProfile().then(r => {
+      apiRegister.GetProfile().then((r) => {
         var compare = r.userType.localeCompare("ADMIN");
         this.userIsAdmin = compare == 0;
-      })
+      });
     } else {
       this.userLoggedIn = false;
     }
@@ -263,8 +268,17 @@ export default {
       document.location.href = "../";
     },
     OnEnter() {
-       console.log(this.searchQuery)
-    }
+      if (this.searchQuery.length == 0) {
+        swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please enter a keyword to search!",
+        });
+      }
+      console.log(this.searchQuery);
+
+      apiRegister.Search(this.searchQuery);
+    },
   },
 };
 </script>
