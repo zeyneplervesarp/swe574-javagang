@@ -6,19 +6,12 @@ import com.google.common.base.Supplier;
 import com.ibm.common.activitystreams.Activity;
 import com.ibm.common.activitystreams.Collection;
 import com.ibm.common.activitystreams.LinkValue;
-import com.swe573.socialhub.domain.Event;
-import com.swe573.socialhub.domain.LoginAttempt;
-import com.swe573.socialhub.domain.User;
+import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.enums.LoginAttemptType;
-import com.swe573.socialhub.repository.EventRepository;
-import com.swe573.socialhub.repository.LoginAttemptRepository;
-import com.swe573.socialhub.repository.ServiceRepository;
-import com.swe573.socialhub.repository.UserRepository;
-import com.swe573.socialhub.repository.activitystreams.CreatedQueryableSuccessfulLoginAttemptRepository;
-import com.swe573.socialhub.repository.activitystreams.CreatedQueryableUnsuccessfulLoginAttemptRepository;
-import com.swe573.socialhub.repository.activitystreams.TimestampPaginatedRepository;
+import com.swe573.socialhub.repository.*;
+import com.swe573.socialhub.repository.activitystreams.*;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
@@ -37,18 +30,28 @@ public class ActivityStreamService {
     private final UserRepository userRepository;
     private final TimestampPaginatedRepository<com.swe573.socialhub.domain.Service> serviceTimestampPaginatedRepository;
     private final TimestampPaginatedRepository<Event> eventTimestampPaginatedRepository;
+    private final UserEventApprovalRepository eventApprovalRepository;
+    private final UserServiceApprovalRepository serviceApprovalRepository;
+    private final TimestampPaginatedRepository<UserEventApproval> eventApprovalTimestampPaginatedRepository;
+    private final TimestampPaginatedRepository<UserServiceApproval> serviceApprovalTimestampPaginatedRepository;
 
     public ActivityStreamService(
             LoginAttemptRepository loginAttemptRepository,
             UserRepository userRepository,
             ServiceRepository serviceRepository,
-            EventRepository eventRepository
+            EventRepository eventRepository,
+            UserEventApprovalRepository eventApprovalRepository,
+            UserServiceApprovalRepository serviceApprovalRepository
     ) {
         this.successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
         this.unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
         this.userRepository = userRepository;
         this.serviceTimestampPaginatedRepository = new TimestampPaginatedRepository<>(serviceRepository);
         this.eventTimestampPaginatedRepository = new TimestampPaginatedRepository<>(eventRepository);
+        this.eventApprovalRepository = eventApprovalRepository;
+        this.serviceApprovalRepository = serviceApprovalRepository;
+        this.eventApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableEventApprovalRepository(eventApprovalRepository));
+        this.serviceApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableServiceApprovalRepository(serviceApprovalRepository));
     }
 
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
