@@ -275,13 +275,8 @@ export default {
           text: "Please enter a keyword to search!",
         });
       }
-      console.log(this.searchQuery);
-
-
       var url = "#/search/" + this.searchQuery;
       window.location.href = url;
-
-      // apiRegister.Search(this.searchQuery);
     },
   },
 };

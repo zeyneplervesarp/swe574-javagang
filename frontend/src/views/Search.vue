@@ -21,9 +21,9 @@
             </div>
             <div class="text-center mt-5">
               <h4>
-                Notifications
+                Search Results
                 <span class="font-weight-light"
-                  >({{ unreadCount }} unread)</span
+                  >({{ searchResultCount }} results have been found)</span
                 >
               </h4>
             </div>
@@ -33,26 +33,33 @@
                   <div class="container ct-example-row">
                     <div
                       class="row"
-                      v-for="(notification, index) in unreadNotifications"
+                      v-for="(result, index) in searchResult"
                       :key="index"
                     >
                       <div class="col mt-2 text-center">
-                        <span>
-                          <base-button @click="GoToUrl(notification.messageBody)" block type="secondary">{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
+                        <span v-if="result.matchType == 'USER'">
+                          <base-button
+                            @click="GoToUrl(result.url)"
+                            block
+                            type="info"
+                            >{{ result.name }}
+                            <badge class="float-right" pill type="info">{{
+                              result.matchType
+                            }}</badge>
+                          </base-button>
                         </span>
-                      </div>
-                      <div class="w-100"></div>
-                    </div>
-                    <div
-                      class="row"
-                      v-for="(notification, index) in readNotifications"
-                      :key="index"
-                    >
-                      <div class="col mt-2 text-center">
-                        <span>
-                          <base-button  @click="GoToUrl(notification.messageBody)" block  type="succeess">{{getFormattedDate(notification.sentDate)}} | {{
-                            notification.message
-                          }}</base-button>
+
+                        <span v-else>
+                          <base-button
+                            @click="GoToUrl(result.url)"
+                            block
+                            type="success"
+                            >{{ result.name }}
+
+                            <badge class="float-right" pill type="success">{{
+                              result.matchType
+                            }}</badge>
+                          </base-button>
                         </span>
                       </div>
                       <div class="w-100"></div>
@@ -69,48 +76,34 @@
 </template>
 <script>
 import apiRegister from "../api/register";
-import moment from 'moment';
 export default {
   components: {},
   data() {
     return {
-      notifications: [],
-      unreadNotifications: [],
-      readNotifications: [],
-      unreadCount: 0,
+      searchResult: [],
+      searchResultCount: 0,
     };
   },
   mounted() {
-    this.GetNotifications();
+    this.GetSearchResult();
   },
   methods: {
-    GetNotifications() {
-      apiRegister.GetNotificationDetails().then((notificationList) => {
-        this.notifications = notificationList;
-        this.unreadNotifications = notificationList.filter(
-          (notificationList) => notificationList.read === false
-        );
-        this.unreadCount = this.unreadNotifications.length;
-        this.readNotifications = notificationList.filter(
-          (notificationList) => notificationList.read === true
-        );
-        apiRegister.ReadAllNotifications();
+    GetSearchResult() {
+      var searchQuery = this.$route.params.search_query;
+      apiRegister.Search(searchQuery).then((r) => {
+        this.searchResult = r;
+        this.searchResultCount = r.length;
+        console.log(r.length);
       });
     },
-    getFormattedDate(date) {
-            return moment(date).format("YYYY-MM-DD")
+    GoToUrl(url) {
+      url = url.replace("user", "profile");
+      url = "#" + url;
+      window.location.href = url;
     },
-    GoToUrl(url)
-    {
-      window.location.href = "#" + url;
-    }
-  },
-  destroyed() {
-          window.location.reload();
-
   },
   props: {
-    userId: String,
+    search_query: String,
   },
 };
 </script>
