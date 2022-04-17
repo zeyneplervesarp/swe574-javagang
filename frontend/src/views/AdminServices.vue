@@ -103,9 +103,6 @@ export default {
       window.location.href = url;
     },
     AddFeatured(serviceId) {
-      // apiRegister.AddServiceToFeatured(serviceId).then((r) => {
-       
-      // });
        swal.fire({
           position: "top-end",
           icon: "success",

@@ -277,7 +277,11 @@ export default {
       }
       console.log(this.searchQuery);
 
-      apiRegister.Search(this.searchQuery);
+
+      var url = "#/search/" + this.searchQuery;
+      window.location.href = url;
+
+      // apiRegister.Search(this.searchQuery);
     },
   },
 };
