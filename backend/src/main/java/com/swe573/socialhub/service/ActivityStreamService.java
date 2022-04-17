@@ -48,11 +48,12 @@ public class ActivityStreamService {
                 FeedEvent.EVENT_CREATED, new EventCreatedActivityMapper(new RepositoryDataSource<>(eventTimestampPaginatedRepository)),
                 FeedEvent.SERVICE_CREATED, new ServiceCreatedActivityMapper(new RepositoryDataSource<>(serviceTimestampPaginatedRepository)),
                 FeedEvent.USER_LOGIN_SUCCESSFUL, new UserLoginActivityMapper(userRepository, new RepositoryDataSource<>(successfulLoginAttemptRepository)),
-                FeedEvent.USER_LOGIN_FAILED, new UserLoginActivityMapper(userRepository, new RepositoryDataSource<>(unsuccessfulLoginAttemptRepository))
+                FeedEvent.USER_LOGIN_FAILED, new UserLoginActivityMapper(userRepository, new RepositoryDataSource<>(unsuccessfulLoginAttemptRepository)),
+                FeedEvent.EVENT_JOIN_APPROVED, new ApprovedEventActivityMapper(new RepositoryDataSource<>(eventApprovalTimestampPaginatedRepository)),
+                FeedEvent.SERVICE_JOIN_APPROVED, new ApprovedServiceActivityMapper(new RepositoryDataSource<>(serviceApprovalTimestampPaginatedRepository)),
+                FeedEvent.EVENT_JOIN_REQUESTED, new CreatedEventRequestActivityMapper(new RepositoryDataSource<>(tsEventApprovalRepository)),
+                FeedEvent.SERVICE_JOIN_REQUESTED, new CreatedServiceRequestActivityMapper(new RepositoryDataSource<>(tsServiceApprovalRepository))
         );
-
-
-
     }
 
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
@@ -164,6 +165,76 @@ public class ActivityStreamService {
                     .verb("create")
                     .actor(mapToObject(object.getCreatedUser()))
                     .object(mapToObject(object))
+                    .published(new DateTime(object.getCreated()))
+                    .get();
+        }
+    }
+
+    private class ApprovedServiceActivityMapper extends RepositoryBasedActivityMapper<UserServiceApproval> {
+        public ApprovedServiceActivityMapper(RepositoryDataSource<UserServiceApproval> dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Activity mapOne(UserServiceApproval object) {
+            return activity()
+                    .summary(object.getService().getCreatedUser().getUsername() + " approved " + object.getUser().getUsername() + "'s request to join the service " + object.getService().getHeader())
+                    .verb("approve")
+                    .actor(mapToObject(object.getService().getCreatedUser()))
+                    .object(mapToObject(object.getUser()))
+                    .target(mapToObject(object.getService()))
+                    .published(new DateTime(object.getApprovedDate()))
+                    .get();
+        }
+    }
+
+    private class ApprovedEventActivityMapper extends RepositoryBasedActivityMapper<UserEventApproval> {
+        public ApprovedEventActivityMapper(RepositoryDataSource<UserEventApproval> dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Activity mapOne(UserEventApproval object) {
+            return activity()
+                    .summary(object.getEvent().getCreatedUser().getUsername() + " approved " + object.getUser().getUsername() + "'s request to join the service " + object.getEvent().getHeader())
+                    .verb("approve")
+                    .actor(mapToObject(object.getEvent().getCreatedUser()))
+                    .object(mapToObject(object.getUser()))
+                    .target(mapToObject(object.getEvent()))
+                    .published(new DateTime(object.getApprovedDate()))
+                    .get();
+        }
+    }
+
+    private class CreatedEventRequestActivityMapper extends RepositoryBasedActivityMapper<UserEventApproval> {
+        public CreatedEventRequestActivityMapper(RepositoryDataSource<UserEventApproval> dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Activity mapOne(UserEventApproval object) {
+            return activity()
+                    .summary(object.getUser().getUsername() + " requested to join the event " + object.getEvent().getHeader())
+                    .verb("join-request")
+                    .actor(mapToObject(object.getUser()))
+                    .object(mapToObject(object.getEvent()))
+                    .published(new DateTime(object.getCreated()))
+                    .get();
+        }
+    }
+
+    private class CreatedServiceRequestActivityMapper extends RepositoryBasedActivityMapper<UserServiceApproval> {
+        public CreatedServiceRequestActivityMapper(RepositoryDataSource<UserServiceApproval> dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Activity mapOne(UserServiceApproval object) {
+            return activity()
+                    .summary(object.getUser().getUsername() + " requested to join the service " + object.getService().getHeader())
+                    .verb("join-request")
+                    .actor(mapToObject(object.getUser()))
+                    .object(mapToObject(object.getService()))
                     .published(new DateTime(object.getCreated()))
                     .get();
         }

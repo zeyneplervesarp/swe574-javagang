@@ -229,8 +229,8 @@ public class ActivityStreamServiceTests {
         loginUser2.setId(1L);
         loginUser2.setUsername("tester2");
 
-        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
-        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+        var testSvc1 = Service.createPhysical(123L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc2 = Service.createPhysical(1234L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
 
         var approval1 = new UserServiceApproval();
         approval1.setApprovalStatus(ApprovalStatus.APPROVED);
@@ -250,6 +250,14 @@ public class ActivityStreamServiceTests {
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
+        var targetIdList = StreamSupport.stream(response.items().spliterator(), false)
+                .map(a -> getTarget(a).id())
+                .collect(Collectors.toList());
+
+        Assertions.assertEquals(2, targetIdList.size());
+        Assertions.assertTrue(targetIdList.contains("123"));
+        Assertions.assertTrue(targetIdList.contains("1234"));
+
         Assertions.assertEquals(2, actorIdList.size());
         Assertions.assertTrue(actorIdList.contains("0"));
         Assertions.assertTrue(actorIdList.contains("1"));
@@ -348,6 +356,10 @@ public class ActivityStreamServiceTests {
 
     private <A extends ASObject> ASObject getActor(A item) {
         return ((ASObject)((Activity) item).actor().iterator().next());
+    }
+
+    private <A extends ASObject> ASObject getTarget(A item) {
+        return ((ASObject)((Activity) item).target().iterator().next());
     }
 
 
