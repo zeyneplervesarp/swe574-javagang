@@ -101,5 +101,8 @@ export default {
     },
     DismissFlagsForService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/flag/dismiss/" + serviceId, null, true)
+    },
+    Search(searchQuery){
+        return http.get(process.env.VUE_APP_API + 'search?query' + searchQuery + '&limit=50')
     }
 }
