@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 import java.util.List;
 
+// TODO: rename
 public interface CreatedQueryableRepository<T> {
     List<T> findAllByCreatedBetween(Date createdGt, Date createdLt, Pageable pageable);
 }

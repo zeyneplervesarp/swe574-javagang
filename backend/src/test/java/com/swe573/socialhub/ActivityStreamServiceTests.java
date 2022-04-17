@@ -5,6 +5,7 @@ import com.ibm.common.activitystreams.Activity;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.SearchMatchDto;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
+import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.enums.LoginAttemptType;
 import com.swe573.socialhub.enums.SearchMatchType;
@@ -181,6 +182,151 @@ public class ActivityStreamServiceTests {
         Assertions.assertTrue(actorIdList.contains("0"));
         Assertions.assertTrue(actorIdList.contains("1"));
     }
+
+    @Test
+    public void ActivityStreamService_canFind_ApprovedEventJoins() {
+        var loginUser1 = new User();
+        loginUser1.setId(0L);
+        loginUser1.setUsername("tester");
+
+        var loginUser2 = new User();
+        loginUser2.setId(1L);
+        loginUser2.setUsername("tester2");
+
+        var testSvc1 = new Event(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc2 = new Event(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+
+        var approval1 = new UserEventApproval();
+        approval1.setApprovalStatus(ApprovalStatus.APPROVED);
+        approval1.setEvent(testSvc1);
+        approval1.setUser(loginUser2);
+
+        var approval2 = new UserEventApproval();
+        approval2.setEvent(testSvc2);
+        approval2.setUser(loginUser1);
+        approval2.setApprovalStatus(ApprovalStatus.APPROVED);
+
+
+        Mockito.when(eventApprovalRepository.findAllByApprovedDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(List.of(approval1, approval2));
+
+        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_APPROVED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
+                .map(a -> getActor(a).id())
+                .collect(Collectors.toList());
+        Assertions.assertEquals(2, actorIdList.size());
+        Assertions.assertTrue(actorIdList.contains("0"));
+        Assertions.assertTrue(actorIdList.contains("1"));
+    }
+
+    @Test
+    public void ActivityStreamService_canFind_ApprovedServiceJoins() {
+        var loginUser1 = new User();
+        loginUser1.setId(0L);
+        loginUser1.setUsername("tester");
+
+        var loginUser2 = new User();
+        loginUser2.setId(1L);
+        loginUser2.setUsername("tester2");
+
+        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+
+        var approval1 = new UserServiceApproval();
+        approval1.setApprovalStatus(ApprovalStatus.APPROVED);
+        approval1.setService(testSvc1);
+        approval1.setUser(loginUser2);
+
+        var approval2 = new UserServiceApproval();
+        approval2.setService(testSvc2);
+        approval2.setUser(loginUser1);
+        approval2.setApprovalStatus(ApprovalStatus.APPROVED);
+
+
+        Mockito.when(serviceApprovalRepository.findAllByApprovedDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(List.of(approval1, approval2));
+
+        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_APPROVED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
+                .map(a -> getActor(a).id())
+                .collect(Collectors.toList());
+        Assertions.assertEquals(2, actorIdList.size());
+        Assertions.assertTrue(actorIdList.contains("0"));
+        Assertions.assertTrue(actorIdList.contains("1"));
+    }
+
+    @Test
+    public void ActivityStreamService_canFind_CreatedServiceJoinRequests() {
+        var loginUser1 = new User();
+        loginUser1.setId(0L);
+        loginUser1.setUsername("tester");
+
+        var loginUser2 = new User();
+        loginUser2.setId(1L);
+        loginUser2.setUsername("tester2");
+
+        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+
+        var approval1 = new UserServiceApproval();
+        approval1.setCreated(new Date(System.currentTimeMillis() - 3600 * 1000));
+        approval1.setService(testSvc1);
+        approval1.setUser(loginUser2);
+
+        var approval2 = new UserServiceApproval();
+        approval2.setService(testSvc2);
+        approval2.setUser(loginUser1);
+        approval2.setCreated(new Date());
+
+
+        Mockito.when(serviceApprovalRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(List.of(approval1, approval2));
+
+        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
+                .map(a -> getActor(a).id())
+                .collect(Collectors.toList());
+        Assertions.assertEquals(2, actorIdList.size());
+        Assertions.assertTrue(actorIdList.contains("0"));
+        Assertions.assertTrue(actorIdList.contains("1"));
+    }
+
+    @Test
+    public void ActivityStreamService_canFind_CreatedEventJoinRequests() {
+        var loginUser1 = new User();
+        loginUser1.setId(0L);
+        loginUser1.setUsername("tester");
+
+        var loginUser2 = new User();
+        loginUser2.setId(1L);
+        loginUser2.setUsername("tester2");
+
+        var testSvc1 = new Event(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc2 = new Event(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+
+        var approval1 = new UserEventApproval();
+        approval1.setCreated(new Date(System.currentTimeMillis() - 3600 * 1000));
+        approval1.setEvent(testSvc1);
+        approval1.setUser(loginUser2);
+
+        var approval2 = new UserEventApproval();
+        approval2.setEvent(testSvc2);
+        approval2.setUser(loginUser1);
+        approval2.setCreated(new Date());
+
+
+        Mockito.when(eventApprovalRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(List.of(approval1, approval2));
+
+        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
+                .map(a -> getActor(a).id())
+                .collect(Collectors.toList());
+        Assertions.assertEquals(2, actorIdList.size());
+        Assertions.assertTrue(actorIdList.contains("0"));
+        Assertions.assertTrue(actorIdList.contains("1"));
+    }
+
 
     @Test
     public void pagination_returnsNextPage_correctly() {
