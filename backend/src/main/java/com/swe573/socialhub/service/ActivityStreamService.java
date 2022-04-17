@@ -16,7 +16,6 @@ import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.LoginAttemptRepository;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
-import com.swe573.socialhub.repository.activitystreams.CreatedQueryableRepository;
 import com.swe573.socialhub.repository.activitystreams.CreatedQueryableSuccessfulLoginAttemptRepository;
 import com.swe573.socialhub.repository.activitystreams.CreatedQueryableUnsuccessfulLoginAttemptRepository;
 import com.swe573.socialhub.repository.activitystreams.TimestampPaginatedRepository;
@@ -57,6 +56,7 @@ public class ActivityStreamService {
         // data retrieval
         final var userLogins = new ArrayList<LoginAttempt>();
         final var createdServices = new ArrayList<com.swe573.socialhub.domain.Service>();
+        final var createdEvents = new ArrayList<Event>();
 
         for (final var type : eventTypes) {
             switch (type) {
@@ -74,6 +74,7 @@ public class ActivityStreamService {
                 case SERVICE_JOIN_APPROVED:
                     break;
                 case EVENT_CREATED:
+                    createdEvents.addAll(eventTimestampPaginatedRepository.findAllMatching(pagination));
                     break;
                 case EVENT_JOIN_REQUESTED:
                     break;
@@ -99,16 +100,25 @@ public class ActivityStreamService {
                 .stream()
                 .map(this::mapCreatedServiceActivity);
 
-        final var masterStream = Stream
-                .concat(
-                        userLoginActivities,
-                        serviceCreationActivities
-                )
+        final var eventCreationActivities = createdEvents
+                .stream()
+                .map(this::mapCreatedEventActivity);
+
+        final var masterStream = flattenStreams(
+                Stream.of(
+                    userLoginActivities,
+                    serviceCreationActivities,
+                    eventCreationActivities
+                ))
                 .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(Activity::published) : Comparator.comparing(Activity::published).reversed())
                 .limit(pagination.getSize());
 
 
         return mapToCollection(masterStream.collect(Collectors.toUnmodifiableList()), pagination);
+    }
+
+    private <T> Stream<T> flattenStreams(Stream<Stream<T>> streams) {
+        return streams.reduce(Stream.empty(), Stream::concat);
     }
 
     private TimestampBasedPagination makeNextPagination(Date lastDate, TimestampBasedPagination currentPagination) {
@@ -154,6 +164,16 @@ public class ActivityStreamService {
                 .get();
     }
 
+    private Activity mapCreatedEventActivity(Event event) {
+        return activity()
+                .summary(event.getCreatedUser().getUsername() + " created an event named " + event.getHeader())
+                .verb("create")
+                .actor(mapToObject(event.getCreatedUser()))
+                .object(mapToObject(event))
+                .published(new DateTime(event.getCreated()))
+                .get();
+    }
+
     private Activity mapToActivity(LoginAttempt loginAttempt, User user) {
         Objects.requireNonNull(loginAttempt);
         if (loginAttempt.getAttemptType() == LoginAttemptType.SUCCESSFUL) {
@@ -189,6 +209,14 @@ public class ActivityStreamService {
                 .displayName(service.getHeader())
                 .id(idString)
                 .link("url", "/service/" + idString);
+    }
+
+    private Supplier<? extends LinkValue> mapToObject(Event event) {
+        var idString = event.getId().toString();
+        return object("event")
+                .displayName(event.getHeader())
+                .id(idString)
+                .link("url", "/event/" + idString);
     }
 
     private Supplier<? extends LinkValue> mapToObject(LoginAttempt loginAttempt) {
