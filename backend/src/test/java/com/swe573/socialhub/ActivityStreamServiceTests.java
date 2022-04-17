@@ -94,7 +94,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(userRepository.findAllByUsername(Mockito.any()))
                 .thenReturn(List.of(loginUser1, loginUser2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_SUCCESSFUL), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_SUCCESSFUL), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
@@ -118,7 +118,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(userRepository.findAllByUsername(Mockito.any()))
                 .thenReturn(List.of(loginUser2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_FAILED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.USER_LOGIN_FAILED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var objectValueTypes = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getObject(a).objectTypeString())
                 .collect(Collectors.toList());
@@ -146,7 +146,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(serviceRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(testSvc1, testSvc2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
@@ -174,7 +174,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(eventRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(testSvc1, testSvc2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
@@ -210,7 +210,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(eventApprovalRepository.findAllByApprovedDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(approval1, approval2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_APPROVED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_APPROVED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
@@ -246,7 +246,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(serviceApprovalRepository.findAllByApprovedDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(approval1, approval2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_APPROVED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_APPROVED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
@@ -290,7 +290,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(serviceApprovalRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(approval1, approval2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());
@@ -326,7 +326,7 @@ public class ActivityStreamServiceTests {
         Mockito.when(eventApprovalRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(approval1, approval2));
 
-        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC));
+        var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
         var actorIdList = StreamSupport.stream(response.items().spliterator(), false)
                 .map(a -> getActor(a).id())
                 .collect(Collectors.toList());

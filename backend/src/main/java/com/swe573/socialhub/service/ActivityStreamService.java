@@ -15,7 +15,6 @@ import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.repository.activitystreams.*;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.security.Principal;
 import java.util.*;
@@ -62,16 +61,21 @@ public class ActivityStreamService {
     }
 
     private final static Set<FeedEvent> ADMIN_ONLY_EVENT_TYPES = Set.of(FeedEvent.USER_LOGIN_FAILED, FeedEvent.USER_LOGIN_SUCCESSFUL);
+    private final static int MAX_SIZE = 100;
 
-    public Collection fetchFeed(Principal principal, Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
+    public Collection fetchFeedValidated(Principal principal, Set<FeedEvent> eventTypes, TimestampBasedPagination pagination, String endpointBase) {
+        if (pagination.getSize() > MAX_SIZE) {
+            throw new IllegalArgumentException("Feed supports maximum 100 items");
+        }
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
         if (loggedInUser.getUserType() == UserType.USER && eventTypes.stream().anyMatch(ADMIN_ONLY_EVENT_TYPES::contains)) {
             throw new IllegalArgumentException("Can't request admin only event types");
         }
-        return fetchFeed(eventTypes, pagination);
+
+        return fetchFeed(eventTypes, pagination, endpointBase);
     }
 
-    public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
+    public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination, String endpointBase) {
         final var activities = eventTypes
                 .parallelStream()
                 .flatMap(et -> mappers.get(et).fetchAndMap(pagination))
@@ -79,31 +83,27 @@ public class ActivityStreamService {
                 .limit(pagination.getSize())
                 .collect(Collectors.toUnmodifiableList());
 
-        return mapToCollection(activities, pagination);
+        return mapToCollection(activities, pagination, endpointBase);
     }
 
-    private <T> Stream<T> flattenStreams(Stream<Stream<T>> streams) {
-        return streams.flatMap(s -> s);
-    }
-
-    private String makeUrlString(TimestampBasedPagination pagination) {
+    private String makeUrlString(TimestampBasedPagination pagination, String endpointBase) {
         var map =  Map.of("sort", pagination.getSortDirection().toString(),
                 "gt", Long.toString(pagination.getGreaterThan().toInstant().toEpochMilli()),
                 "lt", Long.toString(pagination.getLowerThan().toInstant().toEpochMilli()),
                 "size", Integer.toString(pagination.getSize())
         );
 
-        return Joiner.on("&").withKeyValueSeparator("=").join(map);
+        return endpointBase + "?" + Joiner.on("&").withKeyValueSeparator("=").join(map);
     }
 
-    private Collection mapToCollection(List<Activity> activityList, TimestampBasedPagination pagination) {
+    private Collection mapToCollection(List<Activity> activityList, TimestampBasedPagination pagination, String endpointBase) {
         final var builder = collection()
                 .items(activityList)
                 .itemsPerPage(activityList.size());
 
         if (!activityList.isEmpty()) {
             final var nextPagination = pagination.nextPage(activityList.get(activityList.size() - 1).published().toDate());
-            final var nextUrl = makeUrlString(nextPagination);
+            final var nextUrl = makeUrlString(nextPagination, endpointBase);
             builder.pageLink(Collection.Page.NEXT, nextUrl);
         }
 
