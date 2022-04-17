@@ -48,4 +48,14 @@ public class TimestampBasedPagination {
         }
         return PageRequest.of(0, size, sort);
     }
+
+    public TimestampBasedPagination nextPage(Date lastDate) {
+        final var currentPagination = this;
+        return new TimestampBasedPagination(
+                currentPagination.getSortDirection().isAscending() ? lastDate : currentPagination.getGreaterThan(),
+                currentPagination.getSortDirection().isAscending() ? currentPagination.getLowerThan() : lastDate,
+                currentPagination.getSize(),
+                currentPagination.getSortDirection()
+        );
+    }
 }

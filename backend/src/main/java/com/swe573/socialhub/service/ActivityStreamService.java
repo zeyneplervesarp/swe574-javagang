@@ -121,15 +121,6 @@ public class ActivityStreamService {
         return streams.reduce(Stream.empty(), Stream::concat);
     }
 
-    private TimestampBasedPagination makeNextPagination(Date lastDate, TimestampBasedPagination currentPagination) {
-        return new TimestampBasedPagination(
-                currentPagination.getSortDirection().isAscending() ? lastDate : currentPagination.getGreaterThan(),
-                currentPagination.getSortDirection().isAscending() ? currentPagination.getLowerThan() : lastDate,
-                currentPagination.getSize(),
-                currentPagination.getSortDirection()
-        );
-    }
-
     private String makeUrlString(TimestampBasedPagination pagination) {
         var map =  Map.of("sort", pagination.getSortDirection().toString(),
                 "gt", Long.toString(pagination.getGreaterThan().toInstant().toEpochMilli()),
@@ -146,7 +137,7 @@ public class ActivityStreamService {
                 .itemsPerPage(activityList.size());
 
         if (!activityList.isEmpty()) {
-            final var nextPagination = makeNextPagination(activityList.get(activityList.size() - 1).published().toDate(), pagination);
+            final var nextPagination = pagination.nextPage(activityList.get(activityList.size() - 1).published().toDate());
             final var nextUrl = makeUrlString(nextPagination);
             builder.pageLink(Collection.Page.NEXT, nextUrl);
         }
