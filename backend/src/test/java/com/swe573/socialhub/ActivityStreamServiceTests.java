@@ -172,6 +172,20 @@ public class ActivityStreamServiceTests {
         Assertions.assertTrue(actorIdList.contains("1"));
     }
 
+    @Test
+    public void pagination_returnsNextPage_correctly() {
+        final var gt = new Date(System.currentTimeMillis() - 3600 * 1000);
+        final var currentPage = new TimestampBasedPagination(gt, null, 20, Sort.Direction.ASC);
+        final var lastEntryDate = new Date();
+
+        final var nextPage = currentPage.nextPage(lastEntryDate);
+
+        Assertions.assertEquals(currentPage.getSortDirection(), nextPage.getSortDirection());
+        Assertions.assertEquals(currentPage.getSize(), nextPage.getSize());
+        Assertions.assertEquals(lastEntryDate, nextPage.getGreaterThan());
+        Assertions.assertEquals(currentPage.getLowerThan(), nextPage.getLowerThan());
+    }
+
     private <A extends ASObject> ASObject getObject(A item) {
         return ((ASObject)((Activity) item).object().iterator().next());
     }
