@@ -228,6 +228,14 @@ class LoadDatabase {
 
             eventRepository.save(mockEvent);
 
+
+            //region feature service
+            service.setFeatured(true);
+            service3.setFeatured(true);
+            service8.setFeatured(true);
+            //endregion
+
+
             serviceRepository.save(service);
             serviceRepository.save(service2);
             serviceRepository.save(service3);
@@ -236,6 +244,7 @@ class LoadDatabase {
             serviceRepository.save(service6);
             serviceRepository.save(service7);
             serviceRepository.save(service8);
+
 
 
             serviceRepository.findAll().forEach(s -> {
@@ -316,6 +325,8 @@ class LoadDatabase {
             var rating2 = saveRatingForService(ratingRepository, user5, service8, 2);
             //endregion
 
+
+
         };
     }
 
@@ -355,4 +366,6 @@ class LoadDatabase {
         ratingRepository.save(rating);
         return rating;
     }
+
+
 }

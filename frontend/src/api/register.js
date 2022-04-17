@@ -34,6 +34,9 @@ export default {
     GetAllServicesSorted(getOngoingOnly,filter, sortBy) {
         return http.get(process.env.VUE_APP_API + 'service/'+ getOngoingOnly + '/'+filter+ "?sortBy=" + sortBy)
     },
+    GetFeaturedServices() {
+        return http.get(process.env.VUE_APP_API + 'service/feature')
+    },
     SetTags(data) {
         return http.post(process.env.VUE_APP_API + 'user/setTags', data)
     },
