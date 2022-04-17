@@ -10,11 +10,14 @@ import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.enums.LoginAttemptType;
+import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.repository.activitystreams.*;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ import static com.ibm.common.activitystreams.Makers.*;
 public class ActivityStreamService {
 
     private final Map<FeedEvent, ActivityMapper<?>> mappers;
+    private final UserRepository userRepository;
 
     public ActivityStreamService(
             LoginAttemptRepository loginAttemptRepository,
@@ -35,6 +39,7 @@ public class ActivityStreamService {
             UserEventApprovalRepository eventApprovalRepository,
             UserServiceApprovalRepository serviceApprovalRepository
     ) {
+        this.userRepository = userRepository;
         final var successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
         final var unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
         final var serviceTimestampPaginatedRepository = new TimestampPaginatedRepository<>(serviceRepository);
@@ -54,6 +59,16 @@ public class ActivityStreamService {
                 FeedEvent.EVENT_JOIN_REQUESTED, new CreatedEventRequestActivityMapper(new RepositoryDataSource<>(tsEventApprovalRepository)),
                 FeedEvent.SERVICE_JOIN_REQUESTED, new CreatedServiceRequestActivityMapper(new RepositoryDataSource<>(tsServiceApprovalRepository))
         );
+    }
+
+    private final static Set<FeedEvent> ADMIN_ONLY_EVENT_TYPES = Set.of(FeedEvent.USER_LOGIN_FAILED, FeedEvent.USER_LOGIN_SUCCESSFUL);
+
+    public Collection fetchFeed(Principal principal, Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
+        final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        if (loggedInUser.getUserType() == UserType.USER && eventTypes.stream().anyMatch(ADMIN_ONLY_EVENT_TYPES::contains)) {
+            throw new IllegalArgumentException("Can't request admin only event types");
+        }
+        return fetchFeed(eventTypes, pagination);
     }
 
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
