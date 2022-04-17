@@ -25,15 +25,7 @@ import static com.ibm.common.activitystreams.Makers.*;
 @Service
 public class ActivityStreamService {
 
-    private final TimestampPaginatedRepository<LoginAttempt> successfulLoginAttemptRepository;
-    private final TimestampPaginatedRepository<LoginAttempt> unsuccessfulLoginAttemptRepository;
-    private final UserRepository userRepository;
-    private final TimestampPaginatedRepository<com.swe573.socialhub.domain.Service> serviceTimestampPaginatedRepository;
-    private final TimestampPaginatedRepository<Event> eventTimestampPaginatedRepository;
-    private final UserEventApprovalRepository eventApprovalRepository;
-    private final UserServiceApprovalRepository serviceApprovalRepository;
-    private final TimestampPaginatedRepository<UserEventApproval> eventApprovalTimestampPaginatedRepository;
-    private final TimestampPaginatedRepository<UserServiceApproval> serviceApprovalTimestampPaginatedRepository;
+    private final Map<FeedEvent, ActivityMapper<?>> mappers;
 
     public ActivityStreamService(
             LoginAttemptRepository loginAttemptRepository,
@@ -43,79 +35,33 @@ public class ActivityStreamService {
             UserEventApprovalRepository eventApprovalRepository,
             UserServiceApprovalRepository serviceApprovalRepository
     ) {
-        this.successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
-        this.unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
-        this.userRepository = userRepository;
-        this.serviceTimestampPaginatedRepository = new TimestampPaginatedRepository<>(serviceRepository);
-        this.eventTimestampPaginatedRepository = new TimestampPaginatedRepository<>(eventRepository);
-        this.eventApprovalRepository = eventApprovalRepository;
-        this.serviceApprovalRepository = serviceApprovalRepository;
-        this.eventApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableEventApprovalRepository(eventApprovalRepository));
-        this.serviceApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableServiceApprovalRepository(serviceApprovalRepository));
+        final var successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
+        final var unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
+        final var serviceTimestampPaginatedRepository = new TimestampPaginatedRepository<>(serviceRepository);
+        final var eventTimestampPaginatedRepository = new TimestampPaginatedRepository<>(eventRepository);
+        final var tsEventApprovalRepository = new TimestampPaginatedRepository<>(eventApprovalRepository);
+        final var tsServiceApprovalRepository = new TimestampPaginatedRepository<>(serviceApprovalRepository);
+        final var eventApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableEventApprovalRepository(eventApprovalRepository));
+        final var serviceApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableServiceApprovalRepository(serviceApprovalRepository));
+
+        this.mappers = Map.of(
+                FeedEvent.EVENT_CREATED, new EventCreatedActivityMapper(new RepositoryDataSource<>(eventTimestampPaginatedRepository)),
+                FeedEvent.SERVICE_CREATED, new ServiceCreatedActivityMapper(new RepositoryDataSource<>(serviceTimestampPaginatedRepository)),
+                FeedEvent.USER_LOGIN_SUCCESSFUL, new UserLoginActivityMapper(userRepository, new RepositoryDataSource<>(successfulLoginAttemptRepository)),
+                FeedEvent.USER_LOGIN_FAILED, new UserLoginActivityMapper(userRepository, new RepositoryDataSource<>(unsuccessfulLoginAttemptRepository))
+        );
+
+
+
     }
 
     public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination) {
-
-        // data retrieval
-        final var userLogins = new ArrayList<LoginAttempt>();
-        final var createdServices = new ArrayList<com.swe573.socialhub.domain.Service>();
-        final var createdEvents = new ArrayList<Event>();
-
-        for (final var type : eventTypes) {
-            switch (type) {
-                case USER_LOGIN_FAILED:
-                    userLogins.addAll(unsuccessfulLoginAttemptRepository.findAllMatching(pagination));
-                    break;
-                case USER_LOGIN_SUCCESSFUL:
-                    userLogins.addAll(successfulLoginAttemptRepository.findAllMatching(pagination));
-                    break;
-                case SERVICE_CREATED:
-                    createdServices.addAll(serviceTimestampPaginatedRepository.findAllMatching(pagination));
-                    break;
-                case SERVICE_JOIN_REQUESTED:
-                    break;
-                case SERVICE_JOIN_APPROVED:
-                    break;
-                case EVENT_CREATED:
-                    createdEvents.addAll(eventTimestampPaginatedRepository.findAllMatching(pagination));
-                    break;
-                case EVENT_JOIN_REQUESTED:
-                    break;
-                case EVENT_JOIN_APPROVED:
-                    break;
-            }
-        }
-
-        // mapping
-
-        final var userNamesToFetch = userLogins.stream().map(LoginAttempt::getUsername).collect(Collectors.toList());
-        final var userCache = userRepository
-                .findAllByUsername(userNamesToFetch)
-                .stream()
-                .collect(Collectors.toUnmodifiableMap(User::getUsername, Function.identity()));
-
-
-        final var userLoginActivities = userLogins
-                .stream()
-                .map(loginAttempt -> mapToActivity(loginAttempt, userCache.get(loginAttempt.getUsername())));
-
-        final var serviceCreationActivities = createdServices
-                .stream()
-                .map(this::mapCreatedServiceActivity);
-
-        final var eventCreationActivities = createdEvents
-                .stream()
-                .map(this::mapCreatedEventActivity);
-
-        final var masterStream = flattenStreams(
-                Stream.of(
-                    userLoginActivities,
-                    serviceCreationActivities,
-                    eventCreationActivities
-                ))
+        final var activityStreams = eventTypes
+                .parallelStream()
+                .map(et -> mappers.get(et).fetchAndMap(pagination));
+        final var masterStream = flattenStreams(activityStreams)
                 .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(Activity::published) : Comparator.comparing(Activity::published).reversed())
                 .limit(pagination.getSize());
-
 
         return mapToCollection(masterStream.collect(Collectors.toUnmodifiableList()), pagination);
     }
@@ -148,45 +94,131 @@ public class ActivityStreamService {
         return builder.get();
     }
 
-    private Activity mapCreatedServiceActivity(com.swe573.socialhub.domain.Service service) {
-        return activity()
-                .summary(service.getCreatedUser().getUsername() + " created a service named " + service.getHeader())
-                .verb("create")
-                .actor(mapToObject(service.getCreatedUser()))
-                .object(mapToObject(service))
-                .published(new DateTime(service.getCreated()))
-                .get();
+    private interface TimestampPaginatedDataSource<T> {
+        List<T> fetch(TimestampBasedPagination query);
     }
 
-    private Activity mapCreatedEventActivity(Event event) {
-        return activity()
-                .summary(event.getCreatedUser().getUsername() + " created an event named " + event.getHeader())
-                .verb("create")
-                .actor(mapToObject(event.getCreatedUser()))
-                .object(mapToObject(event))
-                .published(new DateTime(event.getCreated()))
-                .get();
+    private static class RepositoryDataSource<T> implements TimestampPaginatedDataSource<T> {
+        private final TimestampPaginatedRepository<T> repository;
+
+        public RepositoryDataSource(TimestampPaginatedRepository<T> repository) {
+            this.repository = repository;
+        }
+
+        @Override
+        public List<T> fetch(TimestampBasedPagination query) {
+            return repository.findAllMatching(query);
+        }
     }
 
-    private Activity mapToActivity(LoginAttempt loginAttempt, User user) {
-        Objects.requireNonNull(loginAttempt);
-        if (loginAttempt.getAttemptType() == LoginAttemptType.SUCCESSFUL) {
-            Objects.requireNonNull(user);
+
+    private static abstract class ActivityMapper<T> {
+        public abstract TimestampPaginatedDataSource<T> getDataSource();
+        public Stream<Activity> map(List<T> objects) {
+            return objects.stream().map(this::mapOne);
+        }
+        public abstract Activity mapOne(T object);
+        public Stream<Activity> fetchAndMap(TimestampBasedPagination query) {
+            return map(getDataSource().fetch(query));
+        }
+    }
+
+    private static abstract class RepositoryBasedActivityMapper<T> extends ActivityMapper<T> {
+        final RepositoryDataSource<T> dataSource;
+
+        public RepositoryBasedActivityMapper(RepositoryDataSource<T> dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        @Override
+        public RepositoryDataSource<T> getDataSource() {
+            return dataSource;
+        }
+    }
+
+    private class ServiceCreatedActivityMapper extends RepositoryBasedActivityMapper<com.swe573.socialhub.domain.Service> {
+        public ServiceCreatedActivityMapper(RepositoryDataSource<com.swe573.socialhub.domain.Service> dataSource) {
+            super(dataSource);
+        }
+
+        public Activity mapOne(com.swe573.socialhub.domain.Service object) {
             return activity()
-                    .summary(user.getUsername() + " successfully logged in")
-                    .verb("login")
-                    .actor(mapToObject(user))
+                    .summary(object.getCreatedUser().getUsername() + " created a service named " + object.getHeader())
+                    .verb("create")
+                    .actor(mapToObject(object.getCreatedUser()))
+                    .object(mapToObject(object))
+                    .published(new DateTime(object.getCreated()))
+                    .get();
+        }
+    }
+
+    private class EventCreatedActivityMapper extends RepositoryBasedActivityMapper<Event> {
+        public EventCreatedActivityMapper(RepositoryDataSource<Event> dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Activity mapOne(Event object) {
+            return activity()
+                    .summary(object.getCreatedUser().getUsername() + " created an event named " + object.getHeader())
+                    .verb("create")
+                    .actor(mapToObject(object.getCreatedUser()))
+                    .object(mapToObject(object))
+                    .published(new DateTime(object.getCreated()))
+                    .get();
+        }
+    }
+
+    private class UserLoginActivityMapper extends ActivityMapper<LoginAttempt> {
+        private final TimestampPaginatedDataSource<LoginAttempt> dataSource;
+        private final UserRepository repository;
+
+        public UserLoginActivityMapper(UserRepository userRepository, TimestampPaginatedDataSource<LoginAttempt> dataSource) {
+            this.repository = userRepository;
+            this.dataSource = dataSource;
+        }
+
+        @Override
+        public TimestampPaginatedDataSource<LoginAttempt> getDataSource() {
+            return null;
+        }
+
+        @Override
+        public Activity mapOne(LoginAttempt object) {
+            return null;
+        }
+
+        @Override
+        public Stream<Activity> fetchAndMap(TimestampBasedPagination query) {
+            final var objs = dataSource.fetch(query);
+            final var userNamesToFetch = objs.stream().map(LoginAttempt::getUsername).collect(Collectors.toList());
+            final var userCache = repository
+                    .findAllByUsername(userNamesToFetch)
+                    .stream()
+                    .collect(Collectors.toUnmodifiableMap(User::getUsername, Function.identity()));
+            return objs.stream().map(a -> mapToActivity(a, userCache.get(a.getUsername())));
+        }
+
+        private Activity mapToActivity(LoginAttempt loginAttempt, User user) {
+            Objects.requireNonNull(loginAttempt);
+            if (loginAttempt.getAttemptType() == LoginAttemptType.SUCCESSFUL) {
+                Objects.requireNonNull(user);
+                return activity()
+                        .summary(user.getUsername() + " successfully logged in")
+                        .verb("login")
+                        .actor(mapToObject(user))
+                        .published(new DateTime(loginAttempt.getCreated()))
+                        .get();
+            }
+            var obj = user != null ? mapToObject(user) : mapToObject(loginAttempt);
+            return activity()
+                    .summary("Someone tried to log in unsuccessfully")
+                    .verb("login-failed")
+                    .actor(object("unknown").displayName("Unknown person"))
+                    .object(obj)
                     .published(new DateTime(loginAttempt.getCreated()))
                     .get();
         }
-        var obj = user != null ? mapToObject(user) : mapToObject(loginAttempt);
-        return activity()
-                .summary("Someone tried to log in unsuccessfully")
-                .verb("login-failed")
-                .actor(object("unknown").displayName("Unknown person"))
-                .object(obj)
-                .published(new DateTime(loginAttempt.getCreated()))
-                .get();
     }
 
     private Supplier<? extends LinkValue> mapToObject(User user) {
