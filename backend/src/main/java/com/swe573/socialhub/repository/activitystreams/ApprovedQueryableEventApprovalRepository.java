@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Date;
 import java.util.List;
 
-public class ApprovedQueryableEventApprovalRepository implements CreatedQueryableRepository<UserEventApproval> {
+public class ApprovedQueryableEventApprovalRepository implements DateQueryableRepository<UserEventApproval> {
 
     private final UserEventApprovalRepository repository;
 
@@ -16,7 +16,7 @@ public class ApprovedQueryableEventApprovalRepository implements CreatedQueryabl
     }
 
     @Override
-    public List<UserEventApproval> findAllByCreatedBetween(Date createdGt, Date createdLt, Pageable pageable) {
+    public List<UserEventApproval> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable) {
         return repository.findAllByApprovedDateBetween(createdGt, createdLt, pageable);
     }
 }

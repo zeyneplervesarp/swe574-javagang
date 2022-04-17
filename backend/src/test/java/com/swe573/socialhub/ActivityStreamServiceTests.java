@@ -3,15 +3,12 @@ package com.swe573.socialhub;
 import com.ibm.common.activitystreams.ASObject;
 import com.ibm.common.activitystreams.Activity;
 import com.swe573.socialhub.domain.*;
-import com.swe573.socialhub.dto.SearchMatchDto;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.enums.LoginAttemptType;
-import com.swe573.socialhub.enums.SearchMatchType;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.service.ActivityStreamService;
-import com.swe573.socialhub.service.SearchService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,14 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -143,7 +135,7 @@ public class ActivityStreamServiceTests {
         testSvc2.setCreated(new Date());
 
 
-        Mockito.when(serviceRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(serviceRepository.findAllByDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(testSvc1, testSvc2));
 
         var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
@@ -171,7 +163,7 @@ public class ActivityStreamServiceTests {
         testSvc2.setCreated(new Date());
 
 
-        Mockito.when(eventRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(eventRepository.findAllByDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(testSvc1, testSvc2));
 
         var response = service.fetchFeed(Set.of(FeedEvent.EVENT_CREATED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
@@ -287,7 +279,7 @@ public class ActivityStreamServiceTests {
         approval2.setCreated(new Date());
 
 
-        Mockito.when(serviceApprovalRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(serviceApprovalRepository.findAllByDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(approval1, approval2));
 
         var response = service.fetchFeed(Set.of(FeedEvent.SERVICE_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");
@@ -323,7 +315,7 @@ public class ActivityStreamServiceTests {
         approval2.setCreated(new Date());
 
 
-        Mockito.when(eventApprovalRepository.findAllByCreatedBetween(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(eventApprovalRepository.findAllByDateBetween(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(List.of(approval1, approval2));
 
         var response = service.fetchFeed(Set.of(FeedEvent.EVENT_JOIN_REQUESTED), new TimestampBasedPagination(null, null, 20, Sort.Direction.ASC), "test");

@@ -1,10 +1,9 @@
 package com.swe573.socialhub.repository;
 
 import com.swe573.socialhub.domain.Event;
-import com.swe573.socialhub.domain.Service;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.enums.ServiceStatus;
-import com.swe573.socialhub.repository.activitystreams.CreatedQueryableRepository;
+import com.swe573.socialhub.repository.activitystreams.DateQueryableRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 import java.util.List;
 
-public interface EventRepository extends JpaRepository<Event, Long>, CreatedQueryableRepository<Event> {
+public interface EventRepository extends JpaRepository<Event, Long>, DateQueryableRepository<Event> {
     List<Event> findEventByCreatedUser(User loggedInUser);
     List<Event> findEventByCreatedUserAndStatus(User loggedInUser, ServiceStatus status);
 
@@ -27,5 +26,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, CreatedQuer
     List<Event> findByLocationLikeIgnoreCase(@Param("match") String stringToMatch, Pageable pageable);
 
     @Query("select s from Event s where s.created > :createdGt and s.created < :createdLt")
-    List<Event> findAllByCreatedBetween(Date createdGt, Date createdLt, Pageable pageable);
+    List<Event> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable);
 }

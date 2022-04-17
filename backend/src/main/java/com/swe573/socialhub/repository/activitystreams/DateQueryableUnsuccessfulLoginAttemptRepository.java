@@ -9,16 +9,16 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public class CreatedQueryableSuccessfulLoginAttemptRepository implements CreatedQueryableRepository<LoginAttempt> {
+public class DateQueryableUnsuccessfulLoginAttemptRepository implements DateQueryableRepository<LoginAttempt> {
 
     private final LoginAttemptRepository loginAttemptRepository;
 
-    public CreatedQueryableSuccessfulLoginAttemptRepository(LoginAttemptRepository loginAttemptRepository) {
+    public DateQueryableUnsuccessfulLoginAttemptRepository(LoginAttemptRepository loginAttemptRepository) {
         this.loginAttemptRepository = loginAttemptRepository;
     }
 
     @Override
-    public List<LoginAttempt> findAllByCreatedBetween(Date createdGt, Date createdLt, Pageable pageable) {
-        return loginAttemptRepository.findAllSuccessfulByCreatedBetween(createdGt, createdLt, pageable);
+    public List<LoginAttempt> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable) {
+        return loginAttemptRepository.findAllUnsuccessfulByCreatedBetween(createdGt, createdLt, pageable);
     }
 }

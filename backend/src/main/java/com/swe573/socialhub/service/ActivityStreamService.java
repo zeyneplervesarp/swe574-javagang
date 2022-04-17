@@ -39,8 +39,8 @@ public class ActivityStreamService {
             UserServiceApprovalRepository serviceApprovalRepository
     ) {
         this.userRepository = userRepository;
-        final var successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
-        final var unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new CreatedQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
+        final var successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new DateQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
+        final var unsuccessfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new DateQueryableUnsuccessfulLoginAttemptRepository(loginAttemptRepository));
         final var serviceTimestampPaginatedRepository = new TimestampPaginatedRepository<>(serviceRepository);
         final var eventTimestampPaginatedRepository = new TimestampPaginatedRepository<>(eventRepository);
         final var tsEventApprovalRepository = new TimestampPaginatedRepository<>(eventApprovalRepository);

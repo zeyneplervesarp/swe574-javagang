@@ -6,18 +6,18 @@ import java.util.List;
 
 public class TimestampPaginatedRepository<T> {
 
-    public TimestampPaginatedRepository(CreatedQueryableRepository<T> innerRepository) {
+    public TimestampPaginatedRepository(DateQueryableRepository<T> innerRepository) {
         this.innerRepository = innerRepository;
     }
 
-    private final CreatedQueryableRepository<T> innerRepository;
+    private final DateQueryableRepository<T> innerRepository;
 
     public List<T> findAllMatching(TimestampBasedPagination pagination) {
         return innerRepository
-                .findAllByCreatedBetween(pagination.getGreaterThan(), pagination.getLowerThan(), pagination.toPageable());
+                .findAllByDateBetween(pagination.getGreaterThan(), pagination.getLowerThan(), pagination.toPageable());
     }
 
-    public CreatedQueryableRepository<T> getInnerRepository() {
+    public DateQueryableRepository<T> getInnerRepository() {
         return innerRepository;
     }
 }
