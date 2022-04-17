@@ -129,6 +129,12 @@
                   :read-only="ratingData.readOnly"
                 ></star-rating>
               </div>
+              <div v-if="serviceData.ratingSummary.raterCount > 0">
+                <p>
+                  Rated by {{ serviceData.ratingSummary.raterCount }} people.
+                  Total rating: {{ serviceData.ratingSummary.ratingAverage }} .
+                </p>
+              </div>
             </div>
                       <div
               v-if="userData.ownsService"
@@ -276,6 +282,7 @@ export default {
         status: "",
         datePassed: false,
         participantUserList: [],
+        ratingSummary: {},
         flagCount: 0,
       },
       userData: {
@@ -323,6 +330,7 @@ export default {
         this.serviceData.datePassed = r.showServiceOverButton;
         this.coordinates.lat = r.latitude;
         this.coordinates.lng = r.longitude;
+        this.serviceData.ratingSummary = r.ratingSummary;
         this.serviceData.flagCount = r.flagCount;
       });
     },
