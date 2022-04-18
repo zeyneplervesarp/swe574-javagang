@@ -2,7 +2,7 @@
 
 mainframe admin - dismiss user flags
 
-title "Admin - Dismiss Service Flags Diagram"
+title "Admin - Dismiss User Flags Diagram"
 actor Admin
 participant UserService
 database db
