@@ -47,9 +47,7 @@
     </div>
     
     <section class="section section-lg pt-lg-0 mt--400 ">
-
         <services :filter="'all'"></services>
-
     </section>
 
     <section class="section section-lg pt-0">

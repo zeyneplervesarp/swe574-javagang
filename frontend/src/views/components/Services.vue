@@ -10,42 +10,58 @@
           >
             Sort By
           </base-button>
-          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceAsc')">Distance <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc
- mr-2"></i>
-            </span></a>
-          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceDesc')">Distance <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc
- mr-2"></i>
-            </span> </a>
-          <a class="dropdown-item" href="#" v-on:click="SortBy('serviceDateAsc')"
-            >Service Date <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc
- mr-2"></i>
-            </span></a
-          >
-              <a class="dropdown-item" href="#" v-on:click="SortBy('serviceDateDesc')"
-            >Service Date <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc
- mr-2"></i>
-            </span></a
-          >
-          <a class="dropdown-item" href="#" v-on:click="SortBy('createdDateAsc')"
-            >Created Date <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc
- mr-2"></i>
-            </span></a
-          >
-             <a class="dropdown-item" href="#" v-on:click="SortBy('createdDateDesc')"
-            >Created Date <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc
- mr-2"></i>
-            </span></a
-          >
+          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceAsc')"
+            >Distance
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+          ></a>
+          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceDesc')"
+            >Distance
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-desc mr-2"></i>
+            </span>
+          </a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('serviceDateAsc')"
+            >Service Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('serviceDateDesc')"
+            >Service Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('createdDateAsc')"
+            >Created Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('createdDateDesc')"
+            >Created Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
+          ></a>
         </base-dropdown>
       </div>
 
       <div class="col-lg-12 pt-100">
+        <div v-if="this.filter == 'featured'">
+          <h1 class="lead text-white bg-danger">
+            This week's featured offers!
+          </h1>
+        </div>
         <div
           v-for="(serviceArray, index) in nestedServiceArray"
           :key="index"
@@ -72,9 +88,9 @@
                 <badge v-bind:type="GetClass(index)" rounded
                   >{{ service.minutes }} credits</badge
                 >
-                <badge v-bind:type="GetClass(index)" rounded
-                  >{{ service.distanceToUserString }}</badge
-                >
+                <badge v-bind:type="GetClass(index)" rounded>{{
+                  service.distanceToUserString
+                }}</badge>
               </div>
               <base-button
                 tag="a"
@@ -131,6 +147,11 @@ export default {
     GetServices() {
       if (this.filter == "first3") {
         apiRegister.GetAllServicesForHome().then((response) => {
+          this.serviceResult = response;
+          this.nestedServiceArray = this.SplitList();
+        });
+      } else if (this.filter == "featured") {
+        apiRegister.GetFeaturedServices().then((response) => {
           this.serviceResult = response;
           this.nestedServiceArray = this.SplitList();
         });

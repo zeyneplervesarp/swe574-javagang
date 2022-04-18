@@ -251,6 +251,14 @@ class LoadDatabase {
 
             eventRepository.save(mockEvent);
 
+
+            //region feature service
+            service.setFeatured(true);
+            service3.setFeatured(true);
+            service8.setFeatured(true);
+            //endregion
+
+
             serviceRepository.save(service);
             serviceRepository.save(service2);
             serviceRepository.save(service3);
@@ -260,6 +268,7 @@ class LoadDatabase {
             serviceRepository.save(service7);
             serviceRepository.save(service8);
             serviceRepository.save(serviceNewComer);
+
 
 
             serviceRepository.findAll().forEach(s -> {
@@ -407,7 +416,6 @@ class LoadDatabase {
         ratingRepository.save(rating);
         return rating;
     }
-
 
     private Flag saveFlagForTargetUser(FlagRepository flagRepository, User user1, long targetUserId){
         var flag = new Flag(FlagType.user, user1.getId(), targetUserId, FlagStatus.active);

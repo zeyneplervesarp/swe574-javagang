@@ -37,6 +37,9 @@ export default {
     GetFeaturedServices() {
         return http.get(process.env.VUE_APP_API + 'service/feature')
     },
+    GetFeaturedServices() {
+        return http.get(process.env.VUE_APP_API + 'service/feature')
+    },
     SetTags(data) {
         return http.post(process.env.VUE_APP_API + 'user/setTags', data)
     },
