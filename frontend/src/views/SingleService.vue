@@ -215,23 +215,6 @@
                 </div>
               </div>
             </div> -->
-
-            <div
-              v-if="
-                userData.ownsService &&
-                serviceData.datePassed &&
-                serviceData.status === 'ONGOING'
-              "
-              class="mt-2 py-5 border-top text-center"
-            >
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button @click="ConfirmServiceOverCreator" type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
-              </div>
-            </div>
             <div
               v-if="!userData.ownsService && !userIsAdmin"
               class="mt-2 py-5 border-top text-center"
