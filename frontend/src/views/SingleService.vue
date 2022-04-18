@@ -74,6 +74,10 @@
                     <span class="heading">{{ serviceData.minutes }}</span>
                     <span class="description">Credits</span>
                   </div>
+                  <div v-if="userIsAdmin">
+                    <span class="heading">{{ serviceData.flagCount }}</span>
+                    <span class="description">FlagCount</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -88,7 +92,8 @@
               </h3>
               <div></div>
               <br />
-              <div class="text-center">
+              <!-- physical -->
+              <div class="text-center" v-if="serviceData.locationType === 'Physical'">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
@@ -104,14 +109,32 @@
                   </GmapMap>
                 </base-button>
               </div>
+              <!-- online -->
+              <div class="text-center">
+                <p> Meeting Link: {{serviceData.location}} </p>
+              </div>
               <br />
+
               <div>
-                <!-- <i class="ni ni-square-pin"></i> : {{ serviceData.location }} -->
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
-              <!-- <div>
-                <i class="ni ni-single-02"></i>: {{ serviceData.quota }} people
-              </div> -->
+              <div   v-if="
+                userData.attendsService &&
+                serviceData.status === 'COMPLETED'
+              "
+              class="row justify-content-center">
+                <star-rating
+                  :star-size="20"
+                  @rating-selected="SetRating"
+                  :read-only="ratingData.readOnly"
+                ></star-rating>
+              </div>
+              <div v-if="serviceData.ratingSummary.raterCount > 0">
+                <p>
+                  Rated by {{ serviceData.ratingSummary.raterCount }} people.
+                  Average rating: {{ serviceData.ratingSummary.ratingAverage }} .
+                </p>
+              </div>
             </div>
                       <div
               v-if="userData.ownsService"
@@ -192,13 +215,37 @@
                 </div>
               </div>
             </div> -->
-  
+
             <div
-              v-if="!userData.ownsService"
+              v-if="
+                userData.ownsService &&
+                serviceData.datePassed &&
+                serviceData.status === 'ONGOING'
+              "
+              class="mt-2 py-5 border-top text-center"
+            >
+              <div class="row justify-content-center">
+                <div class="col-lg-9">
+                  <base-button @click="ConfirmServiceOverCreator" type="success"
+                    >Service Is Over?</base-button
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              v-if="!userData.ownsService && !userIsAdmin"
               class="mt-2 py-5 border-top text-center"
             >
               <base-button block type="primary" class="mb-3" @click="Flag()">
                 Flag Service
+              </base-button>
+            </div>
+            <div
+              v-if="userIsAdmin"
+              class="mt-2 py-5 border-top text-center"
+            >
+              <base-button block type="primary" class="mb-3" @click="DismissFlags()">
+                Dismiss Flags
               </base-button>
             </div>
           </div>
@@ -212,14 +259,16 @@ import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import modal from "../utils/modal";
 import swal from "sweetalert2";
+import StarRating from "vue-star-rating";
 import register from "../api/register";
 
 export default {
-  components: { BaseButton },
+  components: { BaseButton, StarRating },
   data() {
     return {
       serviceData: {
         location: "",
+        locationType: "",
         time: "",
         timeString: "",
         header: "",
@@ -233,21 +282,32 @@ export default {
         status: "",
         datePassed: false,
         participantUserList: [],
+        ratingSummary: {},
+        flagCount: 0,
       },
       userData: {
         hasServiceRequest: "",
         ownsService: "",
         attendsService: false,
       },
+      ratingData:{
+        readOnly : false
+      },
       coordinates: {
         lat: 0,
         lng: 0,
       },
+      userIsAdmin: false
     };
   },
   mounted() {
     this.GetService();
     this.GetUserDetails();
+
+    apiRegister.GetProfile().then(r => {
+        var compare = r.userType.localeCompare("ADMIN");
+        this.userIsAdmin = compare == 0;
+      })
   },
   computed: {},
   methods: {
@@ -270,6 +330,8 @@ export default {
         this.serviceData.datePassed = r.showServiceOverButton;
         this.coordinates.lat = r.latitude;
         this.coordinates.lng = r.longitude;
+        this.serviceData.ratingSummary = r.ratingSummary;
+        this.serviceData.flagCount = r.flagCount;
       });
     },
     GetUserDetails() {
@@ -313,10 +375,21 @@ export default {
         });
       });
     },
+    DismissFlags() {
+      var serviceId = this.$route.params.service_id;
+
+      apiRegister.DismissFlagsForService(serviceId).then((r) => {
+        swal.fire( {
+          text: "You've dismissed all flags for this service."
+        });
+        location.reload();     
+
+      });
+      location.reload();     
+    },
     ConfirmServiceOverCreator() {
       modal.confirm(
         "Do you accept that the service is over?",
-        // "The participants' and your balance will be updated",
         "A notification will be sent to attendees to request their approval for system completion",
 
         this.SendServiceOverApprovalForCreator
@@ -331,8 +404,7 @@ export default {
     ConfirmServiceOverAttendee() {
       modal.confirm(
         "Do you accept that the service is over?",
-        // "The participants' and your balance will be updated",
-        "A notification will be sent to the creator and the service will be complete",
+        "A notification will be sent to the creator and the service will be complete. You can rate the service after it is over.",
 
         this.SendServiceOverApprovalForAttendee
       );
@@ -371,6 +443,19 @@ export default {
       register.GetTagInfo(tag).then((r) => {
         swal.fire({
           text: r,
+        });
+      });
+    },
+    SetRating: function (rating) {
+      var id = this.$route.params.service_id;
+      apiRegister.RateService(id, rating).then((r) => {
+        this.ratingData.readOnly = true;
+        swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Your rating has been saved",
+          showConfirmButton: false,
+          timer: 1500,
         });
       });
     },

@@ -43,7 +43,7 @@
                 </div>
               </div>
               <div class="col-lg-4 order-lg-1">
-                <div class="card-profile-stats d-flex justify-content-center">
+                <div class="card-profile-stats d-flex justify-content-left">
                   <div>
                     <span class="heading">{{ userData.following.length }}</span>
                     <span class="description">Following</span>
@@ -62,6 +62,15 @@
                     <span class="heading">{{ userData.balanceOnHold }}</span>
                     <span class="description">Credits on Hold</span>
                   </div>
+
+                  <div>
+                    <span class="heading">{{ userData.reputationPoint }}</span>
+                    <span class="description">Reputation Points</span>
+                  </div>
+                  <div v-if="userIsAdmin && !isOwnProfile">
+                    <span class="heading">{{ userData.flagCount }}</span>
+                    <span class="description">Flag Count</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -70,6 +79,13 @@
                 {{ userData.username }}
                 <span class="font-weight-light"></span>
               </h3>
+                    <badge
+                    v-for="(badge, index) in userData.badges"
+                    :key="index"
+                    v-bind:type="GetClass(index)"
+                    rounded
+                    >{{ badge.badgeType }}</badge
+                  >
             </div>
             <div class="mt-5 py-5 border-top text-center">
               <div class="row justify-content-center">
@@ -88,21 +104,34 @@
              
               </div>
             </div>
+            <div 
+              v-if="userIsAdmin && !isOwnProfile"
+              class="mt-2 py-5 border-top text-center">
+                <base-button
+                  block
+                  type="primary"
+                  class="mb-3"
+                  @click="DismissFlags()"
+                > Dismiss Flags
+                </base-button>
+             </div>
+            <div
+            v-if="!userIsAdmin && !isOwnProfile"
+            class="mt-2 py-5 border-top text-center">
+              <base-button
+                block
+                type="primary"
+                class="mb-3"
+                @click="Flag()"
+              > Flag User
+              </base-button>
+            </div>
           </div>
         </card>
       </div>
+      
     </section>
-    <div
-      v-if="!isOwnProfile"
-        class="mt-2 py-5 border-top text-center">
-        <base-button
-          block
-          type="primary"
-          class="mb-3"
-          @click="Flag()"
-        > Flag User
-        </base-button>
-      </div>
+    
   </div>
 </template>
 <script>
@@ -118,17 +147,26 @@ export default {
         bio: "",
         balance: 0,
         balanceOnHold: 0,
+        reputationPoint: 0,
+        flagCount: 0,
         following: [],
         followedBy: [],
-        tags: []
+        tags: [],
+        badges: []
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
+      userIsAdmin: false
     };
   },
   mounted() {
     this.GetProfile();
     this.AlreadyFollowing();
+
+    apiRegister.GetProfile().then(r => {
+        var compare = r.userType.localeCompare("ADMIN");
+        this.userIsAdmin = compare == 0;
+      })
   },
   methods: {
     GetProfile() {
@@ -139,9 +177,12 @@ export default {
         this.userData.bio = r.bio;
         this.userData.balance = r.balance;
         this.userData.balanceOnHold = r.balanceOnHold;
+        this.userData.reputationPoint = r.reputationPoint;
         this.userData.following = r.following;
         this.userData.followedBy = r.followedBy;
         this.userData.tags = r.tags;
+        this.userData.flagCount = r.flagCount;
+        this.userData.badges = r.badges;
         console.log("ok.");
       });
     },
@@ -151,6 +192,15 @@ export default {
       apiRegister.FlagUser(userId).then((r) => {
         swal.fire({
         text: "You successfully flagged the user.",
+        });
+      });
+    },
+    DismissFlags() {
+      var userId = this.$route.params.userId;
+
+      apiRegister.DismissFlagsForUser(userId).then((r) => {
+        swal.fire({
+          text: "You dismissed all flags for this user.",
         });
       });
     },

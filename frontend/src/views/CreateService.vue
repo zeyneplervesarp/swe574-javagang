@@ -108,25 +108,47 @@
                 </div>
                 <br />
                 <div class="col-lg-12">
-                  <div class="form-group">
-                    <GmapAutocomplete
-                      class="form-control"
-                      addon-left-icon="ni ni-pin-3"
-                      @place_changed="setPlace"
-                    />
-                  </div>
-                  <div class="text-center">
-                    <base-button v-if="serviceInputs.location != ''" type="secondary"
-                      ><GmapMap
-                        :center="coordinates"
-                        :zoom="13"
-                        map-type-id="roadmap"
-                        style="width: 500px; height: 300px"
-                        ref="mapRef"
-                        
-                      >
-                        <GmapMarker :position="coordinates" /> </GmapMap
-                    ></base-button>
+                <multiselect
+                    v-model="serviceInputs.locationType"
+                    :options="locationTypes"
+                    :multiple="false"
+                    :close-on-select="false"
+                    :searchable="false"
+                    :show-labels="false"
+                    :taggable="true" 
+                    placeholder="Choose location type"
+                  ></multiselect>
+                  
+                </div>
+                <br/>
+                <div class="col-lg-12" v-if="serviceInputs.locationType === 'Online'">
+                <base-input
+                    placeholder="Meeting Link"
+                    v-model="serviceInputs.location"
+                  ></base-input>
+                </div>
+                <div v-if="serviceInputs.locationType === 'Physical'">
+                  <div class="col-lg-12" >
+                    <div class="form-group">
+                      <GmapAutocomplete
+                        class="form-control"
+                        addon-left-icon="ni ni-pin-3"
+                        @place_changed="setPlace"
+                      />
+                    </div>
+                    <div class="text-center">
+                      <base-button v-if="serviceInputs.location != ''" type="secondary"
+                        ><GmapMap
+                          :center="coordinates"
+                          :zoom="13"
+                          map-type-id="roadmap"
+                          style="width: 500px; height: 300px"
+                          ref="mapRef"
+                          
+                        >
+                          <GmapMarker :position="coordinates" /> </GmapMap
+                      ></base-button>
+                    </div>
                   </div>
                 </div>
                 <div class="text-center">
@@ -152,6 +174,7 @@
 import apiRegister from "../api/register";
 import DatePicker from "vue2-datepicker";
 import Multiselect from "vue-multiselect";
+import BaseDropdown from "@/components/BaseDropdown";
 import MyMap from "./components/Map.vue";
 import register from '../api/register';
 
@@ -160,6 +183,7 @@ export default {
     DatePicker,
     Multiselect,
     MyMap,
+    BaseDropdown,
   },
   mounted() {
     this.GetGeoLocation();
@@ -168,6 +192,7 @@ export default {
   data() {
     return {
       serviceInputs: {
+        locationType: "",
         location: "",
         time: "",
         header: "",
@@ -184,9 +209,13 @@ export default {
         lng: 0,
       },
       tags: [],
+        locationTypes: ["Physical", "Online"],
     };
   },
   methods: {
+    debug() {
+        console.log(this.serviceInputs.locationType);
+    },
     SendService() {
       console.log("Send service started");
       apiRegister.CreateService(this.serviceInputs).then((r) => {

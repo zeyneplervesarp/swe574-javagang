@@ -2,6 +2,7 @@ package com.swe573.socialhub.controller;
 
 import com.swe573.socialhub.domain.Flag;
 import com.swe573.socialhub.dto.EventDto;
+import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.enums.ServiceFilter;
 import com.swe573.socialhub.enums.ServiceSortBy;
 import com.swe573.socialhub.service.EventService;
@@ -40,6 +41,15 @@ public class EventController {
     public List<EventDto> findAllEvents(@RequestParam (required = false) String sortBy)  {
         try {
             return eventService.findAllEvents();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<EventDto> deleteEvent(@PathVariable(value = "id") long id, Principal principal) {
+        try {
+            return ResponseEntity.ok(eventService.deleteEvent(id, principal));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }

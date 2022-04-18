@@ -8,7 +8,6 @@ import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.service.RatingService;
-import com.swe573.socialhub.service.SearchService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,9 +42,9 @@ public class RatingServiceTest {
     @MockBean
     private UserServiceApprovalRepository approvalRepository;
 
-    private RatingService service;
+    private RatingService ratingService;
 
-    private final Principal mockPrincipal = new UserServiceUnitTests.MockPrincipal("test");
+    private final Principal mockPrincipal = new UserServiceTests.MockPrincipal("test");
 
     private final Long mockSvcId = 0L;
 
@@ -56,18 +55,25 @@ public class RatingServiceTest {
         final var mockUser = new User();
         Long mockPrincipalUserId = 0L;
         mockUser.setId(mockPrincipalUserId);
+        mockUser.setReputationPoint(5);
         Mockito.when(userRepository.findUserByUsername(mockPrincipal.getName())).thenReturn(Optional.of(mockUser));
 
+
+        final var mockServiceCreator = new User();
+        Long mockServiceCreatorId = 1L;
+        mockServiceCreator.setId(mockServiceCreatorId);
+        mockServiceCreator.setReputationPoint(5);
         final var mockSvc = new Service();
         mockSvc.setStatus(ServiceStatus.COMPLETED);
+        mockSvc.setCreatedUser(mockServiceCreator);
         Mockito.when(serviceRepository.findById(mockSvcId)).thenReturn(Optional.of(mockSvc));
-        this.service = new RatingService(ratingRepository, serviceRepository, userRepository, approvalRepository);
+        this.ratingService = new RatingService(ratingRepository, serviceRepository, userRepository, approvalRepository);
     }
 
     @Test
     public void RatingService_disallows_InvalidRatings() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.addOrUpdateRating(mockPrincipal, 0L, -1));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.addOrUpdateRating(mockPrincipal, 0L, 6));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ratingService.addOrUpdateRating(mockPrincipal, 0L, -1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ratingService.addOrUpdateRating(mockPrincipal, 0L, 6));
     }
 
     @Test
@@ -80,7 +86,7 @@ public class RatingServiceTest {
         Mockito.when(approvalRepository
                 .findUserServiceApprovalByService_IdAndApprovalStatus(mockSvcId, ApprovalStatus.APPROVED)).thenReturn(List.of(invalidApproval));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.addOrUpdateRating(mockPrincipal, 0L, 3));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ratingService.addOrUpdateRating(mockPrincipal, 0L, 3));
     }
 
     @Test
@@ -98,7 +104,7 @@ public class RatingServiceTest {
         expected.setRating(3);
         Mockito.when(ratingRepository.save(Mockito.any())).thenReturn(expected);
 
-        final var result = service.addOrUpdateRating(mockPrincipal, mockSvcId, 3);
+        final var result = ratingService.addOrUpdateRating(mockPrincipal, mockSvcId, 3);
         Assertions.assertEquals(3, result.getRating());
     }
 
@@ -110,7 +116,7 @@ public class RatingServiceTest {
         final var r2 = new Rating();
         r2.setRating(0);
         svc.setRatings(Set.of(r1, r2));
-        final var result = service.getServiceRatingSummary(svc);
+        final var result = ratingService.getServiceRatingSummary(svc);
         Assertions.assertEquals(2.5, result.getRatingAverage());
         Assertions.assertEquals(2, result.getRaterCount());
     }
@@ -129,7 +135,7 @@ public class RatingServiceTest {
 
         final var user = new User();
         user.setCreatedServices(Set.of(svc1, svc2));
-        final var result = service.getUserRatingSummary(user);
+        final var result = ratingService.getUserRatingSummary(user);
         Assertions.assertEquals(2.5, result.getRatingAverage());
         Assertions.assertEquals(4, result.getRaterCount());
     }

@@ -9,18 +9,23 @@ class User {
     double Longitude
     string FormattedAddress
     int Credits
+    int reputationPoint
+    int flagCount
+
    
     void FollowUser(int userId)
     void Register(string username,string email,string bio,string password,string tags,string latitude,string longitude,string formattedAddress)
     void Login (string username, string password)
-    User GetUser(int userId)
-    List<User> GetAllUsers(int userId)
+    User GetProfile(int userId)
+    void FlagUser(int userId)
 
 }
 
 
 User "1" *-- "*" Service : creates
+
 User "*" -- "*" User : follows
+User "1" -- "*" User : flags
 User "*" -- "*" Tag : interests
 User "1" -- "*" Notification
 
@@ -29,16 +34,19 @@ class Service {
     string Id
     string Header
     string Description
+    LocationType LocationType
     string Location
     DateTime Time
     int Credits
     DateTime CreatedDateTime
+    DateTİme CancellationDate
     int CreatedUserId
     int Quota    
     double Latitude
     double Longitude
     string FormattedAddress
     ServiceStatus Status
+    int FlagCount
     List<Service> GetAll()
     List<Service> GetSorted(SortType sortType)
     Service GetById(int serviceId)
@@ -48,7 +56,13 @@ class Service {
 }
 
 Service "*" *-- "*" Tag 
-Service "1" *-- "*" ServiceStatus 
+Service "1" *-- "*" ServiceStatus
+Service -- LocationType
+
+enum LocationType {
+    PHYSICAL,
+    ONLINE
+}
 
 enum ServiceStatus
 {
@@ -68,7 +82,7 @@ enum SortType
     createdDateAsc
 }
 
-class Tag{
+class Tag {
     int Id
     string Name
 }
@@ -96,9 +110,9 @@ enum ApprovalStatus {
 }
 
 class Notification {
-    string Id
-    string UserId
-    string Message
+    int Id
+    int UserId
+    int Message
     bool Read
     List<Notification> GetNotificationsByUser(int userId)
 
@@ -106,5 +120,91 @@ class Notification {
 
 
 User "1" --* "*" Notification
+
+
+class UserRating {
+    int Id
+    int UserId
+    int Rating
+    void AddUserRating(string userId, int rating)
+    List<Rating> GetUserRatings(int serviceId)
+
+}
+
+User "1" --* "*" UserRating
+
+
+class ServiceRating {
+    int Id
+    int ServiceId
+    int Rating
+    void AddServiceRating(string serviceId, int rating)
+    List<Rating> GetServiceRatings(int serviceId)
+
+}
+Service "1" --* "*" ServiceRating 
+
+class Admin {
+    string Id
+    string Name
+    string EmailAddress
+    string Password
+
+  
+   
+    void DismissFlags(int serviceId)
+    void DeleteUser(int userId)
+    void DeleteService(int serviceId)
+    void EditService(int serviceId)
+    User GetUser(int userId)
+    User GetService(int serviceId)
+    List<User> GetAllUsers(int userId)
+    void FeatureServices(List<Service> services)
+    void Login (string username, string password)    
+
+}
+
+enum BadgeType {
+    newcomer
+    mentor
+    superMentor
+    regular
+    communityBuilder
+    guru
+    
+}
+
+class Badge {
+    int Id
+    User user
+    BadgeType type
+}
+
+Badge "*" --* "1" BadgeType 
+User "1" --* "*" Badge: earns 
+
+enum FlagStatus {
+    active
+    inactive
+}
+
+enum FlagType {
+    service
+    event
+    user
+}
+
+class Flag {
+    int Id
+    FlagType type
+    User flaggingUser
+    User flaggedUser
+    FlagStatus status
+}
+
+Flag "*" --* "1" FlagType 
+Flag "*" --* "1" FlagStatus 
+Flag "*" --* "1" Service 
+Flag "*" --* "1" User
 
 @enduml

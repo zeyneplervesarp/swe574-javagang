@@ -61,6 +61,15 @@ public class ServiceController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ServiceDto> deleteService(@PathVariable(value = "id") long id, Principal principal) {
+        try {
+            return ResponseEntity.ok(serviceService.deleteService(id, principal));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/userService")
     public ResponseEntity<List<ServiceDto>> getListByUser(Principal principal) {
         try {
@@ -70,15 +79,18 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+
     @PostMapping
-    public ResponseEntity<Long> saveService(Principal principal, @Validated @RequestBody ServiceDto service) {
+    public ResponseEntity<Long> upsertService(Principal principal, @Validated @RequestBody ServiceDto service) {
         try {
-            var result = serviceService.save(principal, service);
+            var result = serviceService.upsert(principal, service);
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
 
 
     @GetMapping("/approve/{serviceId}")
@@ -152,6 +164,16 @@ public class ServiceController {
         try {
             Boolean response = serviceService.checkForExistingFlag(principal, serviceId);
             return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @PostMapping("/flag/dismiss/{serviceId}")
+    public ResponseEntity<Boolean> dismissFlags(Principal principal, @PathVariable Long serviceId) {
+        try {
+            serviceService.dismissFlags(principal, serviceId);
+            return ResponseEntity.ok(true);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }

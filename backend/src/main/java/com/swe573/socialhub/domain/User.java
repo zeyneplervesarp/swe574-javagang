@@ -14,8 +14,8 @@ public class User {
     private String username;
     private String email;
     private String bio;
-    private  String latitude;
-    private  String longitude;
+    private String latitude;
+    private String longitude;
     private String formattedAddress;
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -24,10 +24,10 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     private Set<Tag> userTags;
-    @OneToMany(mappedBy = "createdUser")
+    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Service> createdServices;
 
-    @OneToMany(mappedBy = "createdUser")
+    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Event> createdEvents;
     @OneToMany(mappedBy = "user")
     Set<UserServiceApproval> serviceApprovalSet;
@@ -35,19 +35,22 @@ public class User {
     @OneToMany(mappedBy = "user")
     Set<UserEventApproval> eventApprovalSet;
     private Integer balance;
-    @OneToMany(mappedBy = "receiver")
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Notification> notificationSet;
-    @OneToMany(mappedBy = "followingUser")
+    @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<UserFollowing> followingUsers;
-    @OneToMany(mappedBy = "followedUser")
+    @OneToMany(mappedBy = "followedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<UserFollowing> followedBy;
 
-    @OneToMany(mappedBy="rater")
+    @OneToMany(mappedBy = "rater")
     private Set<Rating> ratings;
-
     private UserType userType;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Badge> badges;
 
-    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType) {
+    private int reputationPoint;
+
+    public User(Long id, String username, String email, String bio, Set<Tag> userTags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType, int reputationPoint) {
         this.id = id;
         this.bio = bio;
         this.username = username;
@@ -58,6 +61,7 @@ public class User {
         this.userTags = userTags;
         this.balance = balance;
         this.userType = userType;
+        this.reputationPoint = reputationPoint;
     }
 
     public User() {
@@ -133,10 +137,15 @@ public class User {
     }
 
     public Set<Service> getCreatedServices() {
+        if (this.createdServices == null)
+        {
+            this.createdServices = new HashSet<>();
+        }
         return createdServices;
     }
 
     public void setCreatedServices(Set<Service> createdServices) {
+
         this.createdServices = createdServices;
     }
 
@@ -244,8 +253,39 @@ public class User {
         this.userType = userType;
     }
 
+    public int getReputationPoint() {
+        return reputationPoint;
+    }
+
+    public void setReputationPoint(int reputationPoint) {
+        this.reputationPoint = reputationPoint;
+    }
+
+    public Set<Badge> getBadges() {
+        return badges;
+    }
+
+    public void setBadges(Set<Badge> badges) {
+        this.badges = badges;
+    }
+
     @Override
     public String toString() {
         return "User{" + "id=" + this.id + ", username='" + this.username + '\'' + '}';
+    }
+
+    public void removeBadge(Badge badge) {
+
+        this.badges.remove(badge);
+
+    }
+
+
+    public void addBadge(Badge badge) {
+        if (this.badges == null)
+        {
+            this.badges =  new HashSet<>();
+        }
+        this.badges.add(badge);
     }
 }
