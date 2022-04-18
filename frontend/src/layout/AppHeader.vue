@@ -122,41 +122,16 @@
             </a>
           </div>
         </base-dropdown>
-        <!-- <base-dropdown v-if="userLoggedIn" tag="li" class="nav-item">
-          <a
-            slot="title"
-            href="#"
-            class="nav-link"
-            data-toggle="dropdown"
-            role="button"
-          >
-            <i class="ni ni-collection d-lg-none"></i>
-            <span class="nav-link-inner--text">Users</span>
-          </a>
-          <router-link to="/users" class="dropdown-item">All</router-link>
-          <router-link to="/users/following" class="dropdown-item"
-            >Following</router-link
-          >
-          <router-link to="/users/followedBy" class="dropdown-item"
-            >Followed By</router-link
-          >
-        </base-dropdown> -->
+        <base-input
+          v-model="searchQuery"
+          v-on:keyup.enter="OnEnter()"
+          class="mt-3"
+          alternative
+          placeholder="Search"
+          addon-right-icon="ni ni-zoom-split-in"
+        ></base-input>
       </ul>
       <ul class="navbar-nav align-items-lg-center ml-lg-auto">
-        <!-- <li class="nav-item">
-          <a
-            class="nav-link nav-link-icon"
-            href="https://github.com/ecesari/software-development-practice"
-            target="_blank"
-            rel="noopener"
-            data-toggle="tooltip"
-            title="Star us on Github"
-          >
-            <i class="fa fa-github"></i>
-            <span class="nav-link-inner--text d-lg-none">Github</span>
-          </a>
-        </li> -->
-
         <li v-if="userLoggedIn" class="nav-item">
           <a
             class="nav-link nav-link-icon"
@@ -187,7 +162,10 @@
             <span class="nav-link-inner--text">Log In </span>
           </a>
         </li>
-        <li v-if="userLoggedIn && userIsAdmin" class="nav-item d-none d-lg-block ml-lg-4">
+        <li
+          v-if="userLoggedIn && userIsAdmin"
+          class="nav-item d-none d-lg-block ml-lg-4"
+        >
           <a
             href="#/admin/services"
             rel="noopener"
@@ -243,6 +221,7 @@ import BaseNav from "@/components/BaseNav";
 import BaseDropdown from "@/components/BaseDropdown";
 import CloseButton from "@/components/CloseButton";
 import apiRegister from "@/api/register.js";
+import swal from "sweetalert2";
 
 export default {
   data() {
@@ -251,13 +230,11 @@ export default {
       notificationMessage: "You have no new messages",
       hasNewNotification: false,
       r: {},
-      userIsAdmin: false
+      userIsAdmin: false,
+      searchQuery: "",
     };
   },
   mounted() {
-    var foo = process.env.VUE_APP_GOOGLE_MAP_KEY;
-    console.log("google keys");
-    console.log(foo);
     let token = JSON.parse(localStorage.getItem("token"));
 
     if (token) {
@@ -272,10 +249,10 @@ export default {
             "You have " + unreadCount + " new messages";
         }
       });
-      apiRegister.GetProfile().then(r => {
+      apiRegister.GetProfile().then((r) => {
         var compare = r.userType.localeCompare("ADMIN");
         this.userIsAdmin = compare == 0;
-      })
+      });
     } else {
       this.userLoggedIn = false;
     }
@@ -289,6 +266,17 @@ export default {
     EmptyLocalStorage() {
       localStorage.clear();
       document.location.href = "../";
+    },
+    OnEnter() {
+      if (this.searchQuery.length == 0) {
+        swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please enter a keyword to search!",
+        });
+      }
+      var url = "#/search/" + this.searchQuery;
+      window.location.href = url;
     },
   },
 };

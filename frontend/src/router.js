@@ -21,6 +21,8 @@ import FollowingUserServices from "./views/FollowingUserServices.vue";
 import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
 import AdminServices from "./views/AdminServices.vue";
+import Search from "./views/Search.vue";
+
 Vue.use(Router);
 
 const ifNotAuthenticated = (to, from, next) => {
@@ -212,6 +214,16 @@ export default new Router({
         header: AdminAppHeader,
         default: AdminServices,
         footer: AdminAppFooter,
+
+      }
+    },
+    {
+      path: "/search/:search_query",
+      name: "search",
+      components: {
+        header: AppHeader,
+        default: Search,
+        footer: AppFooter,
 
       }
     },

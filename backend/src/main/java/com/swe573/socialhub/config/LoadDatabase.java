@@ -249,7 +249,20 @@ class LoadDatabase {
                         add(tag5);
                     }});
 
-            eventRepository.save(mockEvent);
+            var orangeSearchService = Service.createPhysical(null,
+                    "Let's pick some fruit",
+                    "I have many fruit trees in my garden. You can come pick oranges and apples during this season.",
+                    "My Garden in Bahçeköy",
+                    LocalDateTime.of(2022, 6, 15, 10, 0),
+                    120,
+                    20,
+                    1,
+                    user3,
+                    41.53123, 28.15247,
+                    new HashSet<Tag>() {{
+                        add(tag7);
+                    }});
+
 
 
             //region feature service
@@ -268,6 +281,8 @@ class LoadDatabase {
             serviceRepository.save(service7);
             serviceRepository.save(service8);
             serviceRepository.save(serviceNewComer);
+            serviceRepository.save(orangeSearchService);
+            eventRepository.save(mockEvent);
 
 
 

@@ -122,6 +122,7 @@ export default {
         })
     },
     get(url, data, handleOnError, errorMessage, successMessage) {
+        console.log(url)
         return new Promise((resolve, reject) => {
             let queryString = ''
             if (data) {
