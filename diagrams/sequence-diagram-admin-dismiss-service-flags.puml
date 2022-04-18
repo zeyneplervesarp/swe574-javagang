@@ -1,0 +1,22 @@
+@startuml Sequence
+
+mainframe admin - dismiss service flags
+
+title "Admin - Dismiss Service Flags Diagram"
+actor Admin
+participant ServiceService
+database db
+
+Admin -> ServiceService : DismissFlags(serviceId)
+activate Admin
+activate ServiceService
+ServiceService -> db : dismissFlags(FlagStatus.inactive, FlagType.service, serviceId)
+activate db
+db -> ServiceService: success
+deactivate db
+ServiceService -> Admin: success
+deactivate ServiceService
+deactivate Admin
+
+
+@enduml

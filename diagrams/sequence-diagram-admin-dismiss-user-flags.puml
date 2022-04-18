@@ -1,0 +1,20 @@
+@startuml
+
+mainframe admin - dismiss user flags
+
+title "Admin - Dismiss Service Flags Diagram"
+actor Admin
+participant UserService
+database db
+
+activate Admin
+Admin -> UserService : DismissFlags(userId)
+activate UserService
+UserService -> db : dismissFlags(FlagStatus.inactive, FlagType.user, userId)
+activate db
+db -> UserService: success
+deactivate db
+UserService -> Admin: success
+deactivate UserService
+deactivate Admin
+@enduml
