@@ -1,0 +1,22 @@
+@startuml
+
+mainframe admin - unfeature service
+
+title "Admin - Unfeature Service Diagram"
+actor Admin
+participant ServiceService
+database db
+
+ServiceService -> db :findServiceById(serviceId)
+activate db
+db -> ServiceService: service
+deactivate db
+activate ServiceService
+alt service found
+    ServiceService -> Admin: featured service
+else service not found
+    ServiceService -> Admin: service not found error
+deactivate ServiceService
+end
+
+@enduml
