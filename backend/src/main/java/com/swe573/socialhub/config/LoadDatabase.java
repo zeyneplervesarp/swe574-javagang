@@ -104,7 +104,7 @@ class LoadDatabase {
                 add(tag2);
             }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 3);
 
-            var user6 = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN, 0);
+
 
             var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER,0);
 
