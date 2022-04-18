@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+mainframe flag service
+
+title "Flag Service"
+actor User
+participant ServiceService
+database db
+
+group flag user
+
+group flag service
+activate User
+User -> ServiceService: flagService(serviceId)
+activate ServiceService
+ServiceService -> db: findById(serviceId)
+activate db
+db -> ServiceService: service
+deactivate db
+ServiceService -> db: findFlagByFlaggingUserAndFlaggedEntityAndType(loggedInUserId, toFlagServiceId, FlagType.service)
+activate db
+db -> ServiceService: flag
+deactivate db
+
+alt requested flag doesn't exists
+    ServiceService -> db: save(flag)
+    activate db
+    db --> ServiceService: ok
+    deactivate db
+
+    ServiceService -> User: flag
+else requested flag exists
+    ServiceService -> User: already flagged service error
+    deactivate ServiceService
+end
+deactivate User
+end service
+
+@enduml
