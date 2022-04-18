@@ -18,7 +18,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Profile("!test")
 @Configuration
@@ -28,7 +31,21 @@ class LoadDatabase {
 
     @Bean
 
-    CommandLineRunner initDatabase(TagRepository tagRepository, UserRepository userRepository, ServiceRepository serviceRepository, UserServiceApprovalRepository approvalRepository, NotificationRepository notificationRepository, PasswordEncoder passwordEncoder, UserFollowingRepository userFollowingRepository, EventRepository eventRepository, UserEventApprovalRepository eventApprovalRepository, RatingRepository ratingRepository, BadgeRepository badgeRepository, FlagRepository flagRepository) {
+    CommandLineRunner initDatabase(
+            TagRepository tagRepository,
+            UserRepository userRepository,
+            ServiceRepository serviceRepository,
+            UserServiceApprovalRepository approvalRepository,
+            NotificationRepository notificationRepository,
+            PasswordEncoder passwordEncoder,
+            UserFollowingRepository userFollowingRepository,
+            EventRepository eventRepository,
+            UserEventApprovalRepository eventApprovalRepository,
+            RatingRepository ratingRepository,
+            BadgeRepository badgeRepository,
+            FlagRepository flagRepository,
+            LoginAttemptRepository loginAttemptRepository
+    ) {
 
 
         return args -> {
@@ -91,9 +108,13 @@ class LoadDatabase {
 
             var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER,0);
 
-            userRepository.findAll().forEach(user -> {
+            var users = userRepository.findAll();
+
+            users.forEach(user -> {
                 log.info("Preloaded " + user);
             });
+
+            saveLoginAttempts(loginAttemptRepository, users);
 
             //endregion
 
@@ -454,5 +475,13 @@ class LoadDatabase {
         var badge = new Badge(user, badgeType);
         badgeRepository.save(badge);
         return badge;
+    }
+
+    private List<LoginAttempt> saveLoginAttempts(LoginAttemptRepository repository, List<User> users) {
+        var attempts = users
+                .stream()
+                .map(u -> new LoginAttempt(0L, u.getUsername(), LoginAttemptType.SUCCESSFUL, new Date()))
+                .collect(Collectors.toList());
+        return repository.saveAll(attempts);
     }
 }

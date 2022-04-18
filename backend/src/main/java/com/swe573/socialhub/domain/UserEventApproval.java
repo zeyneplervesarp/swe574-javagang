@@ -2,8 +2,10 @@ package com.swe573.socialhub.domain;
 
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.enums.ApprovalStatus;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class UserEventApproval {
@@ -22,11 +24,55 @@ public class UserEventApproval {
 
     ApprovalStatus approvalStatus;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "approved")
+    private Date approvedDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "denied")
+    private Date deniedDate;
+
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public Date getDeniedDate() {
+        return deniedDate;
+    }
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created")
+    private Date created;
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
     public UserEventApproval(UserEventApprovalKey id, User user, Event event, ApprovalStatus approvalStatus) {
         this.id = id;
         this.user = user;
         this.event = event;
         this.approvalStatus = approvalStatus;
+        synchronizeApprovalStatus();
+    }
+
+    private void synchronizeApprovalStatus() {
+        if (approvalStatus == null) return;
+        switch (approvalStatus) {
+            case PENDING:
+                break;
+            case APPROVED:
+                this.approvedDate = new Date();
+                break;
+            case DENIED:
+                this.deniedDate = new Date();
+                break;
+        }
     }
 
     public UserEventApproval() {
@@ -67,6 +113,7 @@ public class UserEventApproval {
 
     public void setApprovalStatus(ApprovalStatus approvalStatus) {
         this.approvalStatus = approvalStatus;
+        synchronizeApprovalStatus();
     }
 
     @Override

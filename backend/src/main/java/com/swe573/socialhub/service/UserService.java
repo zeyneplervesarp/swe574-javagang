@@ -1,9 +1,6 @@
 package com.swe573.socialhub.service;
 
-import com.swe573.socialhub.domain.Badge;
-import com.swe573.socialhub.domain.Flag;
-import com.swe573.socialhub.domain.User;
-import com.swe573.socialhub.domain.UserFollowing;
+import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
@@ -73,6 +70,9 @@ public class UserService {
     @Autowired
     private UserEventApprovalRepository eventApprovalRepository;
 
+    @Autowired
+    private LoginAttemptRepository loginAttemptRepository;
+
 
     @Transactional
     public UserDto register(UserDto dto) {
@@ -118,26 +118,33 @@ public class UserService {
         try {
             //save entity
             final User createdUser = repository.save(userEntity);
-            return mapUserToDTO(createdUser);
+            var savedDto = mapUserToDTO(createdUser);
+            loginAttemptRepository.save(new LoginAttempt(0L, createdUser.getUsername(), LoginAttemptType.SUCCESSFUL, new Date()));
+            return savedDto;
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
 
+    @Transactional
     public UserDto login(LoginDto dto) {
         try {
             var userName = dto.getUsername();
             var dbResult = repository.findUserByUsername(userName);
-            if (!dbResult.isPresent())
+            if (dbResult.isEmpty()) {
+                loginAttemptRepository.save(new LoginAttempt(0L, userName, LoginAttemptType.WRONG_USERNAME, new Date()));
                 throw new IllegalArgumentException("Invalid username");
+            }
 
             var user = dbResult.get();
             var passwordMatch = passwordEncoder.matches(dto.getPassword(), user.getPassword());
 
             if (passwordMatch) {
+                loginAttemptRepository.save(new LoginAttempt(0L, user.getUsername(), LoginAttemptType.SUCCESSFUL, new Date()));
                 return mapUserToDTO(user);
 
             } else {
+                loginAttemptRepository.save(new LoginAttempt(0L, user.getUsername(), LoginAttemptType.WRONG_PASSWORD, new Date()));
                 throw new IllegalArgumentException("Invalid password");
 
             }
