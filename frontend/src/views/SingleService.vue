@@ -132,7 +132,7 @@
               <div v-if="serviceData.ratingSummary.raterCount > 0">
                 <p>
                   Rated by {{ serviceData.ratingSummary.raterCount }} people.
-                  Total rating: {{ serviceData.ratingSummary.ratingAverage }} .
+                  Average rating: {{ serviceData.ratingSummary.ratingAverage }} .
                 </p>
               </div>
             </div>
