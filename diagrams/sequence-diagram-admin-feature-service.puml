@@ -15,9 +15,12 @@ activate ServiceService
 ServiceService -> db :findFeatured()
 db -> ServiceService: featured services
 deactivate db
-alt max feature count is reached
+note right of ServiceService
+ max feature count = 3
+end note
+alt featured services count is already 3
     ServiceService -> Admin: featured count error
-else max count not reached
+else
 
 ServiceService -> db :findServiceById(serviceId)
 activate db
