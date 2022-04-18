@@ -180,7 +180,10 @@ export default {
       const tag = {
         name: newTag
       }
-      register.AddTag(tag);
+        register.AddTag(tag).then((r) => {
+        this.tags.push(tag);
+        this.serviceInputs.serviceTags.push(tag);
+      });
     }
   },
 };

@@ -34,6 +34,12 @@ export default {
     GetAllServicesSorted(getOngoingOnly, filter, sortBy) {
         return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?sortBy=" + sortBy)
     },
+    GetFeaturedServices() {
+        return http.get(process.env.VUE_APP_API + 'service/feature')
+    },
+    GetFeaturedServices() {
+        return http.get(process.env.VUE_APP_API + 'service/feature')
+    },
     SetTags(data) {
         return http.post(process.env.VUE_APP_API + 'user/setTags', data)
     },
@@ -101,5 +107,8 @@ export default {
     },
     DismissFlagsForService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/flag/dismiss/" + serviceId, null, true)
+    },
+    Search(searchQuery){
+        return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
     }
 }

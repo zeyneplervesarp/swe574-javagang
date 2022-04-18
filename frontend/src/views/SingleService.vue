@@ -129,6 +129,12 @@
                   :read-only="ratingData.readOnly"
                 ></star-rating>
               </div>
+              <div v-if="serviceData.ratingSummary.raterCount > 0">
+                <p>
+                  Rated by {{ serviceData.ratingSummary.raterCount }} people.
+                  Average rating: {{ serviceData.ratingSummary.ratingAverage }} .
+                </p>
+              </div>
             </div>
                       <div
               v-if="userData.ownsService"
@@ -209,23 +215,6 @@
                 </div>
               </div>
             </div> -->
-
-            <div
-              v-if="
-                userData.ownsService &&
-                serviceData.datePassed &&
-                serviceData.status === 'ONGOING'
-              "
-              class="mt-2 py-5 border-top text-center"
-            >
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button @click="ConfirmServiceOverCreator" type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
-              </div>
-            </div>
             <div
               v-if="!userData.ownsService && !userIsAdmin"
               class="mt-2 py-5 border-top text-center"
@@ -276,6 +265,7 @@ export default {
         status: "",
         datePassed: false,
         participantUserList: [],
+        ratingSummary: {},
         flagCount: 0,
       },
       userData: {
@@ -323,6 +313,7 @@ export default {
         this.serviceData.datePassed = r.showServiceOverButton;
         this.coordinates.lat = r.latitude;
         this.coordinates.lng = r.longitude;
+        this.serviceData.ratingSummary = r.ratingSummary;
         this.serviceData.flagCount = r.flagCount;
       });
     },
@@ -442,13 +433,13 @@ export default {
       var id = this.$route.params.service_id;
       apiRegister.RateService(id, rating).then((r) => {
         this.ratingData.readOnly = true;
-        swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Your rating has been saved",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        // swal.fire({
+        //   position: "top-end",
+        //   icon: "success",
+        //   title: "Your rating has been saved",
+        //   showConfirmButton: false,
+        //   timer: 1500,
+        // });
       });
     },
     GoToServiceEdit() {
