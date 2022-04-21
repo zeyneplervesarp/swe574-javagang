@@ -1,7 +1,7 @@
 @startuml Sequence
 
 mainframe flag user
-title "Flag User & Service"
+title "Flag User"
 actor User
 participant UserService
 database db
