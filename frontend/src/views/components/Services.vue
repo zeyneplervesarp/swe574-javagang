@@ -59,7 +59,7 @@
       <div class="col-lg-12 pt-100">
         <div v-if="this.filter == 'featured'">
           <h1 class="lead text-white bg-danger">
-            This week's featured offers!
+            This week's featured services!
           </h1>
         </div>
         <div

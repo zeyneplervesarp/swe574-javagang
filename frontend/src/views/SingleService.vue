@@ -97,7 +97,7 @@
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
                 >
-                  <img src="https://i.pinimg.com/originals/44/ed/8f/44ed8fa025630bfd320f96a5b01ff245.jpg">
+                  <img v-bind:src=serviceData.imageUrl>
                 </base-button>
               </div>
 
@@ -185,8 +185,8 @@
               </div>
             </div>
 
-    <!-- physical -->
-              <div class="text-center" v-if="serviceData.locationType === ''">
+        <!-- physical -->
+              <div style="margin-bottom:100px" class="text-center" v-if="serviceData.locationType === 'Physical'">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
@@ -258,6 +258,7 @@ export default {
         participantUserList: [],
         ratingSummary: {},
         flagCount: 0,
+        imageUrl: ""
       },
       userData: {
         hasServiceRequest: "",
@@ -306,6 +307,7 @@ export default {
         this.coordinates.lng = r.longitude;
         this.serviceData.ratingSummary = r.ratingSummary;
         this.serviceData.flagCount = r.flagCount;
+        this.serviceData.imageUrl = r.imageUrl;
       });
     },
     GetUserDetails() {
