@@ -34,8 +34,9 @@ public class ServiceDto implements Serializable {
     private final List<UserDto> ParticipantUserList;
     private final RatingSummaryDto ratingSummary;
     private final Long flagCount;
+    private final String imageUrl;
 
-    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount) {
+    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, String imageUrl) {
         this.id = id;
         Header = header;
         Description = description;
@@ -57,6 +58,7 @@ public class ServiceDto implements Serializable {
         DistanceToUser = distanceToUser;
         ParticipantUserList = participantUserList;
         this.flagCount = flagCount;
+        this.imageUrl = imageUrl;
         if (DistanceToUser != null && DistanceToUser != 0)
         {
             DecimalFormat df = new DecimalFormat("0.00");
@@ -198,5 +200,9 @@ public class ServiceDto implements Serializable {
 
     public RatingSummaryDto getRatingSummary() {
         return ratingSummary;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 }

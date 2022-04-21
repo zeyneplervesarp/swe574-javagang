@@ -133,7 +133,7 @@ class LoadDatabase {
                     new HashSet<Tag>() {{
                         add(tag1);
                         add(tag2);
-                    }});
+                    }}, "");
 
 
             var service2 = Service.createPhysical(null,
@@ -147,7 +147,7 @@ class LoadDatabase {
                     40.98713967228238, 28.839091492848105,
                     new HashSet<Tag>() {{
                         add(tag3);
-                    }});
+                    }}, "");
 
             var service3 = Service.createPhysical(null,
                     "Eminönü Tour",
@@ -160,7 +160,7 @@ class LoadDatabase {
                     41.012524056384144, 28.951326923194756,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }});
+                    }}, "");
 
             var service4 = Service.createPhysical(null,
                     "Pet My Dog",
@@ -175,7 +175,7 @@ class LoadDatabase {
                         add(tag3);
                         add(tag4);
                         add(tag5);
-                    }});
+                    }}, "");
 
             var service5 = Service.createPhysical(null,
                     "Talk in spanish",
@@ -190,7 +190,7 @@ class LoadDatabase {
                     new HashSet<Tag>() {{
                         add(tag5);
                         add(tag6);
-                    }});
+                    }}, "");
 
 
             var service6 = Service.createPhysical(null,
@@ -205,7 +205,7 @@ class LoadDatabase {
                     40.943974536882706, 31.75010211097686,
                     new HashSet<Tag>() {{
                         add(tag7);
-                    }});
+                    }}, "");
 
 
 
@@ -221,7 +221,7 @@ class LoadDatabase {
                     41.045570653598446, 28.993261953340998,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }});
+                    }}, "");
 
             var service8 = Service.createPhysical(null,
                     "Candle meditation",
@@ -235,7 +235,7 @@ class LoadDatabase {
                     41.00805947202053, 29.139052057272078,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }});
+                    }}, "");
 
             service8.setStatus(ServiceStatus.COMPLETED);
 
@@ -268,7 +268,7 @@ class LoadDatabase {
                     41.045570653598446, 28.993261953340998,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }});
+                    }}, "");
 
             var orangeSearchService = Service.createPhysical(null,
                     "Let's pick some fruit",
@@ -282,7 +282,7 @@ class LoadDatabase {
                     41.53123, 28.15247,
                     new HashSet<Tag>() {{
                         add(tag7);
-                    }});
+                    }}, "");
 
 
 
