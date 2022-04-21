@@ -67,6 +67,10 @@
                     <span class="heading">{{ userData.reputationPoint }}</span>
                     <span class="description">Reputation Points</span>
                   </div>
+                  <div>
+                    <span class="heading">{{ userData.ratingSummary.ratingAverage }}</span>
+                    <span class="description">Rating Summary</span>
+                  </div>
                   <div v-if="userIsAdmin && !isOwnProfile">
                     <span class="heading">{{ userData.flagCount }}</span>
                     <span class="description">Flag Count</span>
@@ -152,7 +156,8 @@ export default {
         following: [],
         followedBy: [],
         tags: [],
-        badges: []
+        badges: [],
+        ratingSummary: {}
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
@@ -183,6 +188,7 @@ export default {
         this.userData.tags = r.tags;
         this.userData.flagCount = r.flagCount;
         this.userData.badges = r.badges;
+        this.userData.ratingSummary = r.ratingSummary;
         console.log("ok.");
       });
     },
