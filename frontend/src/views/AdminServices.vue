@@ -18,13 +18,11 @@
             <div class="row justify-content-center">
               <div class="col-lg-3 order-lg-2"></div>
               <div
-                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center">
-              </div>
+                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
+              ></div>
             </div>
             <div class="text-center mt-5">
-              <h3>
-                    Services              
-              </h3>
+              <h3>Services</h3>
               <div></div>
               <br />
               <div class="text-center">
@@ -57,8 +55,24 @@
                           </base-button>
                         </td>
                         <td>
-                          <base-button block type="warning" @click="AddFeatured(service.id)" class="mb-3">
-                            Featured
+                          <base-button
+                            v-if="service.featured"
+                            block
+                            type="warning"
+                            @click="AddFeatured(service.id)"
+                            class="mb-3"
+                          >
+                            Remove
+                          </base-button>
+
+                          <base-button
+                            v-else
+                            block
+                            type="success"
+                            @click="AddFeatured(service.id)"
+                            class="mb-3"
+                          >
+                            Add To Featured
                           </base-button>
                         </td>
                       </tr>
@@ -67,8 +81,7 @@
                 </div>
               </div>
               <br />
-              <div>
-              </div>
+              <div></div>
             </div>
           </div>
         </card>
@@ -91,11 +104,13 @@ export default {
   mounted() {
     this.GetAllServices();
   },
-  computed: {},
+  computed: {
+  
+  },
   methods: {
     GetAllServices() {
       apiRegister.GetAllServices(false, "all").then((r) => {
-        this.allServices = r;
+         this.allServices = r.sort((a,b) => b.featured - a.featured)
       });
     },
     GoToService(serviceId) {
@@ -103,13 +118,13 @@ export default {
       window.location.href = url;
     },
     AddFeatured(serviceId) {
-       swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Service has been added to featured",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+      swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Service has been added to featured",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     },
   },
 };
