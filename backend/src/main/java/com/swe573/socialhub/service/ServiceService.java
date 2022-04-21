@@ -64,7 +64,7 @@ public class ServiceService {
         final var filteredEntityStream = filterStream(
                 entities.stream(),
                 sortBy,
-                getOngoingOnly || filter == ServiceFilter.all,
+                getOngoingOnly ,
                 filter,
                 loggedInUser
         );

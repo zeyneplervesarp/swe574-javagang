@@ -94,7 +94,7 @@ export default {
   computed: {},
   methods: {
     GetAllServices() {
-      apiRegister.GetAllServices(false, "first3").then((r) => {
+      apiRegister.GetAllServices(false, "all").then((r) => {
         this.allServices = r;
       });
     },
