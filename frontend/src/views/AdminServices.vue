@@ -59,10 +59,10 @@
                             v-if="service.featured"
                             block
                             type="warning"
-                            @click="AddFeatured(service.id)"
+                            @click="RemoveFeatured(service.id)"
                             class="mb-3"
                           >
-                            Remove
+                            Unfeature
                           </base-button>
 
                           <base-button
@@ -72,7 +72,7 @@
                             @click="AddFeatured(service.id)"
                             class="mb-3"
                           >
-                            Add To Featured
+                            Feature
                           </base-button>
                         </td>
                       </tr>
@@ -104,13 +104,11 @@ export default {
   mounted() {
     this.GetAllServices();
   },
-  computed: {
-  
-  },
+  computed: {},
   methods: {
     GetAllServices() {
       apiRegister.GetAllServices(false, "all").then((r) => {
-         this.allServices = r.sort((a,b) => b.featured - a.featured)
+        this.allServices = r.sort((a, b) => b.featured - a.featured);
       });
     },
     GoToService(serviceId) {
@@ -118,12 +116,27 @@ export default {
       window.location.href = url;
     },
     AddFeatured(serviceId) {
-      swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Service has been added to featured",
-        showConfirmButton: false,
-        timer: 1500,
+      apiRegister.FeatureService(serviceId).then((r) => {
+        // swal.fire({
+        //   position: "top-end",
+        //   icon: "success",
+        //   title: "Service has been added to featured",
+        //   showConfirmButton: false,
+        //   timer: 1500,
+        // });
+        this.GetAllServices();
+      });
+    },
+    RemoveFeatured(serviceId) {
+      apiRegister.UnfeatureService(serviceId).then((r) => {
+        // swal.fire({
+        //   position: "top-end",
+        //   icon: "success",
+        //   title: "Service has been added to featured",
+        //   showConfirmButton: false,
+        //   timer: 1500,
+        // });
+        this.GetAllServices();
       });
     },
   },
