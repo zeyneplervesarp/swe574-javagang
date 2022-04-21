@@ -133,7 +133,7 @@ class LoadDatabase {
                     new HashSet<Tag>() {{
                         add(tag1);
                         add(tag2);
-                    }}, "");
+                    }}, "https://i.pinimg.com/originals/44/ed/8f/44ed8fa025630bfd320f96a5b01ff245.jpg");
 
 
             var service2 = Service.createPhysical(null,
@@ -147,7 +147,7 @@ class LoadDatabase {
                     40.98713967228238, 28.839091492848105,
                     new HashSet<Tag>() {{
                         add(tag3);
-                    }}, "");
+                    }}, "https://o7dkx1gd2bwwexip1qwjpplu-wpengine.netdna-ssl.com/wp-content/uploads/2021/02/Cards_0003_LaLiga-1-500x300.png");
 
             var service3 = Service.createPhysical(null,
                     "Eminönü Tour",
@@ -160,7 +160,7 @@ class LoadDatabase {
                     41.012524056384144, 28.951326923194756,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }}, "");
+                    }}, "https://images.squarespace-cdn.com/content/v1/5db2c1c870cf53160ba6a917/1573330496413-222NF0QRPCDDF5TUST4Y/image-asset.octet-stream?format=500w");
 
             var service4 = Service.createPhysical(null,
                     "Pet My Dog",
@@ -175,7 +175,7 @@ class LoadDatabase {
                         add(tag3);
                         add(tag4);
                         add(tag5);
-                    }}, "");
+                    }}, "https://www.purina.com/sites/g/files/auxxlc196/files/styles/social_share_large/public/Newshutterstock_159359153_When-is-a-Puppy-not-a-Puppy-Anymore-500x300.jpg?itok=eu_B8qlx");
 
             var service5 = Service.createPhysical(null,
                     "Talk in spanish",
@@ -190,7 +190,7 @@ class LoadDatabase {
                     new HashSet<Tag>() {{
                         add(tag5);
                         add(tag6);
-                    }}, "");
+                    }}, "https://www.nacel.org/assets/img/prod_medium/0000003841.jpg");
 
 
             var service6 = Service.createPhysical(null,
@@ -205,7 +205,7 @@ class LoadDatabase {
                     40.943974536882706, 31.75010211097686,
                     new HashSet<Tag>() {{
                         add(tag7);
-                    }}, "");
+                    }}, "https://i.guim.co.uk/img/media/a6a3dfbaaff0b2a556a71467a015bddd6fde352c/0_952_1999_1199/500.jpg?quality=85&auto=format&fit=max&s=ff1ba7e58219906be7846d12e8348dc1");
 
 
 
@@ -221,7 +221,7 @@ class LoadDatabase {
                     41.045570653598446, 28.993261953340998,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }}, "");
+                    }}, "https://laurainthekitchen.com/500x300thumbnails/slow-cooker-lasagna.jpg");
 
             var service8 = Service.createPhysical(null,
                     "Candle meditation",
@@ -235,7 +235,7 @@ class LoadDatabase {
                     41.00805947202053, 29.139052057272078,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }}, "");
+                    }}, "https://i2.wp.com/www.limehouseyoga.com/wp-content/uploads/2018/06/Meditation-Finding-Freedom-in-Acceptance-Featured.jpg?fit=500%2C300&ssl=1");
 
             service8.setStatus(ServiceStatus.COMPLETED);
 
@@ -268,7 +268,7 @@ class LoadDatabase {
                     41.045570653598446, 28.993261953340998,
                     new HashSet<Tag>() {{
                         add(tag5);
-                    }}, "");
+                    }}, "https://i.guim.co.uk/img/media/e2bf7142c7d4f16b889341a07c7fe899f0f6833b/176_8_1744_1046/500.jpg?quality=85&auto=format&fit=max&s=b1ef0eb4825a69797aff2250d2d184bb");
 
             var orangeSearchService = Service.createPhysical(null,
                     "Let's pick some fruit",
@@ -282,7 +282,7 @@ class LoadDatabase {
                     41.53123, 28.15247,
                     new HashSet<Tag>() {{
                         add(tag7);
-                    }}, "");
+                    }}, "https://www.trinitybuckshaw.lancs.sch.uk/_site/data/images/news/8/main-How-to-Grow-Apple-Trees-at-Home.jpg");
 
 
 

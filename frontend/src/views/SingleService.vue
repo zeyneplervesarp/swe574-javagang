@@ -92,24 +92,16 @@
               </h3>
               <div></div>
               <br />
-              <!-- physical -->
-              <div class="text-center" v-if="serviceData.locationType === 'Physical'">
+         <div class="text-center" v-if="serviceData.locationType === ''">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
                 >
-                  <GmapMap
-                    :center="coordinates"
-                    :zoom="13"
-                    map-type-id="roadmap"
-                    style="width: 500px; height: 300px"
-                    ref="mapRef"
-                  >
-                    <GmapMarker :position="coordinates" />
-                  </GmapMap>
+                  <img src="https://i.pinimg.com/originals/44/ed/8f/44ed8fa025630bfd320f96a5b01ff245.jpg">
                 </base-button>
               </div>
-              <!-- online -->
+
+          
               <div class="text-center">
                 <p> Meeting Link: {{serviceData.location}} </p>
               </div>
@@ -192,29 +184,28 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="mt-2 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <p>
-                    Want to get more information about the tags? Click on the
-                    tag that you would like to get more information about.
-                  </p>
 
-                  <div>
-                    <base-button
-                      block
-                      type="primary"
-                      class="mb-3"
-                      v-for="(tag, index) in serviceData.serviceTags"
-                      :key="index"
-                      @click="GetTagInfo(tag.name)"
-                    >
-                      {{ tag.name }}
-                    </base-button>
-                  </div>
-                </div>
+    <!-- physical -->
+              <div class="text-center" v-if="serviceData.locationType === ''">
+                <base-button
+                  v-if="serviceData.formattedAddress != ''"
+                  type="secondary"
+                >
+                  <GmapMap
+                    :center="coordinates"
+                    :zoom="13"
+                    map-type-id="roadmap"
+                    style="width: 500px; height: 300px"
+                    ref="mapRef"
+                  >
+                    <GmapMarker :position="coordinates" />
+                  </GmapMap>
+                </base-button>
               </div>
-            </div> -->
+
+     
+              <!-- online -->
+
             <div
               v-if="!userData.ownsService && !userIsAdmin"
               class="mt-2 py-5 border-top text-center"
