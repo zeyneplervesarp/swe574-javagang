@@ -232,7 +232,6 @@ public class User {
 
     public void setFollowingUsers(Set<UserFollowing> followingUsers) {
         this.followingUsers = followingUsers;
-
     }
 
     public Set<UserFollowing> getFollowedBy() {
@@ -279,7 +278,6 @@ public class User {
         this.badges.remove(badge);
 
     }
-
 
     public void addBadge(Badge badge) {
         if (this.badges == null)

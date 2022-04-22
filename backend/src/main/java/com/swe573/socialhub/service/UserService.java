@@ -390,6 +390,23 @@ public class UserService {
         } catch(Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
 
+    @Transactional
+    public List<UserDto> getAllFlaggedUsers() {
+        try {
+            // get all flags of users
+            List<Flag> userFlags = flagRepository.findAllByType(FlagType.user);
+            List<UserDto> flaggedUsers = new ArrayList<>();
+            for(Flag flag : userFlags) {
+                User user = repository.findById(flag.getFlaggedEntity()).get();
+                if (user != null) {
+                    flaggedUsers.add(mapUserToDTO(user));
+                }
+            }
+            return flaggedUsers;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }

@@ -148,4 +148,13 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    @GetMapping("/user/flag")
+    public List<UserDto> getAllFlaggedUsers(Principal principal) {
+        try{
+            return service.getAllFlaggedUsers();
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
 }
