@@ -384,6 +384,22 @@ public class ServiceService {
         }
     }
 
+    @Transactional
+    public List<ServiceDto> getAllFlaggedServices(Principal principal) {
+        try {
+            final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+            List<Flag> serviceFlags = flagRepository.findAllByType(FlagType.service);
+            List<ServiceDto> flaggedServices = new ArrayList<>();
+            for (Flag flag : serviceFlags) {
+                Service service = serviceRepository.getById(flag.getFlaggedEntity());
+                flaggedServices.add(mapToDto(service, Optional.of(loggedInUser)));
+            }
+            return flaggedServices;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
     public Boolean checkForExistingFlag(Principal principal, Long serviceId) {
         try {
             final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();

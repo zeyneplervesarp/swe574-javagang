@@ -80,7 +80,6 @@ public class ServiceController {
         }
     }
 
-
     @PostMapping
     public ResponseEntity<Long> upsertService(Principal principal, @Validated @RequestBody ServiceDto service) {
         try {
@@ -90,8 +89,6 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
-
-
 
     @GetMapping("/approve/{serviceId}")
     public void App(Principal principal, @PathVariable Long serviceId) {
@@ -174,6 +171,15 @@ public class ServiceController {
         try {
             serviceService.dismissFlags(principal, serviceId);
             return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/flag")
+    public List<ServiceDto> getAllFlaggedServices(Principal principal) {
+        try {
+            return serviceService.getAllFlaggedServices(principal);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
