@@ -70,7 +70,6 @@ export default {
     ReadAllNotifications() {
         return http.get(process.env.VUE_APP_API + 'notification/readAllByUser')
     },
-
     FollowUser(data) {
         return http.get(process.env.VUE_APP_API + 'user/follow/' + data, null, true, null, "Successfully followed user.")
     },
@@ -105,8 +104,15 @@ export default {
     {
         return http.post(process.env.VUE_APP_API + "user/flag/dismiss/" + userId, null, true)
     },
+    GetAllFlaggedUsers() 
+    {
+        return http.get(process.env.VUE_APP_API + "user/flag", null, false)
+    },
     DismissFlagsForService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/flag/dismiss/" + serviceId, null, true)
+    },
+    GetAllFlaggedServices() {
+        return http.get(process.env.VUE_APP_API + "service/flag/", null, false)
     },
     Search(searchQuery){
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")

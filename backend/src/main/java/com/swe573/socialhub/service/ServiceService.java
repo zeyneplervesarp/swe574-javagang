@@ -391,8 +391,7 @@ public class ServiceService {
             List<Flag> serviceFlags = flagRepository.findAllByType(FlagType.service);
             List<ServiceDto> flaggedServices = new ArrayList<>();
             for (Flag flag : serviceFlags) {
-                Service service = serviceRepository.getById(flag.getFlaggedEntity());
-                flaggedServices.add(mapToDto(service, Optional.of(loggedInUser)));
+                flaggedServices.add(mapToDto(serviceRepository.getById(flag.getFlaggedEntity()), Optional.of(loggedInUser)));
             }
             return flaggedServices;
         } catch (Exception e) {

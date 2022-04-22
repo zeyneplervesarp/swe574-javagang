@@ -22,6 +22,8 @@ import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
 import AdminServices from "./views/AdminServices.vue";
 import Search from "./views/Search.vue";
+import AdminFlaggedServices from "./views/AdminFlaggedServices.vue";
+import AdminFlaggedUsers from "./views/AdminFlaggedUsers.vue";
 
 Vue.use(Router);
 
@@ -227,6 +229,25 @@ export default new Router({
 
       }
     },
+    {
+      path: "/admin/flagged_services",
+      name: "adminFlaggedServices",
+      components: {
+        header: AdminAppHeader,
+        default: AdminFlaggedServices,
+        footer: AdminAppFooter,
+
+      }
+    },
+    {
+      path: "/admin/flagged_users",
+      name: "adminFlaggedUsers",
+      components: {
+        header: AdminAppHeader,
+        default: AdminFlaggedUsers,
+        footer: AdminAppFooter,
+      }
+    }
 
     
   ],
