@@ -2,7 +2,6 @@ package com.swe573.socialhub.controller;
 
 import com.swe573.socialhub.dto.StatsDto;
 import com.swe573.socialhub.service.StatsService;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
