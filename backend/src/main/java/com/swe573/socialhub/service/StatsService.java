@@ -36,6 +36,8 @@ public class StatsService {
         if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
             throw new IllegalArgumentException("You need to be admin to perform this action.");
         }
+
+        // performance may be improved if done in parallel, but should be good enough
         return new StatsDto(
                 fetchStatsFromRepository(serviceRepository),
                 fetchStatsFromRepository(serviceApprovalRepository),
