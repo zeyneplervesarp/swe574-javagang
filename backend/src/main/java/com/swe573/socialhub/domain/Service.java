@@ -63,7 +63,6 @@ public class Service {
     private int credit;
     private int quota;
     private int attendingUserCount;
-    private String meetingLink;
     private Double latitude;
     private Double longitude;
     private ServiceStatus status;

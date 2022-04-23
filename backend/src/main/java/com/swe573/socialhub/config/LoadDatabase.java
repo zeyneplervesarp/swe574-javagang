@@ -239,6 +239,20 @@ class LoadDatabase {
 
             service8.setStatus(ServiceStatus.COMPLETED);
 
+            var service9 = Service.createOnline(null,
+                    "Origami class",
+                    "I'll be going through some origami techniques and we'll make 4 animal figures together",
+                    "https://meet.google.com/dxx-kind-xbo",
+                    LocalDateTime.now().plusDays(1),
+                    1,
+                    5,
+                    0,
+                    user2,
+                    new HashSet<Tag>() {{
+                        add(tag2);
+                        add(tag6);
+                    }});
+
             var mockEvent = new Event(
                     null,
                     "Programming Meetup",
@@ -284,14 +298,11 @@ class LoadDatabase {
                         add(tag7);
                     }});
 
-
-
             //region feature service
             service.setFeatured(true);
             service3.setFeatured(true);
             service8.setFeatured(true);
             //endregion
-
 
             serviceRepository.save(service);
             serviceRepository.save(service2);
@@ -301,11 +312,10 @@ class LoadDatabase {
             serviceRepository.save(service6);
             serviceRepository.save(service7);
             serviceRepository.save(service8);
+            serviceRepository.save(service9);
             serviceRepository.save(serviceNewComer);
             serviceRepository.save(orangeSearchService);
             eventRepository.save(mockEvent);
-
-
 
             serviceRepository.findAll().forEach(s -> {
                 log.info("Preloaded " + s);
