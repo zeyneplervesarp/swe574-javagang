@@ -55,7 +55,11 @@
                           </base-button>
                         </td>
                         <td>
-                          <base-button block type="warning" class="mb-3">
+                          <base-button 
+                            block 
+                            type="warning" 
+                            class="mb-3"
+                            @click="DeleteUser(user.id)">
                             Delete
                           </base-button>
                         </td>
@@ -100,6 +104,11 @@ export default {
       var url = "#/profile/" + userId;
       window.location.href = url;
     },
+    DeleteUser(userId) {
+        apiRegister.DeleteUser(userId).then((r) => {
+          location.reload();
+      });
+    }
   },
 };
 </script>

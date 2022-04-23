@@ -59,7 +59,10 @@
                           </base-button>
                         </td>
                         <td>
-                          <base-button block type="warning" class="mb-3">
+                          <base-button block 
+                            type="warning"
+                            class="mb-3"
+                            @click="DeleteService(service.id)">
                             Delete
                           </base-button>
                         </td>
@@ -104,6 +107,22 @@ export default {
       var url = "#/service/" + serviceId;
       window.location.href = url;
     },
+    DeleteService(serviceId) {
+        swal.fire({
+            title: 'Do you want to delete this user?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    apiRegister.DeleteService(serviceId).then((r) => {
+                    swal.fire( {
+                    text: "You've deleted this service"
+                    });
+                });
+                location.reload();     
+            }
+            })
+    }
   },
 };
 </script>
