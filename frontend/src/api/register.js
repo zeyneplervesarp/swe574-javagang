@@ -110,5 +110,8 @@ export default {
     },
     Search(searchQuery){
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
+    },
+    GetAllUsers(){
+        return http.get(process.env.VUE_APP_API + "user/getAll", null, true, "Could not get users list");
     }
 }
