@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Date;
 import java.util.List;
 
-public class ApprovedQueryableServiceApprovalRepository implements DateQueryableRepository<UserServiceApproval> {
+public class ApprovedQueryableServiceApprovalRepository implements DateQueryableRepository<UserServiceApproval>, DateCountableRepository {
 
     private final UserServiceApprovalRepository repository;
 
@@ -18,5 +18,10 @@ public class ApprovedQueryableServiceApprovalRepository implements DateQueryable
     @Override
     public List<UserServiceApproval> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable) {
         return repository.findAllByApprovedDateBetween(createdGt, createdLt, pageable);
+    }
+
+    @Override
+    public Long countByDateBetween(Date createdGt, Date createdLt) {
+        return repository.countAllApprovedByDateBetween(createdGt, createdLt);
     }
 }
