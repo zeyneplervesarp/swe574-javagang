@@ -393,6 +393,9 @@ class LoadDatabase {
             //miranda is flagging users and cannot avoid getting flagged
             var flag1 = saveFlagForTargetUser(flagRepository, user1, user4.getId());
             var flag2 = saveFlagForTargetUser(flagRepository, user4, user1.getId());
+            // joshua flags orangejuice
+            var flag5 = saveFlagForTargetUser(flagRepository, user2, user5.getId());
+            var flag6 = saveFlagForTargetUser(flagRepository, user1, user5.getId());
 
             //miranda flags service6
             var flag3 = saveFlagForTargetService(flagRepository, user1, service6);
