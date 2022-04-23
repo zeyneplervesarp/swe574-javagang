@@ -57,8 +57,8 @@
                           </base-button>
                         </td>
                         <td>
-                          <base-button block type="warning" @click="AddFeatured(service.id)" class="mb-3">
-                            Ban
+                          <base-button block type="warning" @click="DeleteUser(user.id)" class="mb-3">
+                            Delete User
                           </base-button>
                         </td>
                       </tr>
@@ -98,9 +98,13 @@ export default {
       window.location.href = url;
     },
     GetAllUsers(){
-      debugger;
       apiRegister.GetAllUsers().then((r)=>{
         this.allUsers = r;
+      });
+    },
+    DeleteUser(userId){
+        apiRegister.DeleteUser(userId).then((r)=>{
+        this.$router.go();
       });
     }
   },
