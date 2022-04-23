@@ -65,8 +65,8 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/user/{userId}")
-    public UserDto deleteUser(Principal principal, @PathVariable String userId) {
+    @PostMapping("/user/delete/{userId}")
+    public UserDto deleteUser(Principal principal, @PathVariable(value = "userId") long userId) {
         try {
             return service.deleteUser(Long.valueOf(userId), principal);
         } catch (IllegalArgumentException e) {
