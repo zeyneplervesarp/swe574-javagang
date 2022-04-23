@@ -77,36 +77,36 @@ class LoadDatabase {
 
             //region User
 
-            var userAdmin = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN,0);
+            var userAdmin = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN,0, RegistrationDate.BEFORE_A_MONTH);
 
             var user1 = saveAndGetUser(userRepository, passwordEncoder, "miranda", "miranda.osborne@gmail.com", "Gamer. Award-winning music buff. Social media maven. Zombie fan. Student. Professional internet fanatic. Thinker. Freelance baconaholic.", new HashSet<Tag>() {{
                 add(tag2);
                 add(tag5);
-            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 55);
+            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 55, RegistrationDate.BEFORE_A_MONTH);
 
             var user2 = saveAndGetUser(userRepository, passwordEncoder, "joshua", "joshua.osborne@gmail.com", "Life's uncertain. Eat dessert first.", new HashSet<Tag>() {{
                 add(tag4);
                 add(tag3);
                 add(tag1);
-            }}, 5, "41.084148", "29.035460", "Etiler", UserType.USER, 10);
+            }}, 5, "41.084148", "29.035460", "Etiler", UserType.USER, 10, RegistrationDate.BEFORE_A_MONTH);
 
             var user3 = saveAndGetUser(userRepository, passwordEncoder, "jane", "jane.austen@gmail.com", "Probably the best TV binge-watcher you’ll ever find.", new HashSet<Tag>() {{
                 add(tag4);
                 add(tag5);
-            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 20);
+            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 20, RegistrationDate.BEFORE_A_MONTH);
 
             var user4 = saveAndGetUser(userRepository, passwordEncoder, "labelcaution", "labelcaution@gmail.com", "Incurable tv fan. Twitter junkie. Evil food fanatic. Certified travel maven. Social media advocate. Total thinker.", new HashSet<Tag>() {{
                 add(tag1);
                 add(tag6);
-            }}, 3, "41.084148", "29.035460", "Etiler", UserType.USER, 1);
+            }}, 3, "41.084148", "29.035460", "Etiler", UserType.USER, 1, RegistrationDate.LAST_WEEK);
 
             var user5 = saveAndGetUser(userRepository, passwordEncoder, "orangejuicecucumber", "orangejuicecucumber@gmail.com", "A human. Being.", new HashSet<Tag>() {{
                 add(tag2);
-            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 3);
+            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 3, RegistrationDate.LAST_WEEK);
 
 
 
-            var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER,0);
+            var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER,0, RegistrationDate.LAST_DAY);
 
             var users = userRepository.findAll();
 
@@ -416,7 +416,14 @@ class LoadDatabase {
         };
     }
 
-    private User saveAndGetUser(UserRepository userRepository, PasswordEncoder passwordEncoder, String username, String email, String bio, HashSet<Tag> tags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType, int reputationPoint) {
+    private enum RegistrationDate {
+        LAST_DAY,
+        LAST_WEEK,
+        LAST_MONTH,
+        BEFORE_A_MONTH
+    }
+
+    private User saveAndGetUser(UserRepository userRepository, PasswordEncoder passwordEncoder, String username, String email, String bio, HashSet<Tag> tags, Integer balance, String latitude, String longitude, String formattedAddress, UserType userType, int reputationPoint, RegistrationDate date) {
         var user = new User(null, username, email, bio, tags, balance,latitude,longitude, formattedAddress, userType, reputationPoint);
         user.setPassword(passwordEncoder.encode("1"));
         userRepository.save(user);
