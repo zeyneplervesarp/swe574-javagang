@@ -21,7 +21,7 @@ public class ApprovedQueryableServiceApprovalRepository implements DateQueryable
     }
 
     @Override
-    public Long countByDateBetween(Date createdGt, Date createdLt) {
+    public long countByDateBetween(Date createdGt, Date createdLt) {
         return repository.countAllApprovedByDateBetween(createdGt, createdLt);
     }
 }

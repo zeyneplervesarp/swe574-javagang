@@ -29,7 +29,7 @@ public interface UserServiceApprovalRepository extends JpaRepository<UserService
     List<UserServiceApproval> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable);
 
     @Query("select count(s) from UserServiceApproval s where s.created > :createdGt and s.created < :createdLt")
-    Long countByDateBetween(Date createdGt, Date createdLt);
+    long countByDateBetween(Date createdGt, Date createdLt);
 
     @Query("select count(s) from UserServiceApproval s where s.approvedDate is not null and s.approvedDate > :createdGt and s.approvedDate < :createdLt")
     Long countAllApprovedByDateBetween(Date createdGt, Date createdLt);

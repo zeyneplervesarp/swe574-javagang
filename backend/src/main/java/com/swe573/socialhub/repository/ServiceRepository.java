@@ -33,5 +33,5 @@ public interface ServiceRepository extends JpaRepository<Service, Long>, DateQue
     List<Service> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable);
 
     @Query("select count(s) from Service s where s.created > :createdGt and s.created < :createdLt")
-    Long countByDateBetween(Date createdGt, Date createdLt);
+    long countByDateBetween(Date createdGt, Date createdLt);
 }

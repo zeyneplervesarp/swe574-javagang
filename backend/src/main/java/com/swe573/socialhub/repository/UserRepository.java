@@ -25,5 +25,5 @@ public interface UserRepository extends JpaRepository<User, Long>, DateCountable
     List<User> findAllByUsername(List<String> userNames);
 
     @Query("select count(s) from User s where s.created > :createdGt and s.created < :createdLt")
-    Long countByDateBetween(Date createdGt, Date createdLt);
+    long countByDateBetween(Date createdGt, Date createdLt);
 }
