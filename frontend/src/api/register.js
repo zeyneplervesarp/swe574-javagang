@@ -111,7 +111,16 @@ export default {
     DismissFlagsForService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/flag/dismiss/" + serviceId, null, true)
     },
+    GetAllStats() {
+        return http.get(process.env.VUE_APP_API + 'stats', null, true, "Couldn't fetch stats");
+    },
     Search(searchQuery){
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
+    },
+    GetAllUsers(){
+        return http.get(process.env.VUE_APP_API + "user/getAll", null, true, "Could not get users list");
+    },
+    DeleteUser(userId){
+        return http.delete(process.env.VUE_APP_API + "user/"+userId, null, true, "Could not delete user");
     }
 }
