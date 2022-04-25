@@ -21,6 +21,7 @@ import FollowingUserServices from "./views/FollowingUserServices.vue";
 import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
 import AdminServices from "./views/AdminServices.vue";
+import AdminUsers from "./views/AdminUsers.vue";
 import Search from "./views/Search.vue";
 
 Vue.use(Router);
@@ -213,6 +214,16 @@ export default new Router({
       components: {
         header: AdminAppHeader,
         default: AdminServices,
+        footer: AdminAppFooter,
+
+      }
+    },
+    {
+      path: "/admin/users",
+      name: "adminUsers",
+      components: {
+        header: AdminAppHeader,
+        default: AdminUsers,
         footer: AdminAppFooter,
 
       }
