@@ -167,7 +167,7 @@
           class="nav-item d-none d-lg-block ml-lg-4"
         >
           <a
-            href="#/admin/services"
+            href="#/admin/feed"
             rel="noopener"
             class="btn btn-default btn-icon"
           >
