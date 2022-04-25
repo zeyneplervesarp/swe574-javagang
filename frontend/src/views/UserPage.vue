@@ -130,6 +130,13 @@
               > Flag User
               </base-button>
             </div>
+            <div
+            v-if="userIsAdmin && !isOwnProfile"
+            class="mt-2 py-5 border-top text-center">
+            <base-button block type="warning" @click="DeleteUser(userData.id)" class="mb-3">
+              Delete User
+            </base-button>
+            </div>
           </div>
         </card>
       </div>
@@ -233,6 +240,11 @@ export default {
       } else {
         return "warning";
       }
+    },
+    DeleteUser(userId){
+        apiRegister.DeleteUser(userId).then((r)=>{
+        this.$router.go();
+      });
     },
   },
   props: {
