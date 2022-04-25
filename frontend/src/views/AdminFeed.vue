@@ -20,10 +20,7 @@
               <div class="col-lg-3 order-lg-2"></div>
             </div>
             <div class="text-center mt-5">
-              <h4>
-                Feed
-               
-              </h4>
+              <h4>User Activites</h4>
             </div>
             <div class="mt-5 py-5 border-top text-center">
               <div class="row justify-content-center">
@@ -35,7 +32,12 @@
                       :key="index"
                     >
                       <div class="col mt-2 text-center">
-                        <span v-if="result.verb == 'login' || result.verb == 'join-request'">
+                        <span
+                          v-if="
+                            result.verb == 'login' ||
+                            result.verb == 'join-request'
+                          "
+                        >
                           <base-button
                             @click="GoToUrl(result.url)"
                             block
@@ -46,7 +48,11 @@
                             }}</badge>
                           </base-button>
                         </span>
-                        <span v-if="result.verb == 'create' || result.verb == 'approve'">
+                        <span
+                          v-if="
+                            result.verb == 'create' || result.verb == 'approve'
+                          "
+                        >
                           <base-button
                             @click="GoToUrl(result.url)"
                             block
@@ -72,6 +78,11 @@
                       </div>
                       <div class="w-100"></div>
                     </div>
+                    <div class="mt-2 py-2 border-top">
+                      <div class="pull-right">
+                        <base-button @click="FetchNext()" type="default">Next </base-button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -89,6 +100,7 @@ export default {
   data() {
     return {
       feed: [],
+      next: ""
     };
   },
   mounted() {
@@ -98,7 +110,6 @@ export default {
     GetFeed() {
       apiRegister.GetAdminFeed().then((r) => {
         this.feed = r.items;
-        console.log(r.items);
       });
     },
     GoToUrl(url) {
@@ -106,6 +117,11 @@ export default {
       url = "#" + url;
       window.location.href = url;
     },
+    FetchNext(){
+      apiRegister.GetAdminFeed(url).then((r) => {
+        this.feed = r.items;
+      });
+    }
   },
 };
 </script>
