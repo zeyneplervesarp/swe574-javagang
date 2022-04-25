@@ -160,11 +160,27 @@ public class ServiceService {
 
         try {
             var entityExists = false;
+            Optional<Service> existingService = null;
             if (dto.getId() != null)
-                entityExists = serviceRepository.findById(dto.getId()).isPresent();
+                existingService = serviceRepository.findById(dto.getId());
+                entityExists = existingService.isPresent();
             var entity = mapToEntity(dto);
 
-
+            // check for editing deadline
+            if (entityExists) {
+                if (dto.getLocationType().equals(LocationType.Physical)) {
+                    if (LocalDateTime.now().isAfter(existingService.get().getTime().minusHours(24))) {
+                        throw new IllegalArgumentException("You can only edit physical services until 24 hours before their time");
+                    }
+                } else {
+                    if (LocalDateTime.now().isAfter(existingService.get().getTime().minusMinutes(30))) {
+                        throw new IllegalArgumentException("You can only edit online services until 30 mimutes before their time");
+                    }
+                }
+                entity.setId(dto.getId());
+            }
+            // should only run if the service is being created.
+            if(!entityExists) {
                 entity.setCreatedUser(loggedInUser);
 
                 var tags = dto.getServiceTags();
@@ -182,14 +198,9 @@ public class ServiceService {
                 var balanceToBe = currentUserBalance + dto.getMinutes();
                 if (balanceToBe >= 20)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
-
-
-            if (entityExists)
-            {
-                entity.setId(dto.getId());
             }
-            var savedEntity = serviceRepository.save(entity);
 
+            var savedEntity = serviceRepository.save(entity);
 
             return savedEntity.getId();
         } catch (DataException e) {
