@@ -41,7 +41,7 @@ export default {
         return http.post(process.env.VUE_APP_API + 'service/feature/' + id, null,true)
     },
     UnfeatureService(id) {
-        return http.post(process.env.VUE_APP_API + 'service/unfeature/' + id, null,true)
+        return http.delete(process.env.VUE_APP_API + 'service/feature/' + id, null,true)
     },
     SetTags(data) {
         return http.post(process.env.VUE_APP_API + 'user/setTags', data)

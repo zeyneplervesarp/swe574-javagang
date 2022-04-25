@@ -115,7 +115,7 @@ public class ServiceController {
         }
     }
 
-    @PostMapping("/unfeature/{serviceId}")
+    @DeleteMapping("/feature/{serviceId}")
     public ServiceDto unfeatureService(Principal principal, @PathVariable Long serviceId) {
         try {
             return serviceService.removeFromFeaturedServices(serviceId, principal);
