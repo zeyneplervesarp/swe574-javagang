@@ -1,5 +1,5 @@
 # Software Development Practice
-This is a repository for the SWE 573 Software Development as Practice class.
+This is a repository for the SWE 574 Software Development as Practice class.
 
 ## Deployed Application
 The application is deployed and can be viewed at URL's below.
