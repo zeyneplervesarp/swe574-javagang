@@ -162,6 +162,8 @@ public class UserService {
         final var userToDelete = repository.findById(userId);
         if (userToDelete.isEmpty()) {
             throw new IllegalArgumentException("User does not exist.");
+        }else if(userToDelete.get().getId().equals(loggedInUser.getId())){
+            throw new IllegalArgumentException("You can not delete your own account.");
         }
 
         final var dto = mapUserToDTO(userToDelete.get());
