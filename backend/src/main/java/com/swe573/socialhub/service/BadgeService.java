@@ -66,6 +66,7 @@ public class BadgeService {
         //check if user has 10 services, if so remove their newcomer badge
         var userBadges = user.getBadges();
         var participatedServiceCount = user.getServiceApprovalSet().stream().filter(x->x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
+        var participatedServiceNewcomerCount = user.getServiceApprovalSet().stream().filter(x->x.getApprovalStatus() == ApprovalStatus.APPROVED && x.getUser().getBadges().stream().anyMatch(y->y.getBadgeType() == BadgeType.newcomer)).count();
 
         //region newcomer
         var userHasNewcomerBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.newcomer);
@@ -88,6 +89,33 @@ public class BadgeService {
             }
         }
 
+        //endregion
+
+        //region mentor
+        var userHasMentorBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.mentor);
+
+        if (!userHasMentorBadge)
+        {
+            if (participatedServiceNewcomerCount >= 5)
+            {
+                var mentorBadge = new Badge(user,BadgeType.mentor);
+                user.addBadge(mentorBadge);
+            }
+        }
+
+        //endregion
+
+        //region super mentor
+        var userHasSuperMentorBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.superMentor);
+
+        if (!userHasSuperMentorBadge)
+        {
+            if (participatedServiceNewcomerCount >= 10)
+            {
+                var mentorBadge = new Badge(user,BadgeType.superMentor);
+                user.addBadge(mentorBadge);
+            }
+        }
         //endregion
 
         return user;

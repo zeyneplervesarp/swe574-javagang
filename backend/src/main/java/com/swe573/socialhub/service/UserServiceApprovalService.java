@@ -123,7 +123,6 @@ public class UserServiceApprovalService {
             if (status == ApprovalStatus.APPROVED)
             {
                 var updatedUser = badgeService.checkBadgesAfterApproval(returnData.getUser());
-                updatedUser = badgeService.checkBadgesAfterApproval(returnData.getUser());
                 userRepository.save(updatedUser);
             }
 
