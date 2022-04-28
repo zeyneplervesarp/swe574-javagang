@@ -71,6 +71,15 @@
                   />
                   <br />
                 </div>
+       
+                <div class="col-lg-12">
+                  <input
+                    class="form-control form-control-alternative"
+                    v-model="serviceInputs.imageUrl"
+                    placeholder="Image URL"
+                  />
+                  <br />
+                </div>
                 <div class="col-lg-12">
                   <multiselect
                     v-model="serviceInputs.serviceTags"
@@ -185,6 +194,7 @@ export default {
         latitude: "",
         longitude: "",
         serviceTags: [],
+        imageUrl: ""
       },
       coordinates: {
         lat: 0,
