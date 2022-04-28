@@ -308,6 +308,7 @@ export default {
         this.serviceData.ratingSummary = r.ratingSummary;
         this.serviceData.flagCount = r.flagCount;
         this.serviceData.imageUrl = r.imageUrl;
+        this.serviceData.locationType = r.locationType;
       });
     },
     GetUserDetails() {
