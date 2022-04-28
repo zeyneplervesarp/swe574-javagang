@@ -407,8 +407,10 @@ class LoadDatabase {
             var badge3 = saveAndGetBadge(badgeRepository,user1, BadgeType.regular);
             var badge4 = saveAndGetBadge(badgeRepository, userNewcomer,BadgeType.newcomer);
             var badge5 = saveAndGetBadge(badgeRepository, user2,BadgeType.mentor);
+            var badge9 = saveAndGetBadge(badgeRepository, user2,BadgeType.reputable);
             var badge6 = saveAndGetBadge(badgeRepository, user3,BadgeType.mentor);
-            var badge7 = saveAndGetBadge(badgeRepository, user4,BadgeType.regular);
+            var badge10 = saveAndGetBadge(badgeRepository, user3,BadgeType.mentor);
+            var badge7 = saveAndGetBadge(badgeRepository, user4,BadgeType.wellKnown);
             var badge8 = saveAndGetBadge(badgeRepository, user4,BadgeType.superMentor);
 
             //endregion
