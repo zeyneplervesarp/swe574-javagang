@@ -88,7 +88,7 @@ public class BadgeServiceTests {
         }});
 
 
-        var updatedUser = service.checkBadgesAfterApproval(mockUser);
+        var updatedUser = service.checkBadges(mockUser);
 
         assertEquals(0, updatedUser.getBadges().stream().count());
         assertFalse(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.newcomer));
@@ -109,7 +109,7 @@ public class BadgeServiceTests {
         mockUser.setBadges(new HashSet<>());
 
 
-        var updatedUser = service.checkBadgesAfterApproval(mockUser);
+        var updatedUser = service.checkBadges(mockUser);
 
         assertEquals(1, updatedUser.getBadges().stream().count());
         assertTrue(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.regular));

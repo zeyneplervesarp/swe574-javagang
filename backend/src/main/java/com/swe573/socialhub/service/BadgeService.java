@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,13 +61,16 @@ public class BadgeService {
         return new Badge(owner, type);
     }
 
-    public User checkBadgesAfterApproval(User user) {
-        //check if user has 10 services, if so remove their newcomer badge
+    public User checkBadges(User user) {
         var userBadges = user.getBadges();
         var participatedServiceCount = user.getServiceApprovalSet().stream().filter(x->x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var participatedServiceNewcomerCount = user.getServiceApprovalSet().stream().filter(x->x.getApprovalStatus() == ApprovalStatus.APPROVED && x.getUser().getBadges().stream().anyMatch(y->y.getBadgeType() == BadgeType.newcomer)).count();
+        var userReputationPoint = user.getReputationPoint();
+
 
         //region newcomer
+        // check if user has 10 services, if so remove their newcomer badge
+
         var userHasNewcomerBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.newcomer);
         var participatedServiceIsMoreThanRequiredBadgeCount = participatedServiceCount >= 10;
         if (userHasNewcomerBadge && participatedServiceIsMoreThanRequiredBadgeCount)
@@ -114,6 +116,45 @@ public class BadgeService {
             {
                 var mentorBadge = new Badge(user,BadgeType.superMentor);
                 user.addBadge(mentorBadge);
+            }
+        }
+        //endregion
+
+        //region reputable
+        var userHasReputableBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.reputable);
+
+        if (!userHasReputableBadge)
+        {
+            if (userReputationPoint >= 10)
+            {
+                var reputableBadge = new Badge(user,BadgeType.reputable);
+                user.addBadge(reputableBadge);
+            }
+        }
+        //endregion
+
+        //region reputable
+        var userHasWellKnownBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.wellKnown);
+
+        if (!userHasWellKnownBadge)
+        {
+            if (userReputationPoint >= 10)
+            {
+                var wellKnownBadge = new Badge(user,BadgeType.wellKnown);
+                user.addBadge(wellKnownBadge);
+            }
+        }
+        //endregion
+
+        //region reputable
+        var userHasGuruBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.guru);
+
+        if (!userHasGuruBadge)
+        {
+            if (userReputationPoint >= 10)
+            {
+                var guruBadge = new Badge(user,BadgeType.guru);
+                user.addBadge(guruBadge);
             }
         }
         //endregion

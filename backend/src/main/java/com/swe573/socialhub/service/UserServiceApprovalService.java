@@ -122,7 +122,7 @@ public class UserServiceApprovalService {
             var returnData = repository.save(entity);
             if (status == ApprovalStatus.APPROVED)
             {
-                var updatedUser = badgeService.checkBadgesAfterApproval(returnData.getUser());
+                var updatedUser = badgeService.checkBadges(returnData.getUser());
                 userRepository.save(updatedUser);
             }
 
