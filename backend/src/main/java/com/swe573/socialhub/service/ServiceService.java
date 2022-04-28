@@ -3,7 +3,6 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
-import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
@@ -64,7 +63,7 @@ public class ServiceService {
         final var filteredEntityStream = filterStream(
                 entities.stream(),
                 sortBy,
-                getOngoingOnly || filter == ServiceFilter.all,
+                getOngoingOnly ,
                 filter,
                 loggedInUser
         );
@@ -328,7 +327,7 @@ public class ServiceService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
         long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount);
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured());
     }
 
 

@@ -21,8 +21,20 @@
             </a>
         </li>
         <li class="nav-item">
+
             <a class="nav-link nav-link-icon" href="#/admin/feed">
                 Feed
+                  </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/users">
+                Users
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#">
+                Profile
+
             </a>
         </li>
        
