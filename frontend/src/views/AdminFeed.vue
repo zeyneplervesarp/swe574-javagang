@@ -43,7 +43,7 @@
                               @click="GoToUrl(result.target.url)"
                               block
                               type="info"
-                              >{{ result.summary }}
+                              >{{ result.published }} || {{ result.summary }}
                               <badge class="float-right" pill type="info">{{
                                 result.verb
                               }}</badge>
@@ -59,7 +59,7 @@
                               @click="GoToUrl(result.target.url)"
                               block
                               type="success"
-                              >{{ result.summary }}
+                              >{{ result.published }} || {{ result.summary }}
                               <badge class="float-right" pill type="success">{{
                                 result.verb
                               }}</badge>
@@ -70,7 +70,7 @@
                               @click="GoToUrl(result.target.url)"
                               block
                               type="info"
-                              >{{ result.summary }}
+                              >{{ result.published }} || {{ result.summary }}
 
                               <badge class="float-right" pill type="info">{{
                                 result.verb
