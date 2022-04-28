@@ -26,63 +26,65 @@
               <div class="row justify-content-center">
                 <div class="col-lg-12">
                   <div class="container ct-example-row">
-                    <div
-                      class="row"
-                      v-for="(result, index) in feed"
-                      :key="index"
-                    >
-                      <div class="col mt-2 text-center">
-                        <span
-                          v-if="
-                            result.verb == 'login' ||
-                            result.verb == 'join-request'
-                          "
-                        >
-                          <base-button
-                            @click="GoToUrl(result.url)"
-                            block
-                            type="info"
-                            >{{ result.summary }}
-                            <badge class="float-right" pill type="info">{{
-                              result.verb
-                            }}</badge>
-                          </base-button>
-                        </span>
-                        <span
-                          v-if="
-                            result.verb == 'create' || result.verb == 'approve'
-                          "
-                        >
-                          <base-button
-                            @click="GoToUrl(result.url)"
-                            block
-                            type="success"
-                            >{{ result.summary }}
-                            <badge class="float-right" pill type="success">{{
-                              result.verb
-                            }}</badge>
-                          </base-button>
-                        </span>
-                        <span v-if="result.verb == 'login-failed'">
-                          <base-button
-                            @click="GoToUrl(result.url)"
-                            block
-                            type="info"
-                            >{{ result.summary }}
+                    <div>
+                      <div
+                        class="row"
+                        v-for="(result, index) in feed"
+                        :key="index"
+                      >
+                        <div class="col mt-2 text-center">
+                          <span
+                            v-if="
+                              result.verb == 'login' ||
+                              result.verb == 'join-request'
+                            "
+                          >
+                            <base-button
+                              @click="GoToUrl(result.target.url)"
+                              block
+                              type="info"
+                              >{{ result.summary }}
+                              <badge class="float-right" pill type="info">{{
+                                result.verb
+                              }}</badge>
+                            </base-button>
+                          </span>
+                          <span
+                            v-if="
+                              result.verb == 'create' ||
+                              result.verb == 'approve'
+                            "
+                          >
+                            <base-button
+                              @click="GoToUrl(result.target.url)"
+                              block
+                              type="success"
+                              >{{ result.summary }}
+                              <badge class="float-right" pill type="success">{{
+                                result.verb
+                              }}</badge>
+                            </base-button>
+                          </span>
+                          <span v-if="result.verb == 'login-failed'">
+                            <base-button
+                              @click="GoToUrl(result.target.url)"
+                              block
+                              type="info"
+                              >{{ result.summary }}
 
-                            <badge class="float-right" pill type="info">{{
-                              result.verb
-                            }}</badge>
-                          </base-button>
-                        </span>
-                      </div>
-                      <div class="w-100"></div>
-                    </div>
-                    <div class="mt-2 py-2 border-top">
-                      <div class="pull-right">
-                        <base-button @click="FetchNext()" type="default">Next </base-button>
+                              <badge class="float-right" pill type="info">{{
+                                result.verb
+                              }}</badge>
+                            </base-button>
+                          </span>
+                        </div>
+                        <div class="w-100"></div>
                       </div>
                     </div>
+                    <infinite-loading
+                      @infinite="infiniteHandler"
+                      spinner="spiral"
+                    ></infinite-loading>
                   </div>
                 </div>
               </div>
@@ -91,16 +93,25 @@
         </card>
       </div>
     </section>
+<back-to-top text="Back to top" visibleoffset="500"></back-to-top>
+
   </div>
+  
 </template>
 <script>
 import apiRegister from "../api/register";
+import infiniteLoading from "vue-infinite-loading";
+import BackToTop from 'vue-backtotop'
+
 export default {
-  components: {},
+  components: {
+    infiniteLoading,
+    BackToTop,
+  },
   data() {
     return {
       feed: [],
-      next: ""
+      next: "",
     };
   },
   mounted() {
@@ -110,6 +121,7 @@ export default {
     GetFeed() {
       apiRegister.GetAdminFeed().then((r) => {
         this.feed = r.items;
+        this.next = r.next;
       });
     },
     GoToUrl(url) {
@@ -117,11 +129,20 @@ export default {
       url = "#" + url;
       window.location.href = url;
     },
-    FetchNext(){
-      apiRegister.GetAdminFeed(url).then((r) => {
-        this.feed = r.items;
+    infiniteHandler($state) {
+      apiRegister.GetAdminFeed(this.next).then((r) => {
+        if (r.items.length) {
+          setTimeout(() => {
+            this.next = r.next;
+            var merged = [...this.feed, ...r.items];
+            this.feed = merged;
+            $state.loaded();
+          }, 1000);
+        } else {
+          $state.complete();
+        }
       });
-    }
+    },
   },
 };
 </script>

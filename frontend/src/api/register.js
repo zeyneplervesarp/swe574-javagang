@@ -112,6 +112,7 @@ export default {
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
     },
     GetAdminFeed(url) {
+        console.log(url)
         if(url == null || url == "")
         {
             return http.get(process.env.VUE_APP_API + 'admin/feed')
