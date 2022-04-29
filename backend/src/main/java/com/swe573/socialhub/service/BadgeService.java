@@ -120,6 +120,8 @@ public class BadgeService {
         }
         //endregion
 
+
+
         //region reputable
         var userHasReputableBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.reputable);
 
@@ -133,12 +135,12 @@ public class BadgeService {
         }
         //endregion
 
-        //region reputable
+        //region well-known
         var userHasWellKnownBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.wellKnown);
 
         if (!userHasWellKnownBadge)
         {
-            if (userReputationPoint >= 10)
+            if (userReputationPoint >= 25)
             {
                 var wellKnownBadge = new Badge(user,BadgeType.wellKnown);
                 user.addBadge(wellKnownBadge);
@@ -146,12 +148,12 @@ public class BadgeService {
         }
         //endregion
 
-        //region reputable
+        //region guru
         var userHasGuruBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.guru);
 
         if (!userHasGuruBadge)
         {
-            if (userReputationPoint >= 10)
+            if (userReputationPoint >= 50)
             {
                 var guruBadge = new Badge(user,BadgeType.guru);
                 user.addBadge(guruBadge);
