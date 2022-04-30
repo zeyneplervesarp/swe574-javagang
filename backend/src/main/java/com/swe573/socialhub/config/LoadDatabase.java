@@ -153,7 +153,7 @@ class LoadDatabase {
                     "Eminönü Tour",
                     "Hey everyone! I'm a professional tourist and I would like to give you a tour of Eminönü. We will start and finish at Eminönü Meydan. We will be visiting many historical places as well as bazaars. We will also visit popular restaurants.",
                     "Eminönü, Istanbul",
-                    LocalDateTime.of(2021, 12, 15, 12, 0),
+                    LocalDateTime.now().plusDays(2),
                     4,
                     10,
                     10, user1,

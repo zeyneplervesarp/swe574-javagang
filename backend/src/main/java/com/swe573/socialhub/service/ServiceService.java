@@ -161,9 +161,10 @@ public class ServiceService {
         try {
             var entityExists = false;
             Optional<Service> existingService = null;
-            if (dto.getId() != null)
+            if (dto.getId() != null) {
                 existingService = serviceRepository.findById(dto.getId());
                 entityExists = existingService.isPresent();
+            }
             var entity = mapToEntity(dto);
 
             // check for editing deadline
@@ -219,7 +220,6 @@ public class ServiceService {
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
         }
-
     }
 
     @Transactional

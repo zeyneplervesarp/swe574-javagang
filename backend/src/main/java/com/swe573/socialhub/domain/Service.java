@@ -69,7 +69,7 @@ public class Service {
     private boolean isFeatured;
 
     @OneToMany(mappedBy="service", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Rating> ratings;
+    private Set<Rating> ratings = null;
 
 
     @ManyToOne
@@ -81,9 +81,9 @@ public class Service {
             joinColumns = { @JoinColumn(name = "service_id") },
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
-    Set<Tag> serviceTags;
+    Set<Tag> serviceTags = null;
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<UserServiceApproval> approvalSet;
+    Set<UserServiceApproval> approvalSet = null;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -200,7 +200,12 @@ public class Service {
     }
 
     public void setServiceTags(Set<Tag> serviceTags) {
-        this.serviceTags = serviceTags;
+        if(this.serviceTags == null)
+            this.serviceTags = serviceTags;
+        else {
+            serviceTags.retainAll(serviceTags);
+            this.serviceTags.addAll(serviceTags);
+        }
     }
 
     public int getAttendingUserCount() {
@@ -216,7 +221,12 @@ public class Service {
     }
 
     public void setApprovalSet(Set<UserServiceApproval> approvalSet) {
-        this.approvalSet = approvalSet;
+        if (this.approvalSet == null)
+            this.approvalSet = approvalSet;
+        else {
+            this.approvalSet.retainAll(approvalSet);
+            this.approvalSet.addAll(approvalSet);
+        }
     }
 
     public ServiceStatus getStatus() {
@@ -232,7 +242,12 @@ public class Service {
     }
 
     public void setRatings(Set<Rating> ratings) {
-        this.ratings = ratings;
+        if(this.ratings == null) {
+            this.ratings = ratings;
+        } else {
+            ratings.clear();
+            this.ratings.addAll(ratings);
+        }
     }
 
     public boolean isFeatured() {
