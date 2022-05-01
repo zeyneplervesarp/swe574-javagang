@@ -267,6 +267,7 @@ export default {
         participantUserList: [],
         ratingSummary: {},
         flagCount: 0,
+
       },
       userData: {
         hasServiceRequest: "",
@@ -315,6 +316,7 @@ export default {
         this.coordinates.lng = r.longitude;
         this.serviceData.ratingSummary = r.ratingSummary;
         this.serviceData.flagCount = r.flagCount;
+        this.serviceData.locationType = r.locationType;
       });
     },
     GetUserDetails() {

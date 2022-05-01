@@ -37,8 +37,11 @@ export default {
     GetFeaturedServices() {
         return http.get(process.env.VUE_APP_API + 'service/feature')
     },
-    GetFeaturedServices() {
-        return http.get(process.env.VUE_APP_API + 'service/feature')
+    FeatureService(id) {
+        return http.post(process.env.VUE_APP_API + 'service/feature/' + id, null,true)
+    },
+    UnfeatureService(id) {
+        return http.delete(process.env.VUE_APP_API + 'service/feature/' + id, null,true)
     },
     SetTags(data) {
         return http.post(process.env.VUE_APP_API + 'user/setTags', data)
@@ -114,6 +117,9 @@ export default {
     GetAllFlaggedServices() {
         return http.get(process.env.VUE_APP_API + "service/flag/", null, false)
     },
+    GetAllStats() {
+        return http.get(process.env.VUE_APP_API + 'stats', null, true, "Couldn't fetch stats");
+    },
     Search(searchQuery){
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
     },
@@ -122,5 +128,8 @@ export default {
     },
     DeleteService(serviceId) {
         return http.delete(process.env.VUE_APP_API + "service/delete/" + serviceId, null, true)
+    },
+    GetAllUsers(){
+        return http.get(process.env.VUE_APP_API + "user/getAll", null, true, "Could not get users list");
     }
 }
