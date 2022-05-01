@@ -50,72 +50,9 @@ class LoadDatabase {
         return args -> {
 
 
-            var faker = new Faker();
-            var users = createUsers(userRepository, passwordEncoder, faker, 1000);
-            users = setCreatedForUsers(users, userRepository);
-            System.out.println(users.stream().findFirst().get().getCreated());
-//            //region Tags
-//
-//            var tag1 = new Tag("movies");
-//            var tag2 = new Tag("arts");
-//            var tag3 = new Tag("sports");
-//            var tag4 = new Tag("comedy");
-//            var tag5 = new Tag("misc");
-//            var tag6 = new Tag("education");
-//            var tag7 = new Tag("nature");
-//            tagRepository.save(tag1);
-//            tagRepository.save(tag2);
-//            tagRepository.save(tag3);
-//            tagRepository.save(tag4);
-//            tagRepository.save(tag5);
-//            tagRepository.save(tag6);
-//            tagRepository.save(tag7);
-//
-//
-//            tagRepository.findAll().forEach(tag -> {
-//                log.info("Preloaded " + tag);
-//            });
-//
-//            //endregion
-//
-//            //region User
-//
-//            var userAdmin = saveAndGetUser(userRepository, passwordEncoder, "admin", "admin@gmail.com", "No need, I am the admin!", new HashSet<Tag>() {}, 0, "41.084148", "29.035460", "Etiler", UserType.ADMIN,0);
-//
-//            var user1 = saveAndGetUser(userRepository, passwordEncoder, "miranda", "miranda.osborne@gmail.com", "Gamer. Award-winning music buff. Social media maven. Zombie fan. Student. Professional internet fanatic. Thinker. Freelance baconaholic.", new HashSet<Tag>() {{
-//                add(tag2);
-//                add(tag5);
-//            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 55);
-//
-//            var user2 = saveAndGetUser(userRepository, passwordEncoder, "joshua", "joshua.osborne@gmail.com", "Life's uncertain. Eat dessert first.", new HashSet<Tag>() {{
-//                add(tag4);
-//                add(tag3);
-//                add(tag1);
-//            }}, 5, "41.084148", "29.035460", "Etiler", UserType.USER, 10);
-//
-//            var user3 = saveAndGetUser(userRepository, passwordEncoder, "jane", "jane.austen@gmail.com", "Probably the best TV binge-watcher you’ll ever find.", new HashSet<Tag>() {{
-//                add(tag4);
-//                add(tag5);
-//            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 20);
-//
-//            var user4 = saveAndGetUser(userRepository, passwordEncoder, "labelcaution", "labelcaution@gmail.com", "Incurable tv fan. Twitter junkie. Evil food fanatic. Certified travel maven. Social media advocate. Total thinker.", new HashSet<Tag>() {{
-//                add(tag1);
-//                add(tag6);
-//            }}, 3, "41.084148", "29.035460", "Etiler", UserType.USER, 1);
-//
-//            var user5 = saveAndGetUser(userRepository, passwordEncoder, "orangejuicecucumber", "orangejuicecucumber@gmail.com", "A human. Being.", new HashSet<Tag>() {{
-//                add(tag2);
-//            }}, 2, "41.084148", "29.035460", "Etiler", UserType.USER, 3);
-//
-//
-//
-//            var userNewcomer = saveAndGetUser(userRepository, passwordEncoder, "noob", "noob@gmail.com", " I haven't failed. I've just found 10,000 ways that won't work.", new HashSet<Tag>() { { add(tag7); add(tag4);}}, 5, "41.084148", "29.035460", "Etiler", UserType.USER,0);
-//
-//            var users = userRepository.findAll();
-//
-//            users.forEach(user -> {
-//                log.info("Preloaded " + user);
-//            });
+            final var faker = new Faker();
+            final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 1000), userRepository);
+            final var tags = createTags(tagRepository);
 //
 //            saveLoginAttempts(loginAttemptRepository, users);
 //
@@ -505,8 +442,6 @@ class LoadDatabase {
         var admin = new User(null, "admin", "admin@socialhub.com", "I'm the adminest of admins!", Collections.emptySet(), 0, "34", "28", "Admin bvd. 33", UserType.ADMIN, 0);
         admin.setPassword(encodedPw);
 
-
-
         var userList = LongStream.range(0, count).parallel().mapToObj(i -> {
             var username = chooseBetween(List.of(faker.internet().slug(), faker.artist().name().trim().toLowerCase() + faker.random().nextInt(99), faker.internet().slug() + faker.internet().domainSuffix()));
             var email = chooseBetween(List.of(username + "@" + faker.internet().domainName() + "." + faker.internet().domainSuffix(), faker.internet().emailAddress()));
@@ -528,5 +463,17 @@ class LoadDatabase {
     private List<User> setCreatedForUsers(List<User> users, UserRepository userRepository) {
         users.forEach(u -> u.setCreated(u.getUserType().equals(UserType.ADMIN) ? SITE_CREATION_DATE : randomDate(SITE_CREATION_DATE, new Date())));
         return userRepository.saveAll(users);
+    }
+
+    private List<Tag> createTags(TagRepository tagRepository) {
+        return tagRepository.saveAll(List.of(
+                new Tag("movies"),
+                new Tag("arts"),
+                new Tag("sports"),
+                new Tag("comedy"),
+                new Tag("misc"),
+                new Tag("education"),
+                new Tag("nature"))
+        );
     }
 }
