@@ -69,7 +69,7 @@ public class Service {
     private ServiceStatus status;
     private boolean isFeatured;
 
-    @OneToMany(mappedBy="service", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="service", cascade = CascadeType.ALL)
     private Set<Rating> ratings;
 
 
@@ -83,7 +83,7 @@ public class Service {
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
     Set<Tag> serviceTags;
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
     Set<UserServiceApproval> approvalSet;
 
     @CreationTimestamp
