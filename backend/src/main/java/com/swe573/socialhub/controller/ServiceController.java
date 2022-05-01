@@ -61,7 +61,7 @@ public class ServiceController {
         }
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ServiceDto> deleteService(@PathVariable(value = "id") long id, Principal principal) {
         try {
             return ResponseEntity.ok(serviceService.deleteService(id, principal));

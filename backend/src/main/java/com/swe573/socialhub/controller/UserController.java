@@ -65,7 +65,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/delete/{userId}")
+    @DeleteMapping("/user/delete/{userId}")
     public UserDto deleteUser(Principal principal, @PathVariable(value = "userId") long userId) {
         try {
             return service.deleteUser(Long.valueOf(userId), principal);

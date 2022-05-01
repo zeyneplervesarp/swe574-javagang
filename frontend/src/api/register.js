@@ -118,9 +118,9 @@ export default {
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
     },
     DeleteUser(userId) {
-        return http.post(process.env.VUE_APP_API + "user/delete/" + userId, null, true)
+        return http.delete(process.env.VUE_APP_API + "user/delete/" + userId, null, true)
     },
     DeleteService(serviceId) {
-        return http.post(process.env.VUE_APP_API + "service/delete/" + serviceId, null, true)
+        return http.delete(process.env.VUE_APP_API + "service/delete/" + serviceId, null, true)
     }
 }
