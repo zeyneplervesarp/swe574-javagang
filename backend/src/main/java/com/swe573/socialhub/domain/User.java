@@ -15,6 +15,8 @@ public class User {
     Long id;
     private String username;
     private String email;
+
+    @Column(columnDefinition = "TEXT")
     private String bio;
     private String latitude;
     private String longitude;
