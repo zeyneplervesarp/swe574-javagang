@@ -56,6 +56,7 @@ public class Service {
     @GeneratedValue
     Long id;
     private String header;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private LocationType locationType;
     private String location;

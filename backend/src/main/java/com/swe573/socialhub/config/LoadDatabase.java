@@ -9,6 +9,7 @@ import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.BadgeType;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -18,9 +19,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @Profile("!test")
@@ -49,10 +52,12 @@ class LoadDatabase {
 
         return args -> {
 
-
-            final var faker = new Faker();
-            final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 1000), userRepository);
             final var tags = createTags(tagRepository);
+            final var faker = new Faker();
+            final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 500, tags), userRepository);
+            final var svcs = createServices(serviceRepository, users, faker, tags);
+            System.out.println("Created " + svcs.size() + " services.");
+
 //
 //            saveLoginAttempts(loginAttemptRepository, users);
 //
@@ -437,7 +442,10 @@ class LoadDatabase {
         return ThreadLocalRandom.current().nextLong(min, max);
     }
 
-    private List<User> createUsers(UserRepository userRepository, PasswordEncoder passwordEncoder, Faker faker, int count) {
+    private List<User> createUsers(UserRepository userRepository, PasswordEncoder passwordEncoder, Faker faker, int count, List<Tag> tags) {
+
+
+
         final var encodedPw = passwordEncoder.encode("1");
         var admin = new User(null, "admin", "admin@socialhub.com", "I'm the adminest of admins!", Collections.emptySet(), 0, "34", "28", "Admin bvd. 33", UserType.ADMIN, 0);
         admin.setPassword(encodedPw);
@@ -446,7 +454,7 @@ class LoadDatabase {
             var username = chooseBetween(List.of(faker.internet().slug(), faker.artist().name().trim().toLowerCase() + faker.random().nextInt(99), faker.internet().slug() + faker.internet().domainSuffix()));
             var email = chooseBetween(List.of(username + "@" + faker.internet().domainName() + "." + faker.internet().domainSuffix(), faker.internet().emailAddress()));
             var bio = chooseBetween(List.of(faker.shakespeare().hamletQuote(), faker.shakespeare().kingRichardIIIQuote(), faker.shakespeare().asYouLikeItQuote(), faker.shakespeare().romeoAndJulietQuote(), faker.rickAndMorty().quote(), faker.backToTheFuture().quote()));
-            var u = new User(null, username, email, bio, Collections.emptySet(), 0, faker.address().latitude(), faker.address().longitude(), faker.address().fullAddress(), UserType.USER, 0);
+            var u = new User(null, username, email, bio, new HashSet<>(chooseManyBetween(tags, (int) randomLongBetween(0, 3))), 0, faker.address().latitude(), faker.address().longitude(), faker.address().fullAddress(), UserType.USER, 0);
             u.setPassword(encodedPw);
             return u;
         }).collect(Collectors.toList());
@@ -458,6 +466,12 @@ class LoadDatabase {
 
     private <T> T chooseBetween(List<T> items) {
         return items.get((int) randomLongBetween(0, items.size()));
+    }
+
+    private <T> List<T> chooseManyBetween(List<T> items, int count) {
+        final var copy = new ArrayList<>(items);
+        Collections.shuffle(copy);
+        return copy.subList(0, Math.min(count, copy.size()));
     }
 
     private List<User> setCreatedForUsers(List<User> users, UserRepository userRepository) {
@@ -475,5 +489,130 @@ class LoadDatabase {
                 new Tag("education"),
                 new Tag("nature"))
         );
+    }
+
+    private int generateServiceCount(User user) {
+        final var userAgeMillis = new Date().toInstant().toEpochMilli() - user.getCreated().toInstant().toEpochMilli();
+        final var userAgeWeeks = userAgeMillis / (1000 * 60 * 60 * 24 * 7);
+        return (int) randomLongBetween(0, Math.max(userAgeWeeks, 1));
+    }
+
+    private Service generateService(User user, Faker faker, List<Tag> tags) {
+        final var tagPool = new ArrayList<>(user.getTags());
+        tagPool.addAll(tags);
+        final var pickedTags = chooseManyBetween(tagPool, faker.random().nextBoolean() ? 1 : 2);
+        final var mainTag = pickedTags.get(0);
+
+        final var isPhysical = faker.random().nextBoolean();
+        String title = "";
+        String subtitle = "";
+        switch (mainTag.getName()) {
+            case "movies":
+                var chosenPair = chooseBetween(List.of(
+                        Pair.of(faker.backToTheFuture().character(), faker.backToTheFuture().quote()),
+                        Pair.of(faker.princessBride().character(), faker.princessBride().quote()),
+                        Pair.of(faker.rickAndMorty().character(), faker.rickAndMorty().quote()),
+                        Pair.of(faker.harryPotter().character(), faker.harryPotter().quote()),
+                        Pair.of(faker.hitchhikersGuideToTheGalaxy().character(), faker.hitchhikersGuideToTheGalaxy().quote()),
+                        Pair.of(faker.lebowski().character(), faker.lebowski().quote()),
+                        Pair.of(faker.leagueOfLegends().champion(), faker.leagueOfLegends().quote()),
+                        Pair.of(faker.starTrek().character(), "And " + faker.starTrek().specie() + " in " + faker.starTrek().location() + "."),
+                        Pair.of(faker.twinPeaks().character(), faker.twinPeaks().quote()),
+                        Pair.of(faker.zelda().character(), faker.zelda().game())
+                    )
+                );
+
+                title = chosenPair.getLeft() + " " + chooseBetween(List.of("Appreciation Day", "Analysis", "Lessons"));
+                subtitle = chosenPair.getRight();
+                break;
+            case "arts":
+                chosenPair = chooseBetween(List.of(
+                        Pair.of(faker.artist().name() + " Discussions", "And their ties to the making of " + faker.book().title()),
+                        Pair.of("A Critique of " + faker.book().author(), "I'll teach you how to be better than that."),
+                        Pair.of(faker.book().genre() + " Critical Reading Lessons", "So you can author the next " + faker.book().title()),
+                        Pair.of(faker.color().name() + " Masterclass", "To command the palette, one must first command oneself."),
+                        Pair.of(faker.nation().capitalCity() + " Culture Lessons", "To understand them better :)")
+                    )
+                );
+
+                title = chosenPair.getLeft();
+                subtitle = chosenPair.getRight();
+                break;
+            case "sports":
+                chosenPair = chooseBetween(List.of(
+                            Pair.of(faker.esports().event() + " Recap", "We'll discuss how " + faker.esports().team() + " lost horribly."),
+                            Pair.of(faker.nation().flag() + " vs. " + faker.nation().flag(), "Let's see who'll win!")
+                    )
+                );
+
+                title = chosenPair.getLeft();
+                subtitle = chosenPair.getRight();
+                break;
+            case "comedy":
+                title = chooseBetween(List.of("Comedy Lessons for " + faker.funnyName().name(), faker.funnyName().name()));
+                subtitle = "Haha not everyone is as funny as I am ;;)))";
+                break;
+            case "misc":
+                var topic = chooseBetween(List.of(faker.pokemon().name(), faker.pokemon().location(), faker.finance().creditCard(), faker.princessBride().character()));
+                title = topic + " " + chooseBetween(List.of("Appreciation", "Analysis", "Review", "Discussion"));
+                subtitle = "To master our topic, " + topic + ".";
+                break;
+            case "education":
+                final var uni = faker.university().name();
+                final var country = faker.country().name();
+
+                title = chooseBetween(List.of(uni, country)) + chooseBetween(List.of(" Exam Prep", " Education Coaching", " Higher Edu. Review"));
+                subtitle = "After all, " + uni + " is one of the best schools in " + uni + ". Not to mention " + faker.address().cityName() + " universities.";
+                break;
+            case "nature":
+                final var city = chooseBetween(List.of(faker.address().cityName(), faker.address().cityPrefix(), faker.address().city()));
+                final var activity = chooseBetween(List.of("Nature Tour", "Park Hopping", "Park Review", "Chill Walk Group"));
+
+                title = chooseBetween(List.of(activity + " of " + city, city + " " + activity));
+                subtitle = "After all, we shouldn't take " + city + "'s beauty for granted!!";
+                break;
+        }
+
+        if (isPhysical) {
+            return Service.createPhysical(
+                null,
+                title,
+                subtitle,
+                faker.address().fullAddress(),
+                randomDate(user.getCreated(), new Date()).toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDateTime(),
+                (int) randomLongBetween(10, 160),
+                (int) randomLongBetween(1, 10),
+                0,
+                user,
+                Double.valueOf(faker.address().latitude()), Double.valueOf(faker.address().longitude()),
+                new HashSet<>(pickedTags)
+            );
+        } else {
+
+            return Service.createOnline(
+                null,
+                title,
+                subtitle,
+                "zoom.us/" + faker.random().hex(),
+                randomDate(user.getCreated(), new Date()).toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime(),
+                (int) randomLongBetween(10, 160),
+                (int) randomLongBetween(1, 10),
+                0,
+                user,
+                new HashSet<>(pickedTags)
+            );
+        }
+    }
+
+    private List<Service> createServices(ServiceRepository repository, List<User> users, Faker faker, List<Tag> tags) {
+        final var services = users.stream()
+                .parallel()
+                .flatMap(user -> IntStream.range(0, generateServiceCount(user)).mapToObj(i -> generateService(user, faker, tags)))
+                .collect(Collectors.toUnmodifiableList());
+        return repository.saveAll(services);
     }
 }
