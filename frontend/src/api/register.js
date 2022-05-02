@@ -19,8 +19,8 @@ export default {
             return http.get(process.env.VUE_APP_API + 'user/' + id, null, true)
 
     },
-    CreateService(data) {
-        return http.post(process.env.VUE_APP_API + 'service', data, true, null, "Create Service Successful")
+    CreateService(data, successMessage) {
+        return http.post(process.env.VUE_APP_API + 'service', data, true, null, successMessage)
     },
     GetService(id) {
         return http.get(process.env.VUE_APP_API + 'service/' + id, null, true)

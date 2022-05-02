@@ -210,7 +210,7 @@ export default {
     },
     SendService() {
       console.log("Send service started");
-      apiRegister.CreateService(this.serviceData).then((r) => {
+      apiRegister.CreateService(this.serviceData, "Successfully edited service.").then((r) => {
         console.log("Send service ok");
         document.location.href = "#/service/" + r;
       });

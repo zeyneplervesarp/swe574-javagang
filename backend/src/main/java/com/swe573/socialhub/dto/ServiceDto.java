@@ -14,7 +14,7 @@ public class ServiceDto implements Serializable {
     private final Long id;
     private final String Header;
     private final String Description;
-    private final LocationType LocationType;
+    private LocationType LocationType;
     private final String Location;
     private final LocalDateTime Time;
     private final int Minutes;
@@ -142,6 +142,10 @@ public class ServiceDto implements Serializable {
 
     public Long getFlagCount() {
         return flagCount;
+    }
+
+    public void setLocationType(com.swe573.socialhub.enums.LocationType locationType) {
+        LocationType = locationType;
     }
 
     @Override
