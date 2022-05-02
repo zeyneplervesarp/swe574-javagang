@@ -82,7 +82,7 @@ public class ServiceController {
 
 
     @PostMapping
-    public ResponseEntity<Long> upsertService(Principal principal, @Validated @RequestBody ServiceDto service) {
+    public ResponseEntity<Long> upsertService(Principal principal, @RequestBody ServiceDto service) {
         try {
             var result = serviceService.upsert(principal, service);
             return ResponseEntity.ok().body(result);

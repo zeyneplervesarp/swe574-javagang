@@ -150,6 +150,8 @@ public class ServiceService {
         }
     }
 
+    private static final int MAX_CREDIT_LIMIT = 500;
+
     @Transactional
     public Long upsert(Principal principal, ServiceDto dto) {
         //check token => if username is null, throw an error
@@ -179,7 +181,7 @@ public class ServiceService {
                 //check pending credits and balance if the sum is above 20 => throw an error
                 var currentUserBalance = userService.getBalanceToBe(loggedInUser);
                 var balanceToBe = currentUserBalance + dto.getMinutes();
-                if (balanceToBe >= 20)
+                if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
 
 
