@@ -372,6 +372,7 @@ class LoadDatabase {
                     .stream()
                     .map(userIdMap::get)
                     .filter(u -> u.getCreated().toInstant().toEpochMilli() < svc.getCreated().toInstant().toEpochMilli())
+                    .filter(u -> !u.getId().equals(svc.getCreatedUser().getId()))
                     .limit(totalRequestorsToRecv)
                     .collect(Collectors.toList());
 
