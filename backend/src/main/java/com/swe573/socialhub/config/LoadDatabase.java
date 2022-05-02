@@ -787,6 +787,18 @@ class LoadDatabase {
         return repository.saveAll(updated);
     }
 
+    private List<Rating> simulateRatings(
+            List<UserServiceApproval> approvals
+    ) {
+        return approvals
+                .parallelStream()
+                .filter(usa -> LocalDateTime.now().isAfter(usa.getService().getTime().plusMinutes(usa.getService().getCredit())))
+                .filter(usa -> usa.getApprovalStatus().equals(ApprovalStatus.APPROVED))
+                .map(usa -> new Rating(usa.getService(), (int) randomLongBetween(2, 6), usa.getUser()))
+                .collect(Collectors.toUnmodifiableList());
+
+    }
+
     private List<Notification> simulateNotifications(
             List<UserServiceApproval> approvals,
             List<UserFollowing> followGraph,
