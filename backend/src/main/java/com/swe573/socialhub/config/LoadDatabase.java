@@ -787,6 +787,25 @@ class LoadDatabase {
         return repository.saveAll(updated);
     }
 
+    private long makeLoginCount(User user) {
+        final var userAgeMillis = new Date().toInstant().toEpochMilli() - user.getCreated().toInstant().toEpochMilli();
+        final var userAgeDays = userAgeMillis / (1000 * 60 * 60 * 24);
+        return 1 + LongStream.range(0, userAgeDays).map(i -> randomLongBetween(0, 2)).sum();
+    }
+
+    private List<LoginAttempt> simulateLoginAttempts(
+            List<User> users
+    ) {
+        return users
+                .parallelStream()
+                .flatMap(user -> LongStream
+                        .range(0, makeLoginCount(user))
+                        .mapToObj(i -> new LoginAttempt(null, user.getUsername(), LoginAttemptType.SUCCESSFUL, randomDate(user.getCreated(), new Date())))
+                )
+                .collect(Collectors.toUnmodifiableList());
+
+    }
+
     private List<Rating> simulateRatings(
             List<UserServiceApproval> approvals
     ) {
