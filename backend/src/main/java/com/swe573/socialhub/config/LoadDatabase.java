@@ -20,13 +20,17 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 @Profile("!test")
 @Configuration
@@ -57,8 +61,9 @@ class LoadDatabase {
             final var tags = createTags(tagRepository);
             final var faker = new Faker();
             final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 500, tags), userRepository);
-            final var svcs = createServices(serviceRepository, users, faker, tags);
+            final var svcs = setCreatedForServices(createServices(serviceRepository, users, faker, tags), serviceRepository);
             final var followGraph = setCreated(makeFollowerGraph(users, userFollowingRepository), userFollowingRepository);
+            // TODO: set service handshakes/badges/user balances/reputation
             System.out.println("Created " + svcs.size() + " services.");
             System.out.println("Created " + followGraph.size() + " UserFollowing.");
 
@@ -660,5 +665,86 @@ class LoadDatabase {
         return repository.saveAll(updated);
     }
 
+    private List<Service> setCreatedForServices(List<Service> services, ServiceRepository repository) {
+        final var list = services.parallelStream().peek(svc -> {
+            final var minDate = new Date(Math.max(svc.getCreatedUser().getCreated().toInstant().toEpochMilli(), svc.getTime().minusMonths(1).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+            final var maxDate = Date.from(svc.getTime().atZone(ZoneId.systemDefault()).toInstant());
+            svc.setCreated(randomDate(minDate, maxDate));
+        }).collect(Collectors.toUnmodifiableList());
+
+        return repository.saveAll(list);
+    }
+
+    private static final double USER_SERVICE_REJECTION_RATE = 0.1;
+
+    private List<UserServiceApproval> makeServiceRequestGraph(List<UserFollowing> followGraph, List<User> users, List<Service> services) {
+        final var userComparator = Comparator.comparing(User::getCreated);
+
+        final var usersSortedByCreated = new ArrayList<>(users);
+        usersSortedByCreated.sort(userComparator);
+
+        final Map<Long, User> userIdMap = new HashMap<>();
+        users.forEach(u -> {
+            userIdMap.put(u.getId(), u);
+
+        });
+
+        final Map<Long, Set<Long>> followersOfUsers = new HashMap<>();
+        followGraph.forEach(f -> {
+            final var targetSet = followersOfUsers.getOrDefault(f.getFollowedUser().getId(), new HashSet<>());
+            targetSet.add(f.getFollowingUser().getId());
+            followersOfUsers.put(f.getFollowedUser().getId(), targetSet);
+        });
+
+        return services.parallelStream().flatMap(svc -> {
+            final var userFollowers = followersOfUsers.get(svc.getCreatedUser().getId());
+            final var svcLiveEpochMilli = svc.getTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - svc.getCreated().toInstant().toEpochMilli();
+            final var svcLiveDays = svcLiveEpochMilli / 1000L * 60L * 60L * 24L;
+            final var totalRequestorsToRecv = Math.min(randomLongBetween(0, Math.max(1, svcLiveDays) * 3), svc.getQuota() + 2L);
+
+            if (totalRequestorsToRecv < 1) {
+                return Stream.empty();
+            }
+            final var requestorCandidates = userFollowers
+                    .stream()
+                    .map(userIdMap::get)
+                    .filter(u -> u.getCreated().toInstant().toEpochMilli() < svc.getCreated().toInstant().toEpochMilli())
+                    .limit(totalRequestorsToRecv)
+                    .collect(Collectors.toList());
+
+
+                var firstMatchIndex = -1;
+                for (int i = 0; i < usersSortedByCreated.size(); i++) {
+                    // TODO: binary search would work better here
+                    var user = usersSortedByCreated.get(i);
+                    if (user.getCreated().toInstant().toEpochMilli() < svc.getCreated().toInstant().toEpochMilli()) {
+                        firstMatchIndex = i;
+                        break;
+                    }
+                }
+
+                if (firstMatchIndex != -1) {
+                    var possibleIndices = IntStream.rangeClosed(firstMatchIndex, usersSortedByCreated.size()).boxed().collect(Collectors.toList());
+                    Collections.shuffle(possibleIndices);
+
+                    for (int i = 0; i < totalRequestorsToRecv && i < possibleIndices.size(); i++) {
+                        requestorCandidates.add(usersSortedByCreated.get(possibleIndices.get(i)));
+                    }
+                }
+
+
+            Collections.shuffle(requestorCandidates);
+
+
+            return requestorCandidates.stream().limit(totalRequestorsToRecv).map(cand -> {
+
+                final var app = new UserServiceApproval();
+                app.setService(svc);
+                app.setUser(cand);
+                return app;
+            });
+        }).collect(Collectors.toUnmodifiableList());
+
+    }
 
 }
