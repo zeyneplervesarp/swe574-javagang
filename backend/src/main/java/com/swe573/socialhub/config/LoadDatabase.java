@@ -739,6 +739,7 @@ class LoadDatabase {
             return requestorCandidates.stream().limit(totalRequestorsToRecv).map(cand -> {
 
                 final var app = new UserServiceApproval();
+                app.setApprovalStatus(ApprovalStatus.PENDING);
                 app.setService(svc);
                 app.setUser(cand);
                 return app;
