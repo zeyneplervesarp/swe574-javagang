@@ -59,9 +59,11 @@ class LoadDatabase {
             final var started = Instant.now();
             System.out.println("Initial db loading started.");
 
+            final var userCount = 10;
+
             final var tags = createTags(tagRepository);
             final var faker = new Faker();
-            final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 500, tags), userRepository);
+            final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, userCount, tags), userRepository);
             final var svcs = setCreatedForServices(createServices(serviceRepository, users, faker, tags), serviceRepository);
             final var followGraph = setCreated(makeFollowerGraph(users, userFollowingRepository), userFollowingRepository);
             final var requestGraph = setDatesAndOutcome(makeServiceRequestGraph(followGraph, users, svcs, approvalRepository), approvalRepository);
@@ -88,7 +90,7 @@ class LoadDatabase {
             System.out.println("Created " + simulatedSvcResults.loginAttempts.size() + " login attempts.");
             System.out.println("Created " + simulatedSvcResults.notifications.size() + " notifications.");
             System.out.println("Created " + simulatedSvcResults.ratings.size() + " ratings.");
-            System.out.println("Initial db loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds.");
+            System.out.println("Initial db loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds. Requested user count: " + userCount + ".");
         };
     }
 
@@ -97,6 +99,7 @@ class LoadDatabase {
     private Date randomDate(Date min, Date max) {
         final var minMillis = min.toInstant().toEpochMilli();
         final var maxMillis = max.toInstant().toEpochMilli();
+        if (maxMillis == minMillis) return min;
         return new Date(randomLongBetween(minMillis, maxMillis));
     }
 
