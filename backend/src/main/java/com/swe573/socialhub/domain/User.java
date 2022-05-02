@@ -15,6 +15,8 @@ public class User {
     Long id;
     private String username;
     private String email;
+
+    @Column(columnDefinition = "TEXT")
     private String bio;
     private String latitude;
     private String longitude;
@@ -26,10 +28,10 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     private Set<Tag> userTags;
-    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL)
     private Set<Service> createdServices;
 
-    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL)
     private Set<Event> createdEvents;
     @OneToMany(mappedBy = "user")
     Set<UserServiceApproval> serviceApprovalSet;
@@ -37,17 +39,17 @@ public class User {
     @OneToMany(mappedBy = "user")
     Set<UserEventApproval> eventApprovalSet;
     private Integer balance;
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     Set<Notification> notificationSet;
-    @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL)
     Set<UserFollowing> followingUsers;
-    @OneToMany(mappedBy = "followedUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "followedUser", cascade = CascadeType.ALL)
     Set<UserFollowing> followedBy;
 
     @OneToMany(mappedBy = "rater")
     private Set<Rating> ratings;
     private UserType userType;
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     Set<Badge> badges;
 
     private int reputationPoint;

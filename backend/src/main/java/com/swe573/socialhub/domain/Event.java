@@ -55,7 +55,7 @@ public class Event {
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
     Set<Tag> eventTags;
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     Set<UserEventApproval> approvalSet;
 
     @CreationTimestamp
