@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -590,9 +591,7 @@ class LoadDatabase {
                 title,
                 subtitle,
                 faker.address().fullAddress(),
-                randomDate(user.getCreated(), new Date()).toInstant()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDateTime(),
+                fromDate(randomDate(user.getCreated(), new Date())),
                 (int) randomLongBetween(10, 160),
                 (int) randomLongBetween(1, 10),
                 0,
@@ -607,9 +606,7 @@ class LoadDatabase {
                 title,
                 subtitle,
                 "zoom.us/" + faker.random().hex(),
-                randomDate(user.getCreated(), new Date()).toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime(),
+                fromDate(randomDate(user.getCreated(), new Date())),
                 (int) randomLongBetween(10, 160),
                 (int) randomLongBetween(1, 10),
                 0,
@@ -617,6 +614,16 @@ class LoadDatabase {
                 new HashSet<>(pickedTags)
             );
         }
+    }
+
+    private LocalDateTime fromDate(Date date) {
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
+    private Date fromLocalDateTime(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     private List<Service> createServices(ServiceRepository repository, List<User> users, Faker faker, List<Tag> tags) {
@@ -669,8 +676,8 @@ class LoadDatabase {
 
     private List<Service> setCreatedForServices(List<Service> services, ServiceRepository repository) {
         final var list = services.parallelStream().peek(svc -> {
-            final var minDate = new Date(Math.max(svc.getCreatedUser().getCreated().toInstant().toEpochMilli(), svc.getTime().minusMonths(1).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-            final var maxDate = Date.from(svc.getTime().atZone(ZoneId.systemDefault()).toInstant());
+            final var minDate = new Date(Math.max(svc.getCreatedUser().getCreated().toInstant().toEpochMilli(), fromLocalDateTime(svc.getTime().minusMonths(1)).toInstant().toEpochMilli()));
+            final var maxDate = fromLocalDateTime(svc.getTime());
             svc.setCreated(randomDate(minDate, maxDate));
         }).collect(Collectors.toUnmodifiableList());
 
@@ -700,7 +707,7 @@ class LoadDatabase {
 
         final var approvals = services.parallelStream().flatMap(svc -> {
             final var userFollowers = followersOfUsers.get(svc.getCreatedUser().getId());
-            final var svcLiveEpochMilli = svc.getTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - svc.getCreated().toInstant().toEpochMilli();
+            final var svcLiveEpochMilli = fromLocalDateTime(svc.getTime()).toInstant().toEpochMilli() - svc.getCreated().toInstant().toEpochMilli();
             final var svcLiveDays = svcLiveEpochMilli / 1000L * 60L * 60L * 24L;
             final var totalRequestorsToRecv = Math.min(randomLongBetween(0, Math.max(1, svcLiveDays) * 3), svc.getQuota() + 2L);
 
@@ -756,22 +763,160 @@ class LoadDatabase {
     }
 
     private List<UserServiceApproval> setDatesAndOutcome(List<UserServiceApproval> userServiceApprovals, UserServiceApprovalRepository repository) {
-        final var updated = userServiceApprovals.parallelStream().peek(usa -> {
+        final var svcQuotaMap = new HashMap<Long, Integer>();
+        userServiceApprovals.forEach(usa -> {
+            svcQuotaMap.put(usa.getService().getId(), usa.getService().getQuota());
+        });
+
+        final var updated = userServiceApprovals.stream().peek(usa -> {
 
             final var svcCreated = usa.getService().getCreated();
-            final var svcTime = new Date(usa.getService().getTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            final var svcTime = fromLocalDateTime(usa.getService().getTime());
             usa.setCreated(randomDate(svcCreated, svcTime));
             final var outcomeDate = randomDate(usa.getCreated(), svcTime);
             final var outcome = ((double) randomLongBetween(0, 100) / 100) > USER_SERVICE_REJECTION_RATE;
-            if (outcome) {
+            if (outcome && svcQuotaMap.get(usa.getService().getId()) > 0) {
                 usa.setApprovalStatus(ApprovalStatus.APPROVED);
                 usa.setApprovedDate(outcomeDate);
+                svcQuotaMap.put(usa.getService().getId(), svcQuotaMap.get(usa.getService().getId()) - 1);
             } else {
                 usa.setApprovalStatus(ApprovalStatus.DENIED);
                 usa.setDeniedDate(outcomeDate);
             }
         }).collect(Collectors.toUnmodifiableList());
         return repository.saveAll(updated);
+    }
+
+    private List<Notification> simulateNotifications(
+            List<UserServiceApproval> approvals,
+            List<UserFollowing> followGraph,
+            List<Service> services
+    ) {
+        final var followNotifications = followGraph
+                .parallelStream()
+                .map(fg ->  new Notification(
+                        null,
+                        "You are being followed by " + fg.getFollowingUser().getUsername(),
+                        "/profile/" + fg.getFollowingUser().getUsername(),
+                        true,
+                        fg.getFollowedUser(),
+                        fromDate(fg.getCreated()))
+                ).collect(Collectors.toUnmodifiableList());
+
+
+
+        final var usaNotifications = approvals
+                .parallelStream()
+                .flatMap(usa -> {
+                    final var service = usa.getService();
+                    final var serviceApplicant = usa.getUser();
+                    final var svcUrl = "/service/" + service.getId();
+
+                    final var creationNotification = new Notification(
+                            null,
+                            "Hooray! There is a new request for " + service.getHeader() + " by " + serviceApplicant.getUsername(),
+                            svcUrl,
+                            true,
+                            service.getCreatedUser(),
+                            fromDate(usa.getCreated())
+                    );
+                    final var collector = new ArrayList<>(List.of(creationNotification));
+                    switch (usa.getApprovalStatus()) {
+                        case APPROVED:
+                            collector.add(new Notification(
+                                    null,
+                                    "Your request for service " + service.getHeader() + " has been " + usa.getApprovalStatus().name().toLowerCase(),
+                                    svcUrl,
+                                    true,
+                                    serviceApplicant,
+                                    fromDate(usa.getApprovedDate())
+                            ));
+
+                            collector.add(new Notification(
+                                    null,
+                                    "Your request for service " + service.getHeader() + " has been " + usa.getApprovalStatus().name().toLowerCase(),
+                                    svcUrl,
+                                    true,
+                                    serviceApplicant,
+                                    fromDate(usa.getApprovedDate())
+                            ));
+
+                            final var svcEndTime = service.getTime().plusMinutes(service.getCredit());
+                            if (svcEndTime.isBefore(LocalDateTime.now())) {
+                                // service is over
+
+                                collector.add(new Notification(
+                                        null,
+                                        "It looks like " + service.getHeader() + " has been over. Please confirm it to complete this service.",
+                                        svcUrl,
+                                        true,
+                                        serviceApplicant,
+                                        svcEndTime
+                                ));
+
+                                collector.add(new Notification(
+                                        null,
+                                        "The service " + service.getHeader() + " is complete. Your balance has been updated",
+                                        svcUrl,
+                                        true,
+                                        serviceApplicant,
+                                        svcEndTime
+                                ));
+                            }
+                            break;
+                        case DENIED:
+                            collector.add(new Notification(
+                                    null,
+                                    "Your request for service " + service.getHeader() + " has been denied.",
+                                    svcUrl,
+                                    true,
+                                    serviceApplicant,
+                                    fromDate(usa.getDeniedDate()))
+                            );
+                            break;
+                        case PENDING:
+                            break;
+                    }
+
+                    return collector.stream();
+
+                })
+                .collect(Collectors.toUnmodifiableList());
+
+        final var svcOverNotifications = services
+                .parallelStream()
+                .filter(svc -> LocalDateTime.now().isAfter(svc.getTime().plusMinutes(svc.getCredit())))
+                .map(service -> new Notification(
+                        null,
+                        "The service " + service.getHeader() + " is complete. Your balance has been updated",
+                        "/service/" + service.getId(),
+                        true,
+                        service.getCreatedUser(),
+                        service.getTime().plusMinutes(service.getCredit())
+                ))
+                .collect(Collectors.toUnmodifiableList());
+
+        return Stream.of(
+                followNotifications,
+                svcOverNotifications,
+                usaNotifications
+        ).flatMap(Collection::stream).collect(Collectors.toUnmodifiableList());
+    }
+
+    private static class SimulatedServiceResults {
+        final List<Badge> badges;
+        final List<User> updatedUsers;
+        final List<Notification> notifications;
+        final List<LoginAttempt> loginAttempts;
+        final List<Rating> ratings;
+
+        public SimulatedServiceResults(List<Badge> badges, List<User> updatedUsers, List<Notification> notifications, List<LoginAttempt> loginAttempts, List<Rating> ratings) {
+            this.badges = badges;
+            this.updatedUsers = updatedUsers;
+            this.notifications = notifications;
+            this.loginAttempts = loginAttempts;
+            this.ratings = ratings;
+        }
     }
 
 }
