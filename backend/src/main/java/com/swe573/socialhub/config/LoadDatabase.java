@@ -806,6 +806,45 @@ class LoadDatabase {
 
     }
 
+    private Pair<List<User>, List<Badge>> simulateBadgesAndReputation(
+            List<User> users,
+            List<UserServiceApproval> approvals,
+            List<Rating> ratings
+    ) {
+        final var userReputationMap = new HashMap<Long, Long>();
+        users.forEach(u -> userReputationMap.put(u.getId(), 10L));
+
+        ratings.forEach(r -> {
+            final var createdUserId = r.getService().getCreatedUser().getId();
+            userReputationMap.put(createdUserId, userReputationMap.get(createdUserId) + 5);
+            userReputationMap.put(r.getRater().getId(), userReputationMap.get(r.getRater().getId()) + 5);
+        });
+
+        final var userJoinedSvcCountMap = approvals
+                .parallelStream()
+                .filter(usa -> usa.getApprovalStatus().equals(ApprovalStatus.APPROVED))
+                .collect(Collectors.groupingBy(usa -> usa.getUser().getId()))
+                .entrySet()
+                .parallelStream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
+
+        final var badges = users
+                .parallelStream()
+                .map(user -> Pair.of(user, userJoinedSvcCountMap.get(user.getId())))
+                .filter(pair -> pair.getRight() < 10 || pair.getRight() >= 20)
+                .map(pair -> new Badge(pair.getLeft(), pair.getRight() >= 20 ? BadgeType.regular : BadgeType.newcomer))
+                .collect(Collectors.toList());
+
+        final var reputationUpdatedUsers = users
+                .parallelStream()
+                .peek(user -> {
+                    user.setReputationPoint(Math.toIntExact(userReputationMap.get(user.getId())));
+                })
+                .collect(Collectors.toUnmodifiableList());
+
+        return Pair.of(reputationUpdatedUsers, badges);
+    }
+
     private List<Rating> simulateRatings(
             List<UserServiceApproval> approvals
     ) {
