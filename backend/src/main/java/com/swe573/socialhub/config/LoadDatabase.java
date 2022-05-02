@@ -1,5 +1,6 @@
 package com.swe573.socialhub.config;
 
+import antlr.collections.impl.IntRange;
 import com.github.javafaker.Faker;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.domain.key.UserEventApprovalKey;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -56,7 +58,9 @@ class LoadDatabase {
             final var faker = new Faker();
             final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 500, tags), userRepository);
             final var svcs = createServices(serviceRepository, users, faker, tags);
+            final var followGraph = setCreated(makeFollowerGraph(users, userFollowingRepository), userFollowingRepository);
             System.out.println("Created " + svcs.size() + " services.");
+            System.out.println("Created " + followGraph.size() + " UserFollowing.");
 
 //
 //            saveLoginAttempts(loginAttemptRepository, users);
@@ -615,4 +619,46 @@ class LoadDatabase {
                 .collect(Collectors.toUnmodifiableList());
         return repository.saveAll(services);
     }
+
+    private int makeFollowerCount(User user) {
+        final var userAgeMillis = new Date().toInstant().toEpochMilli() - user.getCreated().toInstant().toEpochMilli();
+        final var userAgeWeeks = userAgeMillis / (1000 * 60 * 60 * 24 * 7);
+        return (int) randomLongBetween(0, Math.max(userAgeWeeks, 1));
+    }
+
+    private List<UserFollowing> makeFollowerGraph(List<User> users, UserFollowingRepository userFollowingRepository) {
+        final var copy = new ArrayList<>(users);
+        Collections.shuffle(copy);
+        final var userQueue = new LinkedList<>(copy);
+
+        return userFollowingRepository.saveAll(
+                users.stream()
+                        .flatMap(user -> IntStream.range(0, makeFollowerCount(user)).mapToObj(i -> {
+                            var nextUser = userQueue.poll();
+                            if (nextUser == null || nextUser.getId().equals(user.getId())) {
+                                userQueue.addAll(copy);
+                                nextUser = userQueue.poll();
+                            }
+
+                            var follow = new UserFollowing();
+                            follow.setFollowedUser(user);
+                            follow.setFollowingUser(nextUser);
+                            return follow;
+                        })).collect(Collectors.toUnmodifiableList())
+        ) ;
+    }
+
+    private List<UserFollowing> setCreated(List<UserFollowing> followerGraph, UserFollowingRepository repository) {
+        final var updated = followerGraph.stream().parallel().peek(uf -> {
+            final var date1 = uf.getFollowedUser().getCreated();
+            final var date2 = uf.getFollowingUser().getCreated();
+            final var minDate = new Date(Math.min(date1.toInstant().toEpochMilli(), date2.toInstant().toEpochMilli()));
+            final var maxDate = new Date(Math.max(date1.toInstant().toEpochMilli(), date2.toInstant().toEpochMilli()));
+            uf.setCreated(randomDate(minDate, maxDate));
+        }).collect(Collectors.toUnmodifiableList());
+
+        return repository.saveAll(updated);
+    }
+
+
 }
