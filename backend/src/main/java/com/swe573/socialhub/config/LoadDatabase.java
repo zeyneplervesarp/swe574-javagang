@@ -63,9 +63,11 @@ class LoadDatabase {
             final var users = setCreatedForUsers(createUsers(userRepository, passwordEncoder, faker, 500, tags), userRepository);
             final var svcs = setCreatedForServices(createServices(serviceRepository, users, faker, tags), serviceRepository);
             final var followGraph = setCreated(makeFollowerGraph(users, userFollowingRepository), userFollowingRepository);
+            final var requestGraph = setDatesAndOutcome(makeServiceRequestGraph(followGraph, users, svcs, approvalRepository), approvalRepository);
             // TODO: set service handshakes/badges/user balances/reputation
             System.out.println("Created " + svcs.size() + " services.");
             System.out.println("Created " + followGraph.size() + " UserFollowing.");
+            System.out.println("Created " + requestGraph.size() + " join requests.");
 
 //
 //            saveLoginAttempts(loginAttemptRepository, users);
@@ -677,7 +679,7 @@ class LoadDatabase {
 
     private static final double USER_SERVICE_REJECTION_RATE = 0.1;
 
-    private List<UserServiceApproval> makeServiceRequestGraph(List<UserFollowing> followGraph, List<User> users, List<Service> services) {
+    private List<UserServiceApproval> makeServiceRequestGraph(List<UserFollowing> followGraph, List<User> users, List<Service> services, UserServiceApprovalRepository repository) {
         final var userComparator = Comparator.comparing(User::getCreated);
 
         final var usersSortedByCreated = new ArrayList<>(users);
@@ -696,7 +698,7 @@ class LoadDatabase {
             followersOfUsers.put(f.getFollowedUser().getId(), targetSet);
         });
 
-        return services.parallelStream().flatMap(svc -> {
+        final var approvals = services.parallelStream().flatMap(svc -> {
             final var userFollowers = followersOfUsers.get(svc.getCreatedUser().getId());
             final var svcLiveEpochMilli = svc.getTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - svc.getCreated().toInstant().toEpochMilli();
             final var svcLiveDays = svcLiveEpochMilli / 1000L * 60L * 60L * 24L;
@@ -705,7 +707,8 @@ class LoadDatabase {
             if (totalRequestorsToRecv < 1) {
                 return Stream.empty();
             }
-            final var requestorCandidates = userFollowers
+            final var requestorCandidates = Optional.ofNullable(userFollowers)
+                    .orElse(new HashSet<>())
                     .stream()
                     .map(userIdMap::get)
                     .filter(u -> u.getCreated().toInstant().toEpochMilli() < svc.getCreated().toInstant().toEpochMilli())
@@ -724,7 +727,7 @@ class LoadDatabase {
                 }
 
                 if (firstMatchIndex != -1) {
-                    var possibleIndices = IntStream.rangeClosed(firstMatchIndex, usersSortedByCreated.size()).boxed().collect(Collectors.toList());
+                    var possibleIndices = IntStream.rangeClosed(firstMatchIndex, usersSortedByCreated.size() - 1).boxed().collect(Collectors.toList());
                     Collections.shuffle(possibleIndices);
 
                     for (int i = 0; i < totalRequestorsToRecv && i < possibleIndices.size(); i++) {
@@ -739,6 +742,9 @@ class LoadDatabase {
             return requestorCandidates.stream().limit(totalRequestorsToRecv).map(cand -> {
 
                 final var app = new UserServiceApproval();
+                final var key = new UserServiceApprovalKey(cand.getId(), svc.getId());
+                app.setId(key);
+
                 app.setApprovalStatus(ApprovalStatus.PENDING);
                 app.setService(svc);
                 app.setUser(cand);
@@ -746,6 +752,26 @@ class LoadDatabase {
             });
         }).collect(Collectors.toUnmodifiableList());
 
+        return repository.saveAll(approvals);
+    }
+
+    private List<UserServiceApproval> setDatesAndOutcome(List<UserServiceApproval> userServiceApprovals, UserServiceApprovalRepository repository) {
+        final var updated = userServiceApprovals.parallelStream().peek(usa -> {
+
+            final var svcCreated = usa.getService().getCreated();
+            final var svcTime = new Date(usa.getService().getTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            usa.setCreated(randomDate(svcCreated, svcTime));
+            final var outcomeDate = randomDate(usa.getCreated(), svcTime);
+            final var outcome = ((double) randomLongBetween(0, 100) / 100) > USER_SERVICE_REJECTION_RATE;
+            if (outcome) {
+                usa.setApprovalStatus(ApprovalStatus.APPROVED);
+                usa.setApprovedDate(outcomeDate);
+            } else {
+                usa.setApprovalStatus(ApprovalStatus.DENIED);
+                usa.setDeniedDate(outcomeDate);
+            }
+        }).collect(Collectors.toUnmodifiableList());
+        return repository.saveAll(updated);
     }
 
 }
