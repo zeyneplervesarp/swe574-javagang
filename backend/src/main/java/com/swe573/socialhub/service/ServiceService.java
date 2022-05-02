@@ -161,28 +161,35 @@ public class ServiceService {
 
         try {
             var entityExists = false;
-            if (dto.getId() != null)
-                entityExists = serviceRepository.findById(dto.getId()).isPresent();
+            if (dto.getId() != null) {
+                final var entityQuery = serviceRepository.findById(dto.getId());
+                if (entityQuery.isPresent()) {
+                    entityExists = true;
+                    dto.setLocationType(entityQuery.get().getLocationType());
+                }
+            }
             var entity = mapToEntity(dto);
 
+            entity.setCreatedUser(loggedInUser);
 
-                entity.setCreatedUser(loggedInUser);
-
-                var tags = dto.getServiceTags();
-                if (tags != null) {
-                    for (TagDto tagDto : tags) {
-                        var addedTag = tagRepository.findById(tagDto.getId());
-                        if (addedTag.isEmpty()) {
-                            throw new IllegalArgumentException("There is no tag with this Id.");
-                        }
-                        entity.addTag(addedTag.get());
+            var tags = dto.getServiceTags();
+            if (tags != null) {
+                for (TagDto tagDto : tags) {
+                    var addedTag = tagRepository.findById(tagDto.getId());
+                    if (addedTag.isEmpty()) {
+                        throw new IllegalArgumentException("There is no tag with this Id.");
                     }
+                    entity.addTag(addedTag.get());
                 }
+            }
+
+            if (!entityExists) {
                 //check pending credits and balance if the sum is above 20 => throw an error
                 var currentUserBalance = userService.getBalanceToBe(loggedInUser);
                 var balanceToBe = currentUserBalance + dto.getMinutes();
                 if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
+            }
 
 
             if (entityExists)
