@@ -33,8 +33,89 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
             .mapToInt(c -> c.weight)
             .sum();
 
-    public Map<Long, Double> assignScores(List<Service> services) {
+    private final int serviceWeightTotal = Arrays
+            .stream(PrioritizationCriterion.values())
+            .filter(c -> c.applicableTypes.contains(SearchMatchType.SERVICE))
+            .mapToInt(c -> c.weight)
+            .sum();
 
+    public Map<Long, Double> assignScores(List<Service> services, User user) {
+        final var userPrioritizationParams = getPrioritizationParams(user);
+        final var map = new HashMap<Long, Double>();
+
+        services.forEach(s -> {
+            final var score = findScore(
+                    s,
+                    userPrioritizationParams,
+                    Arrays.stream(PrioritizationCriterion.values())
+                            .filter(c -> c.applicableTypes.contains(SearchMatchType.SERVICE))
+                            .collect(Collectors.toUnmodifiableList())
+            );
+            map.put(s.getId(), score);
+        });
+
+        return map;
+    }
+
+    private double findScore(
+            Service service,
+            SearchPrioritizationParams userParams,
+            List<PrioritizationCriterion> criteria
+    ) {
+
+        final var serviceOwnerTags = service
+                .getCreatedUser()
+                .getTags()
+                .stream()
+                .map(Tag::getName)
+                .collect(Collectors.toUnmodifiableSet());
+
+        final var serviceTags = service
+                .getServiceTags()
+                .stream()
+                .map(Tag::getName)
+                .collect(Collectors.toUnmodifiableSet());
+
+        final var accumulatedScore = criteria.parallelStream()
+                .mapToDouble(c -> {
+                    PrioritizationScorer currentScorer = null;
+                    switch (c) {
+                        case NEWCOMER:
+                            break;
+                        case USER_PROFILE_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.profileTags, serviceTags);
+                            break;
+                        case FOLLOWING_USERS_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.followingUsersTags, serviceTags);
+                            break;
+                        case FOLLOWING_USERS_GIVEN_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.followingUsersCreatedServicesTags, serviceTags);
+                            break;
+                        case FOLLOWING_USERS_JOINED_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.followingUsersJoinedServicesTags, serviceTags);
+                            break;
+                        case RATING:
+                            break;
+                        case REPUTATION:
+                            break;
+                        case JOINED_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.joinedServicesTags, serviceTags);
+                            break;
+                        case CREATED_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.givenServicesTags, serviceTags);
+                            break;
+                        case PROXIMITY:
+                            break;
+                        case SERVICE_CREATION_DATE:
+                            break;
+                        case SERVICE_DATE:
+                            break;
+                    }
+                    return currentScorer.getScore() * c.weight;
+                })
+                .sum();
+
+        return (accumulatedScore * weightTotal) / serviceWeightTotal;
     }
 
     @Override
