@@ -29,7 +29,7 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
         this.ratingService = ratingService;
     }
 
-    public SearchPrioritizationParams getPrioritizationParams(User user) {
+    private SearchPrioritizationParams getPrioritizationParams(User user) {
         return prioritizationParamCache.getUnchecked(user.getId());
     }
 
