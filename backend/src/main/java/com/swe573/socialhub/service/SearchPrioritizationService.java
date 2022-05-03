@@ -135,7 +135,7 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
         public double getScore() {
             if (tagsToBeMatched.isEmpty() || candidateTags.isEmpty()) return 0;
 
-            final var intersection = new HashSet<>(candidateTags); // use the copy constructor
+            final var intersection = new HashSet<>(candidateTags);
             intersection.retainAll(tagsToBeMatched);
 
             return (double) intersection.size() / (double) candidateTags.size();
