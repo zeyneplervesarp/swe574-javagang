@@ -36,7 +36,8 @@ public class ActivityStreamService {
             ServiceRepository serviceRepository,
             EventRepository eventRepository,
             UserEventApprovalRepository eventApprovalRepository,
-            UserServiceApprovalRepository serviceApprovalRepository
+            UserServiceApprovalRepository serviceApprovalRepository,
+            UserFollowingRepository userFollowingRepository
     ) {
         this.userRepository = userRepository;
         final var successfulLoginAttemptRepository = new TimestampPaginatedRepository<>(new DateQueryableSuccessfulLoginAttemptRepository(loginAttemptRepository));
@@ -47,6 +48,7 @@ public class ActivityStreamService {
         final var tsServiceApprovalRepository = new TimestampPaginatedRepository<>(serviceApprovalRepository);
         final var eventApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableEventApprovalRepository(eventApprovalRepository));
         final var serviceApprovalTimestampPaginatedRepository = new TimestampPaginatedRepository<>(new ApprovedQueryableServiceApprovalRepository(serviceApprovalRepository));
+        final var tsUserFollowingPaginatedRepository = new TimestampPaginatedRepository<>(userFollowingRepository);
 
         this.mappers = Map.of(
                 FeedEvent.EVENT_CREATED, new EventCreatedActivityMapper(new RepositoryDataSource<>(eventTimestampPaginatedRepository)),
@@ -56,7 +58,8 @@ public class ActivityStreamService {
                 FeedEvent.EVENT_JOIN_APPROVED, new ApprovedEventActivityMapper(new RepositoryDataSource<>(eventApprovalTimestampPaginatedRepository)),
                 FeedEvent.SERVICE_JOIN_APPROVED, new ApprovedServiceActivityMapper(new RepositoryDataSource<>(serviceApprovalTimestampPaginatedRepository)),
                 FeedEvent.EVENT_JOIN_REQUESTED, new CreatedEventRequestActivityMapper(new RepositoryDataSource<>(tsEventApprovalRepository)),
-                FeedEvent.SERVICE_JOIN_REQUESTED, new CreatedServiceRequestActivityMapper(new RepositoryDataSource<>(tsServiceApprovalRepository))
+                FeedEvent.SERVICE_JOIN_REQUESTED, new CreatedServiceRequestActivityMapper(new RepositoryDataSource<>(tsServiceApprovalRepository)),
+                FeedEvent.FOLLOW, new FollowActivityMapper(new RepositoryDataSource<>(tsUserFollowingPaginatedRepository))
         );
     }
 
@@ -126,7 +129,6 @@ public class ActivityStreamService {
             return repository.findAllMatching(query);
         }
     }
-
 
     private static abstract class ActivityMapper<T> {
         public abstract TimestampPaginatedDataSource<T> getDataSource();
@@ -255,6 +257,23 @@ public class ActivityStreamService {
         }
     }
 
+    private class FollowActivityMapper extends RepositoryBasedActivityMapper<UserFollowing> {
+        public FollowActivityMapper(RepositoryDataSource<UserFollowing> dataSource) {
+            super(dataSource);
+        }
+
+        @Override
+        public Activity mapOne(UserFollowing object) {
+            return activity()
+                    .summary(new StringBuilder().append(object.getFollowingUser().getUsername()).append(" started following ").append(object.getFollowedUser().getUsername()).toString())
+                    .verb("follow")
+                    .actor(mapToObject(object.getFollowingUser()))
+                    .object((mapToObject(object.getFollowedUser())))
+                    .published(new DateTime(object.getCreated()))
+                    .get();
+        }
+    }
+
     private class UserLoginActivityMapper extends ActivityMapper<LoginAttempt> {
         private final TimestampPaginatedDataSource<LoginAttempt> dataSource;
         private final UserRepository repository;
@@ -306,6 +325,8 @@ public class ActivityStreamService {
                     .get();
         }
     }
+
+
 
     private Supplier<? extends LinkValue> mapToObject(User user) {
         var idString = user.getId().toString();
