@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 @org.springframework.stereotype.Service
 public class SearchPrioritizationService extends CacheLoader<Long, SearchPrioritizationService.SearchPrioritizationParams> {
 
-
     private final UserRepository userRepository;
     private final LoadingCache<Long, SearchPrioritizationParams> prioritizationParamCache = CacheBuilder.newBuilder()
             .expireAfterAccess(2, TimeUnit.MINUTES)
@@ -139,6 +138,28 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
             intersection.retainAll(tagsToBeMatched);
 
             return (double) intersection.size() / (double) candidateTags.size();
+        }
+    }
+
+    public enum PrioritizationCriterion {
+        NEWCOMER(7),
+        FOLLOWING_USERS_SERVICES_TAGS(10),
+        USER_PROFILE_TAGS(8),
+        FOLLOWING_USERS_TAGS(2),
+        FOLLOWING_USERS_GIVEN_SERVICES_TAGS(1),
+        FOLLOWING_USERS_JOINED_SERVICES_TAGS(1),
+        RATING(5),
+        REPUTATION(5),
+        JOINED_SERVICES_TAGS(9),
+        CREATED_SERVICES_TAGS(9),
+        PROXIMITY(10),
+        SERVICE_CREATION_DATE(7),
+        SERVICE_DATE(7);
+
+        final int weight;
+
+        PrioritizationCriterion(int weight) {
+            this.weight = weight;
         }
     }
 }
