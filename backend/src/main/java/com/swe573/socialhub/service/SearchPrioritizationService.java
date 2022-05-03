@@ -44,7 +44,13 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
             .mapToInt(c -> c.weight)
             .sum();
 
-    public Map<Long, Double> assignScores(List<Service> services, User user) {
+    private final int userWeightTotal = Arrays
+            .stream(PrioritizationCriterion.values())
+            .filter(c -> c.applicableTypes.contains(SearchMatchType.USER))
+            .mapToInt(c -> c.weight)
+            .sum();
+
+    public Map<Long, Double> assignScoresToServices(List<Service> services, User user) {
         final var userPrioritizationParams = getPrioritizationParams(user);
         final var map = new HashMap<Long, Double>();
 
@@ -60,6 +66,79 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
         });
 
         return map;
+    }
+
+    public Map<Long, Double> assignScoresToUsers(List<User> users, User user) {
+        final var userPrioritizationParams = getPrioritizationParams(user);
+        final var map = new HashMap<Long, Double>();
+
+        users.forEach(s -> {
+            final var score = findScore(
+                    s,
+                    userPrioritizationParams,
+                    Arrays.stream(PrioritizationCriterion.values())
+                            .filter(c -> c.applicableTypes.contains(SearchMatchType.USER))
+                            .collect(Collectors.toUnmodifiableList())
+            );
+            map.put(s.getId(), score);
+        });
+
+        return map;
+    }
+
+    private double findScore(
+            User user,
+            SearchPrioritizationParams userParams,
+            List<PrioritizationCriterion> criteria
+    ) {
+       final var userTags = user
+               .getUserTags()
+               .stream()
+               .map(Tag::getName)
+               .collect(Collectors.toUnmodifiableSet());
+        final var accumulatedScore = criteria.parallelStream()
+                .mapToDouble(c -> {
+                    PrioritizationScorer currentScorer = null;
+                    switch (c) {
+                        case NEWCOMER:
+                            currentScorer = new DateProximityScorer(user.getCreated());
+                            break;
+                        case USER_PROFILE_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.profileTags, userTags);
+                            break;
+                        case FOLLOWING_USERS_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.followingUsersTags, userTags);
+                            break;
+                        case FOLLOWING_USERS_GIVEN_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.followingUsersCreatedServicesTags, userTags);
+                            break;
+                        case FOLLOWING_USERS_JOINED_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.followingUsersJoinedServicesTags, userTags);
+                            break;
+                        case RATING:
+                            currentScorer = new RatingScorer(ratingService.getUserRatingSummary(user).getRatingAverage());
+                            break;
+                        case REPUTATION:
+                            currentScorer = new ReputationScorer(user.getReputationPoint());
+                            break;
+                        case JOINED_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.joinedServicesTags, userTags);
+                            break;
+                        case CREATED_SERVICES_TAGS:
+                            currentScorer = new TagPrioritizationScorer(userParams.givenServicesTags, userTags);
+                            break;
+                        // Unapplicable cases below, it's fine to throw an exception because it's likely a programming error
+                        case PROXIMITY:
+                        case SERVICE_CREATION_DATE:
+                        case SERVICE_DATE:
+                            break;
+                    }
+                    return currentScorer.getScore() * c.weight;
+                })
+                .sum();
+
+        return (accumulatedScore * weightTotal) / userWeightTotal;
+
     }
 
     private double findScore(
