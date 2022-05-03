@@ -126,9 +126,9 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
         private final List<String> tagsToBeMatched;
         private final List<String> candidateTags;
 
-        public TagPrioritizationScorer(List<String> tagGroupOne, List<String> tagGroupTwo) {
-            this.tagsToBeMatched = tagGroupOne;
-            this.candidateTags = tagGroupTwo;
+        public TagPrioritizationScorer(List<String> tagsToBeMatched, List<String> candidates) {
+            this.tagsToBeMatched = tagsToBeMatched;
+            this.candidateTags = candidates;
         }
 
         @Override
