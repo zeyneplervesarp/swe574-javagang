@@ -115,4 +115,8 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
             this.followingUsersJoinedServicesTags = followingUsersJoinedServicesTags;
         }
     }
+
+    interface PrioritizationScorer {
+        double getScore();
+    }
 }
