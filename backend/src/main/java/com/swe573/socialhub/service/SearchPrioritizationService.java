@@ -123,10 +123,10 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
     }
 
     private static class TagPrioritizationScorer implements PrioritizationScorer {
-        private final List<String> tagsToBeMatched;
-        private final List<String> candidateTags;
+        private final Set<String> tagsToBeMatched;
+        private final Set<String> candidateTags;
 
-        public TagPrioritizationScorer(List<String> tagsToBeMatched, List<String> candidates) {
+        public TagPrioritizationScorer(Set<String> tagsToBeMatched, Set<String> candidates) {
             this.tagsToBeMatched = tagsToBeMatched;
             this.candidateTags = candidates;
         }
