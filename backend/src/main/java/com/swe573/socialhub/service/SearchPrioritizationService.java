@@ -4,11 +4,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.swe573.socialhub.domain.*;
+import com.swe573.socialhub.enums.SearchMatchType;
 import com.swe573.socialhub.repository.UserRepository;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +26,15 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
 
     public SearchPrioritizationParams getPrioritizationParams(User user) {
         return prioritizationParamCache.getUnchecked(user.getId());
+    }
+
+    private final int weightTotal = Arrays
+            .stream(PrioritizationCriterion.values())
+            .mapToInt(c -> c.weight)
+            .sum();
+
+    public Map<Long, Double> assignScores(List<Service> services) {
+
     }
 
     @Override
@@ -142,24 +150,25 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
     }
 
     public enum PrioritizationCriterion {
-        NEWCOMER(7),
-        FOLLOWING_USERS_SERVICES_TAGS(10),
-        USER_PROFILE_TAGS(8),
-        FOLLOWING_USERS_TAGS(2),
-        FOLLOWING_USERS_GIVEN_SERVICES_TAGS(1),
-        FOLLOWING_USERS_JOINED_SERVICES_TAGS(1),
-        RATING(5),
-        REPUTATION(5),
-        JOINED_SERVICES_TAGS(9),
-        CREATED_SERVICES_TAGS(9),
-        PROXIMITY(10),
-        SERVICE_CREATION_DATE(7),
-        SERVICE_DATE(7);
+        NEWCOMER(7, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        USER_PROFILE_TAGS(8, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        FOLLOWING_USERS_TAGS(2, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        FOLLOWING_USERS_GIVEN_SERVICES_TAGS(10, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        FOLLOWING_USERS_JOINED_SERVICES_TAGS(1, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        RATING(5, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        REPUTATION(5, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        JOINED_SERVICES_TAGS(9, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        CREATED_SERVICES_TAGS(9, Set.of(SearchMatchType.USER, SearchMatchType.SERVICE)),
+        PROXIMITY(10, Set.of(SearchMatchType.SERVICE)),
+        SERVICE_CREATION_DATE(7, Set.of(SearchMatchType.SERVICE)),
+        SERVICE_DATE(7, Set.of(SearchMatchType.SERVICE));
 
         final int weight;
+        final Set<SearchMatchType> applicableTypes;
 
-        PrioritizationCriterion(int weight) {
+        PrioritizationCriterion(int weight, Set<SearchMatchType> applicableTypes) {
             this.weight = weight;
+            this.applicableTypes = applicableTypes;
         }
     }
 }
