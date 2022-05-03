@@ -67,14 +67,6 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
             SearchPrioritizationParams userParams,
             List<PrioritizationCriterion> criteria
     ) {
-
-        final var serviceOwnerTags = service
-                .getCreatedUser()
-                .getTags()
-                .stream()
-                .map(Tag::getName)
-                .collect(Collectors.toUnmodifiableSet());
-
         final var serviceTags = service
                 .getServiceTags()
                 .stream()
