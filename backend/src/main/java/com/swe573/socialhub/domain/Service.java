@@ -17,14 +17,14 @@ public class Service {
 
     }
     // constructor for physical services
-    private Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
         this.locationType = LocationType.Physical;
         this.location = location;
         this.time = time;
-        credit = minutes;
+        this.credit = hours;
         this.quota = quota;
         this.createdUser = createdUser;
         this.latitude = latitude;
@@ -36,14 +36,14 @@ public class Service {
     }
 
     // constructor for online services
-    private Service(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
         this.locationType = LocationType.Online;
         this.location = location;
         this.time = time;
-        credit = minutes;
+        this.credit = hours;
         this.quota = quota;
         this.createdUser = createdUser;
         this.attendingUserCount = attendingUserCount;
@@ -93,12 +93,12 @@ public class Service {
     private Date created;
 
 
-    public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
-        return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, serviceTags);
+    public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, hours, quota, attendingUserCount, createdUser, serviceTags);
     }
 
-    public static Service createPhysical(Long id, String header, String description, String location, LocalDateTime time, int minutes, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
-        return new Service(id, header, description, location, time, minutes, quota, attendingUserCount, createdUser, latitude, longitude, serviceTags);
+    public static Service createPhysical(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, hours, quota, attendingUserCount, createdUser, latitude, longitude, serviceTags);
     }
 
     public Date getCreated() {
