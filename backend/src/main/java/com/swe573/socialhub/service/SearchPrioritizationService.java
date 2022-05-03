@@ -3,12 +3,15 @@ package com.swe573.socialhub.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.swe573.socialhub.domain.User;
+import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.repository.UserRepository;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@org.springframework.stereotype.Service
 public class SearchPrioritizationService extends CacheLoader<Long, SearchPrioritizationService.SearchPrioritizationParams> {
 
 
@@ -27,7 +30,64 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
 
     @Override
     public SearchPrioritizationParams load(Long key) throws Exception {
-        return null;
+        final var user = userRepository.findById(key).get();
+        final var profileTags = user
+                .getTags()
+                .stream()
+                .map(Tag::getName)
+                .collect(Collectors.toUnmodifiableList());
+
+        final var followingUsers = user
+                .getFollowingUsers()
+                .parallelStream()
+                .map(UserFollowing::getFollowedUser)
+                .collect(Collectors.toUnmodifiableList());
+
+        final var followingUserTags = followingUsers
+                .parallelStream()
+                .flatMap(uf -> uf.getTags().stream())
+                .map(Tag::getName)
+                .collect(Collectors.toUnmodifiableList());
+
+        final var followingUserJoinedServicesTags = getServicesTags(
+                followingUsers
+                        .parallelStream()
+                        .flatMap(uf -> uf.getServiceApprovalSet().stream())
+                        .map(UserServiceApproval::getService)
+        );
+
+        final var followingUserCreatedServicesTags = getServicesTags(
+                followingUsers
+                        .parallelStream()
+                        .flatMap(uf -> uf.getCreatedServices().stream())
+        );
+
+        final var joinedServicesTags = getServicesTags(
+                user.getServiceApprovalSet()
+                        .parallelStream()
+                        .map(UserServiceApproval::getService)
+        );
+
+        final var createdServicesTags = getServicesTags(
+                user.getCreatedServices()
+                        .parallelStream()
+        );
+
+        return new SearchPrioritizationParams(
+                followingUserTags,
+                followingUserCreatedServicesTags,
+                joinedServicesTags,
+                createdServicesTags,
+                profileTags,
+                followingUserJoinedServicesTags
+        );
+    }
+
+    private List<String> getServicesTags(Stream<Service> services) {
+        return services
+                .flatMap(s -> s.getServiceTags().stream())
+                .map(Tag::getName)
+                .collect(Collectors.toUnmodifiableList());
     }
 
 
