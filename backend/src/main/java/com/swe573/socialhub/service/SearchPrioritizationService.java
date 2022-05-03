@@ -6,7 +6,9 @@ import com.google.common.cache.LoadingCache;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.repository.UserRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,19 +37,19 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
                 .getTags()
                 .stream()
                 .map(Tag::getName)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toUnmodifiableSet());
 
         final var followingUsers = user
                 .getFollowingUsers()
                 .parallelStream()
                 .map(UserFollowing::getFollowedUser)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toUnmodifiableSet());
 
         final var followingUserTags = followingUsers
                 .parallelStream()
                 .flatMap(uf -> uf.getTags().stream())
                 .map(Tag::getName)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toUnmodifiableSet());
 
         final var followingUserJoinedServicesTags = getServicesTags(
                 followingUsers
@@ -83,29 +85,29 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
         );
     }
 
-    private List<String> getServicesTags(Stream<Service> services) {
+    private Set<String> getServicesTags(Stream<Service> services) {
         return services
                 .flatMap(s -> s.getServiceTags().stream())
                 .map(Tag::getName)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toUnmodifiableSet());
     }
 
 
     static class SearchPrioritizationParams {
-        final List<String> followingUsersTags;
-        final List<String> followingUsersCreatedServicesTags;
-        final List<String> joinedServicesTags;
-        final List<String> givenServicesTags;
-        final List<String> profileTags;
-        final List<String> followingUsersJoinedServicesTags;
+        final Set<String> followingUsersTags;
+        final Set<String> followingUsersCreatedServicesTags;
+        final Set<String> joinedServicesTags;
+        final Set<String> givenServicesTags;
+        final Set<String> profileTags;
+        final Set<String> followingUsersJoinedServicesTags;
 
         public SearchPrioritizationParams(
-                List<String> followingUsersTags,
-                List<String> followingUsersCreatedServicesTags,
-                List<String> joinedServicesTags,
-                List<String> givenServicesTags,
-                List<String> profileTags,
-                List<String> followingUsersJoinedServicesTags
+                Set<String> followingUsersTags,
+                Set<String> followingUsersCreatedServicesTags,
+                Set<String> joinedServicesTags,
+                Set<String> givenServicesTags,
+                Set<String> profileTags,
+                Set<String> followingUsersJoinedServicesTags
         ) {
             this.followingUsersTags = followingUsersTags;
             this.followingUsersCreatedServicesTags = followingUsersCreatedServicesTags;
@@ -118,5 +120,25 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
 
     interface PrioritizationScorer {
         double getScore();
+    }
+
+    private static class TagPrioritizationScorer implements PrioritizationScorer {
+        private final List<String> tagsToBeMatched;
+        private final List<String> candidateTags;
+
+        public TagPrioritizationScorer(List<String> tagGroupOne, List<String> tagGroupTwo) {
+            this.tagsToBeMatched = tagGroupOne;
+            this.candidateTags = tagGroupTwo;
+        }
+
+        @Override
+        public double getScore() {
+            if (tagsToBeMatched.isEmpty() || candidateTags.isEmpty()) return 0;
+
+            final var intersection = new HashSet<>(candidateTags); // use the copy constructor
+            intersection.retainAll(tagsToBeMatched);
+
+            return (double) intersection.size() / (double) candidateTags.size();
+        }
     }
 }
