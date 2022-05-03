@@ -22,14 +22,16 @@ public class SearchService {
     private final TagRepository tagRepository;
     private final ServiceRepository serviceRepository;
     private final EventRepository eventRepository;
+    private final SearchPrioritizationService prioritizationService;
 
     private static final int SEARCH_LIMIT = 50;
 
-    public SearchService(UserRepository userRepository, TagRepository tagRepository, ServiceRepository serviceRepository, EventRepository eventRepository) {
+    public SearchService(UserRepository userRepository, TagRepository tagRepository, ServiceRepository serviceRepository, EventRepository eventRepository, SearchPrioritizationService prioritizationService) {
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
         this.serviceRepository = serviceRepository;
         this.eventRepository = eventRepository;
+        this.prioritizationService = prioritizationService;
     }
 
     public List<SearchMatchDto> search(String stringToMatch, int limit) {

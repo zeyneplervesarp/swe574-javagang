@@ -9,6 +9,7 @@ import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
+import com.swe573.socialhub.service.SearchPrioritizationService;
 import com.swe573.socialhub.service.SearchService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,9 @@ public class SearchServiceTest {
     @MockBean
     private EventRepository eventRepository;
 
+    @MockBean
+    private SearchPrioritizationService prioritizationService;
+
     private SearchService service;
 
     private static final int DEFAULT_LIMIT = 20;
@@ -51,7 +55,7 @@ public class SearchServiceTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        this.service = new SearchService(userRepository, tagRepository, serviceRepository, eventRepository);
+        this.service = new SearchService(userRepository, tagRepository, serviceRepository, eventRepository, prioritizationService);
     }
 
     @Test
