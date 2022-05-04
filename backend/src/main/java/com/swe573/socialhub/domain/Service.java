@@ -56,6 +56,7 @@ public class Service {
     @GeneratedValue
     Long id;
     private String header;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private LocationType locationType;
     private String location;
@@ -68,8 +69,8 @@ public class Service {
     private ServiceStatus status;
     private boolean isFeatured;
 
-    @OneToMany(mappedBy="service", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Rating> ratings = null;
+    @OneToMany(mappedBy="service", cascade = CascadeType.ALL)
+    private Set<Rating> ratings;
 
 
     @ManyToOne
@@ -81,9 +82,10 @@ public class Service {
             joinColumns = { @JoinColumn(name = "service_id") },
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
-    Set<Tag> serviceTags = null;
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<UserServiceApproval> approvalSet = null;
+
+    Set<Tag> serviceTags;
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    Set<UserServiceApproval> approvalSet;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

@@ -3,7 +3,6 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
-import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
@@ -64,7 +63,7 @@ public class ServiceService {
         final var filteredEntityStream = filterStream(
                 entities.stream(),
                 sortBy,
-                getOngoingOnly || filter == ServiceFilter.all,
+                getOngoingOnly ,
                 filter,
                 loggedInUser
         );
@@ -151,6 +150,8 @@ public class ServiceService {
         }
     }
 
+    private static final int MAX_CREDIT_LIMIT = 500;
+
     @Transactional
     public Long upsert(Principal principal, ServiceDto dto) {
         //check token => if username is null, throw an error
@@ -160,13 +161,16 @@ public class ServiceService {
 
         try {
             var entityExists = false;
-            Optional<Service> existingService = null;
+
             if (dto.getId() != null) {
-                existingService = serviceRepository.findById(dto.getId());
-                entityExists = existingService.isPresent();
+                final var entityQuery = serviceRepository.findById(dto.getId());
+                if (entityQuery.isPresent()) {
+                    entityExists = true;
+                    dto.setLocationType(entityQuery.get().getLocationType());
+                }
             }
             var entity = mapToEntity(dto);
-
+            
             // check for editing deadline
             if (entityExists) {
                 if (dto.getLocationType().equals(LocationType.Physical)) {
@@ -180,25 +184,31 @@ public class ServiceService {
                 }
                 entity.setId(dto.getId());
             }
-            // should only run if the service is being created.
-            if(!entityExists) {
-                entity.setCreatedUser(loggedInUser);
 
-                var tags = dto.getServiceTags();
-                if (tags != null) {
-                    for (TagDto tagDto : tags) {
-                        var addedTag = tagRepository.findById(tagDto.getId());
-                        if (addedTag.isEmpty()) {
-                            throw new IllegalArgumentException("There is no tag with this Id.");
-                        }
-                        entity.addTag(addedTag.get());
+            entity.setCreatedUser(loggedInUser);
+
+            var tags = dto.getServiceTags();
+            if (tags != null) {
+                for (TagDto tagDto : tags) {
+                    var addedTag = tagRepository.findById(tagDto.getId());
+                    if (addedTag.isEmpty()) {
+                        throw new IllegalArgumentException("There is no tag with this Id.");
+
                     }
+                    entity.addTag(addedTag.get());
                 }
+            }
+
+            if (!entityExists) {
                 //check pending credits and balance if the sum is above 20 => throw an error
                 var currentUserBalance = userService.getBalanceToBe(loggedInUser);
                 var balanceToBe = currentUserBalance + dto.getMinutes();
-                if (balanceToBe >= 20)
+                if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
+            }
+            if (entityExists)
+            {
+                entity.setId(dto.getId());
             }
 
             var savedEntity = serviceRepository.save(entity);
@@ -339,7 +349,7 @@ public class ServiceService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
         long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount);
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured());
     }
 
 

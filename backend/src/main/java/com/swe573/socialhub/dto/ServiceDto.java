@@ -14,7 +14,7 @@ public class ServiceDto implements Serializable {
     private final Long id;
     private final String Header;
     private final String Description;
-    private final LocationType LocationType;
+    private LocationType LocationType;
     private final String Location;
     private final LocalDateTime Time;
     private final int Minutes;
@@ -34,8 +34,9 @@ public class ServiceDto implements Serializable {
     private final List<UserDto> ParticipantUserList;
     private final RatingSummaryDto ratingSummary;
     private final Long flagCount;
+    private final Boolean isFeatured;
 
-    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount) {
+    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, Boolean isFeatured) {
         this.id = id;
         Header = header;
         Description = description;
@@ -57,6 +58,7 @@ public class ServiceDto implements Serializable {
         DistanceToUser = distanceToUser;
         ParticipantUserList = participantUserList;
         this.flagCount = flagCount;
+        this.isFeatured = isFeatured;
         if (DistanceToUser != null && DistanceToUser != 0)
         {
             DecimalFormat df = new DecimalFormat("0.00");
@@ -142,6 +144,10 @@ public class ServiceDto implements Serializable {
         return flagCount;
     }
 
+    public void setLocationType(com.swe573.socialhub.enums.LocationType locationType) {
+        LocationType = locationType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -198,5 +204,9 @@ public class ServiceDto implements Serializable {
 
     public RatingSummaryDto getRatingSummary() {
         return ratingSummary;
+    }
+
+    public Boolean getFeatured() {
+        return isFeatured;
     }
 }

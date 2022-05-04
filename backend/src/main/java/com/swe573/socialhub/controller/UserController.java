@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.PostUpdate;
 import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
 import java.util.List;
@@ -70,6 +69,7 @@ public class UserController {
         try {
             return service.deleteUser(Long.valueOf(userId), principal);
         } catch (IllegalArgumentException e) {
+            System.out.println(e.getLocalizedMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }

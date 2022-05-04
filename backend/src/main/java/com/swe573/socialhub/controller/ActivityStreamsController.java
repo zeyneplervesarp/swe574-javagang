@@ -54,7 +54,7 @@ public class ActivityStreamsController {
                         size != null ? size : 20,
                         sortDirection
                 ),
-                "/admin/feed"
+                "admin/feed"
         );
 
         streamIO.write(results, out);

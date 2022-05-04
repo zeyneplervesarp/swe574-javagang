@@ -3,6 +3,7 @@ package com.swe573.socialhub.repository;
 import com.swe573.socialhub.domain.Service;
 import com.swe573.socialhub.domain.User;
 import com.swe573.socialhub.enums.ServiceStatus;
+import com.swe573.socialhub.repository.activitystreams.DateCountableRepository;
 import com.swe573.socialhub.repository.activitystreams.DateQueryableRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 import java.util.List;
 
-@Repository
-public interface ServiceRepository extends JpaRepository<Service, Long>, DateQueryableRepository<Service> {
+
+public interface ServiceRepository extends JpaRepository<Service, Long>, DateQueryableRepository<Service>, DateCountableRepository {
     List<Service> findServiceByCreatedUser(User loggedInUser);
     List<Service> findServiceByCreatedUserAndStatus(User loggedInUser, ServiceStatus status);
 
@@ -32,4 +33,7 @@ public interface ServiceRepository extends JpaRepository<Service, Long>, DateQue
 
     @Query("select s from Service s where s.created > :createdGt and s.created < :createdLt")
     List<Service> findAllByDateBetween(Date createdGt, Date createdLt, Pageable pageable);
+
+    @Query("select count(s) from Service s where s.created > :createdGt and s.created < :createdLt")
+    long countByDateBetween(Date createdGt, Date createdLt);
 }

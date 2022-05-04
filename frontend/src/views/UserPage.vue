@@ -67,6 +67,10 @@
                     <span class="heading">{{ userData.reputationPoint }}</span>
                     <span class="description">Reputation Points</span>
                   </div>
+                  <div>
+                    <span class="heading">{{ userData.ratingSummary.ratingAverage }}</span>
+                    <span class="description">Rating Summary</span>
+                  </div>
                   <div v-if="userIsAdmin && !isOwnProfile">
                     <span class="heading">{{ userData.flagCount }}</span>
                     <span class="description">Flag Count</span>
@@ -126,6 +130,13 @@
               > Flag User
               </base-button>
             </div>
+            <div
+            v-if="userIsAdmin && !isOwnProfile"
+            class="mt-2 py-5 border-top text-center">
+            <base-button block type="warning" @click="DeleteUser(userData.id)" class="mb-3">
+              Delete User
+            </base-button>
+            </div>
           </div>
         </card>
       </div>
@@ -152,7 +163,8 @@ export default {
         following: [],
         followedBy: [],
         tags: [],
-        badges: []
+        badges: [],
+        ratingSummary: {}
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
@@ -183,6 +195,7 @@ export default {
         this.userData.tags = r.tags;
         this.userData.flagCount = r.flagCount;
         this.userData.badges = r.badges;
+        this.userData.ratingSummary = r.ratingSummary;
         console.log("ok.");
       });
     },
@@ -227,6 +240,11 @@ export default {
       } else {
         return "warning";
       }
+    },
+    DeleteUser(userId){
+        apiRegister.DeleteUser(userId).then((r)=>{
+        this.$router.go();
+      });
     },
   },
   props: {
