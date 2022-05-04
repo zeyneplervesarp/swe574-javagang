@@ -129,7 +129,20 @@ export default {
     DeleteService(serviceId) {
         return http.delete(process.env.VUE_APP_API + "service/delete/" + serviceId, null, true)
     },
+    GetAdminFeed(url) {
+        console.log(url)
+        if(url == null || url == "")
+        {
+            return http.get(process.env.VUE_APP_API + 'admin/feed')
+
+        }
+        else{
+            return http.get(process.env.VUE_APP_API + url)
+
+        }
+    },
     GetAllUsers(){
         return http.get(process.env.VUE_APP_API + "user/getAll", null, true, "Could not get users list");
     }
+
 }

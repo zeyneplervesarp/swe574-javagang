@@ -25,6 +25,7 @@ import AdminUsers from "./views/AdminUsers.vue";
 import Search from "./views/Search.vue";
 import AdminFlaggedServices from "./views/AdminFlaggedServices.vue";
 import AdminFlaggedUsers from "./views/AdminFlaggedUsers.vue";
+import AdminFeed from "./views/AdminFeed.vue";
 
 Vue.use(Router);
 
@@ -221,6 +222,16 @@ export default new Router({
       }
     },
     {
+      path: "/admin/feed",
+      name: "adminFeed",
+      components: {
+        header: AdminAppHeader,
+        default: AdminFeed,
+        footer: AdminAppFooter,
+      }
+    },
+    {
+
       path: "/admin/users",
       name: "adminUsers",
       components: {
