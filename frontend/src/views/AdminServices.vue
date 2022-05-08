@@ -22,37 +22,6 @@
               ></div>
             </div>
             <div class="text-center mt-5">
-              <h3>socialHub in numbers</h3>
-              <div></div>
-              <br />
-              <div class="text-center">
-                <div>
-                  <table class="table table-striped" v-if="stats != null">
-                    <thead class="">
-                      <tr>
-                        <th scope="col"> </th>
-                        <th scope="col">Last 24 Hours</th>
-                        <th scope="col">Last 7 Days</th>
-                        <th scope="col">Last 30 Days</th>
-                        <th scope="col">All Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(stat, key) in stats" :key="key">
-                        <td>{{ key.charAt(0).toUpperCase() + key.replace(/([A-Z])/g, " $1").slice(1) }}</td>
-                        <td>{{ stat.last24HoursCount }}</td>
-                        <td>{{ stat.lastWeekCount }}</td>
-                        <td>{{ stat.lastMonthCount }}</td>
-                        <td>{{ stat.totalCount }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <br />
-              <div></div>
-            </div>
-            <div class="text-center mt-5">
               <h3>Services</h3>
               <div></div>
               <br />
