@@ -27,6 +27,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import static com.swe573.socialhub.SocialHubApplication.SITE_CREATION_DATE;
+
 @Profile("!test")
 @Configuration
 class LoadDatabase {
@@ -90,8 +92,6 @@ class LoadDatabase {
             System.out.println("Initial db loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds. Requested user count: " + userCount + ".");
         };
     }
-
-    private static final Date SITE_CREATION_DATE = new Date(1619868495782L);
 
     private Date randomDate(Date min, Date max) {
         final var minMillis = min.toInstant().toEpochMilli();
@@ -242,7 +242,7 @@ class LoadDatabase {
                 subtitle,
                 faker.address().fullAddress(),
                 fromDate(randomDate(user.getCreated(), new Date())),
-                (int) randomLongBetween(10, 160),
+                (int) randomLongBetween(1, 4),
                 (int) randomLongBetween(1, 10),
                 0,
                 user,
@@ -257,7 +257,7 @@ class LoadDatabase {
                 subtitle,
                 "zoom.us/" + faker.random().hex(),
                 fromDate(randomDate(user.getCreated(), new Date())),
-                (int) randomLongBetween(10, 160),
+                (int) randomLongBetween(1, 4),
                 (int) randomLongBetween(1, 10),
                 0,
                 user,

@@ -17,7 +17,7 @@
             <br />
             <br />
             <h3 class="display-3 text-white">
-              Create a Service
+              Edit a Service
               <span class="text-white">contribute to socialhub</span>
             </h3>
             <p class="lead text-white">
@@ -152,6 +152,7 @@ export default {
       serviceData: {
         id:"",
         location: "",
+        locationType: "",
         time: "",
         header: "",
         minutes: "",
@@ -182,6 +183,7 @@ export default {
       var id = this.$route.params.service_id;
       apiRegister.GetService(id).then((r) => {
         this.serviceData.location = r.location;
+        this.serviceData.locationType = r.locationType;
         this.serviceData.time = r.time;
         this.serviceData.timeString = r.timeString;
         this.serviceData.header = r.header;

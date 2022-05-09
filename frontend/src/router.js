@@ -22,6 +22,7 @@ import PendingRequests from "./views/PendingRequests.vue";
 import Notifications from "./views/Notifications.vue";
 import AdminServices from "./views/AdminServices.vue";
 import AdminUsers from "./views/AdminUsers.vue";
+import AdminStats from "./views/AdminStats.vue";
 import Search from "./views/Search.vue";
 import AdminFlaggedServices from "./views/AdminFlaggedServices.vue";
 import AdminFlaggedUsers from "./views/AdminFlaggedUsers.vue";
@@ -187,7 +188,6 @@ export default new Router({
         header: AppHeader,
         default: AllServices,
         footer: AppFooter,
-
       }
     },
     {
@@ -197,7 +197,6 @@ export default new Router({
         header: AppHeader,
         default: AttendingServices,
         footer: AppFooter,
-
       }
     },
 
@@ -208,7 +207,6 @@ export default new Router({
         header: AppHeader,
         default: FollowingUserServices,
         footer: AppFooter,
-
       }
     },
     {
@@ -218,7 +216,6 @@ export default new Router({
         header: AdminAppHeader,
         default: AdminServices,
         footer: AdminAppFooter,
-
       }
     },
     {
@@ -238,7 +235,15 @@ export default new Router({
         header: AdminAppHeader,
         default: AdminUsers,
         footer: AdminAppFooter,
-
+      }
+    },
+    {
+      path: "/admin/stats",
+      name: "adminStats",
+      components: {
+        header: AdminAppHeader,
+        default: AdminStats,
+        footer: AdminAppFooter,
       }
     },
     {
@@ -248,7 +253,6 @@ export default new Router({
         header: AppHeader,
         default: Search,
         footer: AppFooter,
-
       }
     },
     {
