@@ -15,6 +15,11 @@
     </div>
 
     <ul class="navbar-nav ml-lg-auto">
+      <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/stats">
+                Statistics
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link nav-link-icon" href="#/admin/services">
                 Services
