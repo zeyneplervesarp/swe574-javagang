@@ -1,7 +1,7 @@
 <template>
 <div style="position: relative">
 <base-nav type="default" effect="dark" expand>
-    <a class="navbar-brand" href="#">SocialHub Admin</a>
+    <a class="navbar-brand" href="/">SocialHub Admin</a>
 
     <div class="row" slot="content-header" slot-scope="{closeMenu}">
         <div class="col-6 collapse-brand">
@@ -15,28 +15,43 @@
     </div>
 
     <ul class="navbar-nav ml-lg-auto">
+      <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/stats">
+                Statistics
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link nav-link-icon" href="#/admin/services">
                 Services
             </a>
         </li>
         <li class="nav-item">
+
+            <a class="nav-link nav-link-icon" href="#/admin/feed">
+                Feed
+                  </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link nav-link-icon" href="#/admin/users">
                 Users
             </a>
         </li>
-        <!-- <li class="nav-item">
+        <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/flagged_services">
+                Flagged Services
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/flagged_users">
+                Flagged Users
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link nav-link-icon" href="#">
                 Profile
+
             </a>
-        </li> -->
-        <!-- <base-dropdown tag="li" title="Settings">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="#">Something else here</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Separated link</a>
-        </base-dropdown> -->
+        </li>    
     </ul>
  </base-nav>
 </div>

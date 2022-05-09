@@ -52,6 +52,9 @@ public class ActivityStreamServiceTests {
     @MockBean
     private ServiceRepository serviceRepository;
 
+    @MockBean
+    private UserFollowingRepository userFollowingRepository;
+
     private ActivityStreamService service;
 
     @BeforeEach
@@ -63,7 +66,8 @@ public class ActivityStreamServiceTests {
                 serviceRepository,
                 eventRepository,
                 eventApprovalRepository,
-                serviceApprovalRepository
+                serviceApprovalRepository,
+                userFollowingRepository
         );
     }
 

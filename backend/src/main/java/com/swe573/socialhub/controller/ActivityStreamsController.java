@@ -40,7 +40,8 @@ public class ActivityStreamsController {
                 FeedEvent.SERVICE_JOIN_REQUESTED,
                 FeedEvent.SERVICE_JOIN_APPROVED,
                 FeedEvent.USER_LOGIN_FAILED,
-                FeedEvent.USER_LOGIN_SUCCESSFUL
+                FeedEvent.USER_LOGIN_SUCCESSFUL,
+                FeedEvent.FOLLOW
         );
 
         final var sortDirection = sort != null && sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
@@ -54,7 +55,7 @@ public class ActivityStreamsController {
                         size != null ? size : 20,
                         sortDirection
                 ),
-                "/admin/feed"
+                "admin/feed"
         );
 
         streamIO.write(results, out);

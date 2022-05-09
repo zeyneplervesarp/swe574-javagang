@@ -3,6 +3,7 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
+import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
@@ -11,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -150,6 +148,8 @@ public class ServiceService {
         }
     }
 
+    private static final int MAX_CREDIT_LIMIT = 500;
+
     @Transactional
     public Long upsert(Principal principal, ServiceDto dto) {
         //check token => if username is null, throw an error
@@ -159,36 +159,57 @@ public class ServiceService {
 
         try {
             var entityExists = false;
-            if (dto.getId() != null)
-                entityExists = serviceRepository.findById(dto.getId()).isPresent();
+
+            if (dto.getId() != null) {
+                final var entityQuery = serviceRepository.findById(dto.getId());
+                if (entityQuery.isPresent()) {
+                    entityExists = true;
+                    dto.setLocationType(entityQuery.get().getLocationType());
+                }
+            }
             var entity = mapToEntity(dto);
-
-
-                entity.setCreatedUser(loggedInUser);
-
-                var tags = dto.getServiceTags();
-                if (tags != null) {
-                    for (TagDto tagDto : tags) {
-                        var addedTag = tagRepository.findById(tagDto.getId());
-                        if (addedTag.isEmpty()) {
-                            throw new IllegalArgumentException("There is no tag with this Id.");
-                        }
-                        entity.addTag(addedTag.get());
+            
+            // check for editing deadline
+            if (entityExists) {
+                if (dto.getLocationType().equals(LocationType.Physical)) {
+                    if (LocalDateTime.now().isAfter(existingService.get().getTime().minusHours(24))) {
+                        throw new IllegalArgumentException("You can only edit physical services until 24 hours before their time");
+                    }
+                } else {
+                    if (LocalDateTime.now().isAfter(existingService.get().getTime().minusMinutes(30))) {
+                        throw new IllegalArgumentException("You can only edit online services until 30 mimutes before their time");
                     }
                 }
+                entity.setId(dto.getId());
+            }
+
+            entity.setCreatedUser(loggedInUser);
+
+            var tags = dto.getServiceTags();
+            if (tags != null) {
+                for (TagDto tagDto : tags) {
+                    var addedTag = tagRepository.findById(tagDto.getId());
+                    if (addedTag.isEmpty()) {
+                        throw new IllegalArgumentException("There is no tag with this Id.");
+
+                    }
+                    entity.addTag(addedTag.get());
+                }
+            }
+
+            if (!entityExists) {
                 //check pending credits and balance if the sum is above 20 => throw an error
                 var currentUserBalance = userService.getBalanceToBe(loggedInUser);
                 var balanceToBe = currentUserBalance + dto.getMinutes();
-                if (balanceToBe >= 20)
+                if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
-
-
+            }
             if (entityExists)
             {
                 entity.setId(dto.getId());
             }
-            var savedEntity = serviceRepository.save(entity);
 
+            var savedEntity = serviceRepository.save(entity);
 
             return savedEntity.getId();
         } catch (DataException e) {
@@ -207,7 +228,6 @@ public class ServiceService {
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
         }
-
     }
 
     @Transactional
@@ -383,6 +403,28 @@ public class ServiceService {
         }
     }
 
+    @Transactional
+    public List<ServiceDto> getAllFlaggedServices(Principal principal) {
+        try {
+            final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+            List<Flag> serviceFlags = flagRepository.findAllByType(FlagType.service);
+            List<ServiceDto> flaggedServices = new ArrayList<>();
+            List<Long> ids = new ArrayList<>();
+            for (Flag flag : serviceFlags) {
+                Service service = serviceRepository.getById(flag.getFlaggedEntity());
+                if(ids.contains(service.getId())) {
+                    continue;
+                }
+                flaggedServices.add(mapToDto(service, Optional.of(loggedInUser)));
+                ids.add(service.getId());
+            }
+            Collections.sort(flaggedServices, (o1, o2) -> o2.getFlagCount().intValue() - o1.getFlagCount().intValue());
+            return flaggedServices;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
     public Boolean checkForExistingFlag(Principal principal, Long serviceId) {
         try {
             final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
@@ -444,5 +486,38 @@ public class ServiceService {
         svc.get().setFeatured(false);
 
         return mapToDto(svc.get(), Optional.of(admin));
+    }
+
+    @Transactional
+    public ServiceDto cancelService(Long serviceId, Principal principal) {
+        Optional<User> loggedInUser = userRepository.findUserByUsername(principal.getName());
+        Optional<Service> service = serviceRepository.findById(serviceId);
+        //
+        if (loggedInUser.isEmpty())
+            throw new IllegalArgumentException("User doesn't exist");
+        if (service.isEmpty())
+            throw new IllegalArgumentException("Service doesn't exist");
+        if (!loggedInUser.get().getCreatedServices().contains(service.get()))
+            throw new IllegalArgumentException("You cannot cancel a service of another user.");
+        //
+        Service serviceToCancel = service.get();
+        serviceToCancel.setStatus(ServiceStatus.CANCELLED);
+        serviceToCancel = serviceRepository.save(serviceToCancel);
+        // check for cancellation deadline
+        User owner = loggedInUser.get();
+        if ((serviceToCancel.getLocationType().equals(LocationType.Online) && serviceToCancel.getTime().minusMinutes(30).isBefore(LocalDateTime.now()))
+                || (serviceToCancel.getLocationType().equals(LocationType.Physical) && serviceToCancel.getTime().minusHours(24).isBefore(LocalDateTime.now()))) {
+            owner.setReputationPoint(owner.getReputationPoint() - 5);
+            userRepository.save(owner);
+        }
+        ServiceDto serviceToCancelDto =  mapToDto(serviceToCancel, Optional.empty());
+        // send notifications to participating users
+        String text = new StringBuilder().append(owner.getUsername()).append(" cancelled their service ").append(serviceToCancel.getHeader()).append(".").toString();
+        String url  = new StringBuilder().append("/service/").append(serviceToCancel.getId()).toString();
+        for (UserDto participant : serviceToCancelDto.getParticipantUserList()) {
+            User user = userRepository.getById(participant.getId());
+            notificationService.sendNotification(text, url, user);
+        }
+        return serviceToCancelDto;
     }
 }

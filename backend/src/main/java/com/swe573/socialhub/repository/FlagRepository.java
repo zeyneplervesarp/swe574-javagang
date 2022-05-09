@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FlagRepository extends JpaRepository<Flag, Long> {
@@ -18,4 +19,5 @@ public interface FlagRepository extends JpaRepository<Flag, Long> {
     @Query("UPDATE Flag f SET f.status = :status WHERE f.type = :type AND f.flaggedEntity = :entityId")
     void dismissFlags(@Param("status") FlagStatus status, @Param("type") FlagType type, @Param("entityId") Long id);
 
+    List<Flag> findAllByType(FlagType type);
 }

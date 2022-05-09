@@ -9,6 +9,7 @@ import com.swe573.socialhub.dto.UserServiceApprovalDto;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.FlagStatus;
 import com.swe573.socialhub.enums.FlagType;
+import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.repository.FlagRepository;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +65,17 @@ public class UserServiceApprovalService {
         if (service == null)
             throw new IllegalArgumentException("Service doesn't exist.");
 
+        // check for deadline
+            if (service.getLocationType().equals(LocationType.Physical)) {
+                if (LocalDateTime.now().isAfter(service.getTime().minusHours(24))) {
+                    throw new IllegalArgumentException("You can only approve applications for physical services until 24 hours before their time");
+                }
+            } else {
+                if (LocalDateTime.now().isAfter(service.getTime().minusMinutes(30))) {
+                    throw new IllegalArgumentException("You can only approve applications for online services until 30 mimutes before their time");
+                }
+           }
+
         //create new entity
         var key = new UserServiceApprovalKey(loggedInUser.getId(), serviceId);
         var entity = new UserServiceApproval(key, loggedInUser, service, ApprovalStatus.PENDING);
@@ -82,7 +95,6 @@ public class UserServiceApprovalService {
         } catch (Exception e) {
             throw new IllegalArgumentException("There was an error trying to send the request");
         }
-
     }
 
     public List<UserServiceApprovalDto> findServiceRequestsByUser(Principal principal) {
@@ -110,6 +122,17 @@ public class UserServiceApprovalService {
         var request = repository.findUserServiceApprovalByService_IdAndUser_Id(dto.getServiceId(), dto.getUserId());
         if (!request.isPresent()) {
             throw new IllegalArgumentException("No approval request has been found");
+        }
+
+        // check for deadline
+        if (request.get().getService().getLocationType().equals(LocationType.Physical)) {
+            if (LocalDateTime.now().isAfter(request.get().getService().getTime().minusHours(24))) {
+                throw new IllegalArgumentException("You can only approve applications for physical services until 24 hours before their time");
+            }
+        } else {
+            if (LocalDateTime.now().isAfter(request.get().getService().getTime().minusMinutes(30))) {
+                throw new IllegalArgumentException("You can only approve applications for online services until 30 mimutes before their time");
+            }
         }
         var entity = request.get();
         entity.setApprovalStatus(status);

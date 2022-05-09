@@ -15,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, DateCountableRepository {
     Optional<User> findUserByUsername(String userName);
+    Optional<User> findById(Long id);
+
     @Query("select s from User s where lower(s.username) like lower(concat('%', :match, '%'))")
     List<User> findByUsernameLikeIgnoreCase(@Param("match") String stringToMatch, Pageable pageable);
 

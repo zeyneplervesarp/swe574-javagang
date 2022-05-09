@@ -18,11 +18,13 @@
             <div class="row justify-content-center">
               <div class="col-lg-3 order-lg-2"></div>
               <div
-                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
-              ></div>
+                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center">
+              </div>
             </div>
             <div class="text-center mt-5">
-              <h3>Services</h3>
+              <h3>
+                    Flagged Services              
+              </h3>
               <div></div>
               <br />
               <div class="text-center">
@@ -34,16 +36,18 @@
                         <th scope="col">Name</th>
                         <th scope="col">Owner</th>
                         <th scope="col">Date</th>
+                        <th scope="col">FlagCount</th>
                         <th scope="col">View</th>
-                        <th scope="col">Featured</th>
+                        <th scope="col">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="(service, index) in allServices" :key="index">
+                      <tr v-for="(service, index) in flaggedServices" :key="index">
                         <th scope="row">{{ index + 1 }}</th>
                         <td>{{ service.header }}</td>
                         <td>{{ service.createdUserName }}</td>
                         <td>{{ service.timeString }}</td>
+                        <td>{{ service.flagCount }}</td>
                         <td>
                           <base-button
                             block
@@ -55,24 +59,11 @@
                           </base-button>
                         </td>
                         <td>
-                          <base-button
-                            v-if="service.featured"
-                            block
+                          <base-button block 
                             type="warning"
-                            @click="RemoveFeatured(service.id)"
                             class="mb-3"
-                          >
-                            Unfeature
-                          </base-button>
-
-                          <base-button
-                            v-else
-                            block
-                            type="success"
-                            @click="AddFeatured(service.id)"
-                            class="mb-3"
-                          >
-                            Feature
+                            @click="DeleteService(service.id)">
+                            Delete
                           </base-button>
                         </td>
                       </tr>
@@ -81,7 +72,8 @@
                 </div>
               </div>
               <br />
-              <div></div>
+              <div>
+              </div>
             </div>
           </div>
         </card>
@@ -98,54 +90,39 @@ export default {
   components: { BaseButton },
   data() {
     return {
-      allServices: [],
-      stats: null,
+      flaggedServices: [],
     };
   },
   mounted() {
-    this.GetAllStats();
-    this.GetAllServices();
+    this.GetAllFlaggedServices();
   },
   computed: {},
   methods: {
-    GetAllStats() {
-      apiRegister.GetAllStats().then((stats) => {
-        this.stats = stats;
-      });
-    },
-    GetAllServices() {
-      apiRegister.GetAllServices(false, "all").then((r) => {
-        this.allServices = r.sort((a, b) => b.featured - a.featured);
+    GetAllFlaggedServices() {
+      apiRegister.GetAllFlaggedServices().then((r) => {
+        this.flaggedServices = r;
       });
     },
     GoToService(serviceId) {
       var url = "#/service/" + serviceId;
       window.location.href = url;
     },
-    AddFeatured(serviceId) {
-      apiRegister.FeatureService(serviceId).then((r) => {
-        // swal.fire({
-        //   position: "top-end",
-        //   icon: "success",
-        //   title: "Service has been added to featured",
-        //   showConfirmButton: false,
-        //   timer: 1500,
-        // });
-        this.GetAllServices();
-      });
-    },
-    RemoveFeatured(serviceId) {
-      apiRegister.UnfeatureService(serviceId).then((r) => {
-        // swal.fire({
-        //   position: "top-end",
-        //   icon: "success",
-        //   title: "Service has been added to featured",
-        //   showConfirmButton: false,
-        //   timer: 1500,
-        // });
-        this.GetAllServices();
-      });
-    },
+    DeleteService(serviceId) {
+        swal.fire({
+            title: 'Do you want to delete this user?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    apiRegister.DeleteService(serviceId).then((r) => {
+                    swal.fire( {
+                    text: "You've deleted this service"
+                    });
+                });
+                location.reload();     
+            }
+            })
+    }
   },
 };
 </script>

@@ -1,6 +1,9 @@
 package com.swe573.socialhub.domain;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class UserFollowing {
@@ -17,6 +20,19 @@ public class UserFollowing {
 //    @MapsId("followedUserId")
     @JoinColumn(name = "followedUser")
     User followedUser;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created")
+    private Date created;
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
     public UserFollowing( User followingUser, User followedUser) {
         this.followingUser = followingUser;

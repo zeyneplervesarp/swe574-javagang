@@ -8,11 +8,13 @@ public class SearchMatchDto {
     private final String name;
     private final String url;
     private final SearchMatchType matchType;
+    private final double score;
 
-    public SearchMatchDto(String name, String url, SearchMatchType matchType) {
+    public SearchMatchDto(String name, String url, SearchMatchType matchType, double score) {
         this.name = name;
         this.url = url;
         this.matchType = matchType;
+        this.score = score;
     }
 
     public String getName() {
@@ -25,6 +27,10 @@ public class SearchMatchDto {
 
     public SearchMatchType getMatchType() {
         return matchType;
+    }
+
+    public double getScore() {
+        return score;
     }
 
     @Override

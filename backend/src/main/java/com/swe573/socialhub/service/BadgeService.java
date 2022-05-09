@@ -41,21 +41,9 @@ public class BadgeService {
         }
     }
 
-    public Long save(BadgeType type, User badgeOwner) {
-        try {
-            var entity = mapToEntity(type,badgeOwner);
-            var savedEntity = repository.save(entity);
-            return savedEntity.getId();
-        } catch (DataException e) {
-            throw new IllegalArgumentException("There was a problem trying to save badge to db");
-        }
-    }
-
-
     public BadgeDto mapToDto(Badge badge) {
         return new BadgeDto(badge.getId(), badge.getBadgeType());
     }
-
 
     private Badge mapToEntity(BadgeType type, User owner) {
         return new Badge(owner, type);
@@ -81,7 +69,7 @@ public class BadgeService {
         //endregion
 
         //region regular
-        var userHasRegularBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.newcomer);
+        var userHasRegularBadge = userBadges.stream().anyMatch(x->x.getBadgeType() == BadgeType.regular);
         if (!userHasRegularBadge)
         {
             if (participatedServiceCount >= 20)
