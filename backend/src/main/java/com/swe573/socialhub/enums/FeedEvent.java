@@ -13,5 +13,5 @@ public enum FeedEvent {
     // Nice to have, but not in requirements
     // BADGE_RECEIVED,
     // USER_REGISTER,
-    // FOLLOW,
+    FOLLOW,
 }
