@@ -3,6 +3,7 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
+import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
@@ -466,5 +467,38 @@ public class ServiceService {
         svc.get().setFeatured(false);
 
         return mapToDto(svc.get(), Optional.of(admin));
+    }
+
+    @Transactional
+    public ServiceDto cancelService(Long serviceId, Principal principal) {
+        Optional<User> loggedInUser = userRepository.findUserByUsername(principal.getName());
+        Optional<Service> service = serviceRepository.findById(serviceId);
+        //
+        if (loggedInUser.isEmpty())
+            throw new IllegalArgumentException("User doesn't exist");
+        if (service.isEmpty())
+            throw new IllegalArgumentException("Service doesn't exist");
+        if (!loggedInUser.get().getCreatedServices().contains(service.get()))
+            throw new IllegalArgumentException("You cannot cancel a service of another user.");
+        //
+        Service serviceToCancel = service.get();
+        serviceToCancel.setStatus(ServiceStatus.CANCELLED);
+        serviceToCancel = serviceRepository.save(serviceToCancel);
+        // check for cancellation deadline
+        User owner = loggedInUser.get();
+        if ((serviceToCancel.getLocationType().equals(LocationType.Online) && serviceToCancel.getTime().minusMinutes(30).isBefore(LocalDateTime.now()))
+                || (serviceToCancel.getLocationType().equals(LocationType.Physical) && serviceToCancel.getTime().minusHours(24).isBefore(LocalDateTime.now()))) {
+            owner.setReputationPoint(owner.getReputationPoint() - 5);
+            userRepository.save(owner);
+        }
+        ServiceDto serviceToCancelDto =  mapToDto(serviceToCancel, Optional.empty());
+        // send notifications to participating users
+        String text = new StringBuilder().append(owner.getUsername()).append(" cancelled their service ").append(serviceToCancel.getHeader()).append(".").toString();
+        String url  = new StringBuilder().append("/service/").append(serviceToCancel.getId()).toString();
+        for (UserDto participant : serviceToCancelDto.getParticipantUserList()) {
+            User user = userRepository.getById(participant.getId());
+            notificationService.sendNotification(text, url, user);
+        }
+        return serviceToCancelDto;
     }
 }

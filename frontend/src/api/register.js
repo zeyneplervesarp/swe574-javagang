@@ -136,6 +136,9 @@ export default {
     },
     DeleteUser(userId){
         return http.delete(process.env.VUE_APP_API + "user/"+userId, null, true, "Could not delete user");
+    },
+    CancelService(serviceId) {
+        return http.post(process.env.VUE_APP_API + "service/cancel/" + serviceId, null, true, "Could not cancel service");
     }
 
 }

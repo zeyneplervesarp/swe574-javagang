@@ -175,4 +175,14 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    @PostMapping("/cancel/{serviceId}")
+    public ResponseEntity<ServiceDto> cancelService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            ServiceDto serviceToCancel = serviceService.cancelService(serviceId, principal);
+            return ResponseEntity.ok(serviceToCancel);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
 }
