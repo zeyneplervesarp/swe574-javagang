@@ -161,6 +161,7 @@ public class ServiceService {
 
         try {
             var entityExists = false;
+
             if (dto.getId() != null) {
                 final var entityQuery = serviceRepository.findById(dto.getId());
                 if (entityQuery.isPresent()) {
@@ -169,6 +170,20 @@ public class ServiceService {
                 }
             }
             var entity = mapToEntity(dto);
+            
+            // check for editing deadline
+            if (entityExists) {
+                if (dto.getLocationType().equals(LocationType.Physical)) {
+                    if (LocalDateTime.now().isAfter(existingService.get().getTime().minusHours(24))) {
+                        throw new IllegalArgumentException("You can only edit physical services until 24 hours before their time");
+                    }
+                } else {
+                    if (LocalDateTime.now().isAfter(existingService.get().getTime().minusMinutes(30))) {
+                        throw new IllegalArgumentException("You can only edit online services until 30 mimutes before their time");
+                    }
+                }
+                entity.setId(dto.getId());
+            }
 
             entity.setCreatedUser(loggedInUser);
 
@@ -178,6 +193,7 @@ public class ServiceService {
                     var addedTag = tagRepository.findById(tagDto.getId());
                     if (addedTag.isEmpty()) {
                         throw new IllegalArgumentException("There is no tag with this Id.");
+
                     }
                     entity.addTag(addedTag.get());
                 }
@@ -190,14 +206,12 @@ public class ServiceService {
                 if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
             }
-
-
             if (entityExists)
             {
                 entity.setId(dto.getId());
             }
-            var savedEntity = serviceRepository.save(entity);
 
+            var savedEntity = serviceRepository.save(entity);
 
             return savedEntity.getId();
         } catch (DataException e) {
@@ -216,7 +230,6 @@ public class ServiceService {
         } catch (DataException e) {
             throw new IllegalArgumentException("There was a problem trying to save service to db");
         }
-
     }
 
     @Transactional

@@ -64,7 +64,6 @@ public class Service {
     private int credit;
     private int quota;
     private int attendingUserCount;
-    private String meetingLink;
     private Double latitude;
     private Double longitude;
     private ServiceStatus status;
@@ -83,6 +82,7 @@ public class Service {
             joinColumns = { @JoinColumn(name = "service_id") },
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
+
     Set<Tag> serviceTags;
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
     Set<UserServiceApproval> approvalSet;
@@ -202,7 +202,12 @@ public class Service {
     }
 
     public void setServiceTags(Set<Tag> serviceTags) {
-        this.serviceTags = serviceTags;
+        if(this.serviceTags == null)
+            this.serviceTags = serviceTags;
+        else {
+            serviceTags.retainAll(serviceTags);
+            this.serviceTags.addAll(serviceTags);
+        }
     }
 
     public int getAttendingUserCount() {
@@ -218,7 +223,12 @@ public class Service {
     }
 
     public void setApprovalSet(Set<UserServiceApproval> approvalSet) {
-        this.approvalSet = approvalSet;
+        if (this.approvalSet == null)
+            this.approvalSet = approvalSet;
+        else {
+            this.approvalSet.retainAll(approvalSet);
+            this.approvalSet.addAll(approvalSet);
+        }
     }
 
     public ServiceStatus getStatus() {
@@ -234,7 +244,12 @@ public class Service {
     }
 
     public void setRatings(Set<Rating> ratings) {
-        this.ratings = ratings;
+        if(this.ratings == null) {
+            this.ratings = ratings;
+        } else {
+            ratings.clear();
+            this.ratings.addAll(ratings);
+        }
     }
 
     public boolean isFeatured() {

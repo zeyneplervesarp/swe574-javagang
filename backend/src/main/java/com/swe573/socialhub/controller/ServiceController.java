@@ -80,7 +80,6 @@ public class ServiceController {
         }
     }
 
-
     @PostMapping
     public ResponseEntity<Long> upsertService(Principal principal, @RequestBody ServiceDto service) {
         try {
@@ -90,8 +89,6 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
-
-
 
     @GetMapping("/approve/{serviceId}")
     public void App(Principal principal, @PathVariable Long serviceId) {
