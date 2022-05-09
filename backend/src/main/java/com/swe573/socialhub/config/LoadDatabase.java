@@ -30,6 +30,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import static com.swe573.socialhub.SocialHubApplication.SITE_CREATION_DATE;
+
 @Profile("!test")
 @Configuration
 class LoadDatabase {
@@ -93,8 +95,6 @@ class LoadDatabase {
             System.out.println("Initial db loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds. Requested user count: " + userCount + ".");
         };
     }
-
-    private static final Date SITE_CREATION_DATE = new Date(1619868495782L);
 
     private Date randomDate(Date min, Date max) {
         final var minMillis = min.toInstant().toEpochMilli();
