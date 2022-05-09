@@ -61,10 +61,11 @@ public class UserServiceApprovalService {
             throw new IllegalArgumentException("User doesn't exist.");
 
         //validate service
-        var service = serviceRepository.findById(serviceId).get();
-        if (service == null)
+        var serviceQuery = serviceRepository.findById(serviceId);
+        if (serviceQuery.isEmpty())
             throw new IllegalArgumentException("Service doesn't exist.");
 
+        final var service = serviceQuery.get();
         // check for deadline
             if (service.getLocationType().equals(LocationType.Physical)) {
                 if (LocalDateTime.now().isAfter(service.getTime().minusHours(24))) {

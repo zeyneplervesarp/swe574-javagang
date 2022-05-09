@@ -3,6 +3,7 @@ package com.swe573.socialhub;
 
 import com.swe573.socialhub.domain.Service;
 import com.swe573.socialhub.domain.User;
+import com.swe573.socialhub.enums.LocationType;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
 import com.swe573.socialhub.service.ServiceService;
@@ -22,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.security.auth.Subject;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -85,6 +87,8 @@ public class ApprovalServiceUnitTests {
         testService.setCredit(5);
         testService.setId(1L);
         testService.setHeader("test service");
+        testService.setLocationType(LocationType.Physical);
+        testService.setTime(LocalDateTime.now().plusDays(2));
 
         var mockUser = new MockPrincipal(testUser.getUsername());
         Mockito.when(userRepository.findUserByUsername(testUser.getUsername())).thenReturn(Optional.of(testUser));

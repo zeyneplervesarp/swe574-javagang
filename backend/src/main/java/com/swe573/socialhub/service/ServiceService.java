@@ -148,7 +148,7 @@ public class ServiceService {
         }
     }
 
-    private static final int MAX_CREDIT_LIMIT = 500;
+    private static final int MAX_CREDIT_LIMIT = 20;
 
     @Transactional
     public Long upsert(Principal principal, ServiceDto dto) {
@@ -159,10 +159,11 @@ public class ServiceService {
 
         try {
             var entityExists = false;
-
+            Optional<Service> existingService = Optional.empty();
             if (dto.getId() != null) {
                 final var entityQuery = serviceRepository.findById(dto.getId());
                 if (entityQuery.isPresent()) {
+                    existingService = entityQuery;
                     entityExists = true;
                     dto.setLocationType(entityQuery.get().getLocationType());
                 }
