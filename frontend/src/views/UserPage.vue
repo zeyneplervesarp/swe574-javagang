@@ -16,8 +16,7 @@
         <card shadow class="card-profile mt--300" no-body>
           <div class="px-4">
             <div class="row justify-content-center">
-              <div class="col-lg-3 order-lg-2">
-              </div>
+              <div class="col-lg-3 order-lg-2"></div>
               <div
                 class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
               >
@@ -68,7 +67,9 @@
                     <span class="description">Reputation Points</span>
                   </div>
                   <div>
-                    <span class="heading">{{ userData.ratingSummary.ratingAverage }}</span>
+                    <span class="heading">{{
+                      userData.ratingSummary.ratingAverage
+                    }}</span>
                     <span class="description">Rating Summary</span>
                   </div>
                   <div v-if="userIsAdmin && !isOwnProfile">
@@ -83,66 +84,83 @@
                 {{ userData.username }}
                 <span class="font-weight-light"></span>
               </h3>
-                    <badge
+              <!-- <badge
                     v-for="(badge, index) in userData.badges"
                     :key="index"
                     v-bind:type="GetClass(index)"
                     rounded
                     >{{ badge.badgeType }}</badge
-                  >
+                  > -->
             </div>
-            <div class="mt-5 py-5 border-top text-center">
+            <div class="row justify-content-center">
+              <div
+                v-for="(badge, index) in userData.badges"
+                :key="index"
+                class="column"
+              >
+                <img
+                  v-bind:src="'img/badges/' + badge.badgeType + '.png'"
+                  v-bind:alt="badge.badgeType"               
+                  style="max-width: 100px"
+                />
+                <!-- <figcaption>Your text</figcaption> -->
+              </div>
+            </div>
+
+            <div class="py-5 border-top text-center">
               <div class="row justify-content-center">
                 <div class="col-lg-9">
                   <p>{{ userData.bio }}</p>
-                     <div>
-                  <badge
-                    v-for="(tag, index) in userData.tags"
-                    :key="index"
-                    v-bind:type="GetClass(index)"
-                    rounded
-                    >{{ tag.name }}</badge
-                  >
+                  <div>
+                    <badge
+                      v-for="(tag, index) in userData.tags"
+                      :key="index"
+                      v-bind:type="GetClass(index)"
+                      rounded
+                      >{{ tag.name }}</badge
+                    >
+                  </div>
                 </div>
-                </div>
-             
               </div>
             </div>
-            <div 
-              v-if="userIsAdmin && !isOwnProfile"
-              class="mt-2 py-5 border-top text-center">
-                <base-button
-                  block
-                  type="primary"
-                  class="mb-3"
-                  @click="DismissFlags()"
-                > Dismiss Flags
-                </base-button>
-             </div>
             <div
-            v-if="!userIsAdmin && !isOwnProfile"
-            class="mt-2 py-5 border-top text-center">
+              v-if="userIsAdmin && !isOwnProfile"
+              class="mt-2 py-5 border-top text-center"
+            >
               <base-button
                 block
                 type="primary"
                 class="mb-3"
-                @click="Flag()"
-              > Flag User
+                @click="DismissFlags()"
+              >
+                Dismiss Flags
               </base-button>
             </div>
             <div
-            v-if="userIsAdmin && !isOwnProfile"
-            class="mt-2 py-5 border-top text-center">
-            <base-button block type="warning" @click="DeleteUser(userData.id)" class="mb-3">
-              Delete User
-            </base-button>
+              v-if="!userIsAdmin && !isOwnProfile"
+              class="mt-2 py-5 border-top text-center"
+            >
+              <base-button block type="primary" class="mb-3" @click="Flag()">
+                Flag User
+              </base-button>
+            </div>
+            <div
+              v-if="userIsAdmin && !isOwnProfile"
+              class="mt-2 py-5 border-top text-center"
+            >
+              <base-button
+                block
+                type="warning"
+                @click="DeleteUser(userData.id)"
+                class="mb-3"
+              >
+                Delete User
+              </base-button>
             </div>
           </div>
         </card>
       </div>
-      
     </section>
-    
   </div>
 </template>
 <script>
@@ -164,21 +182,21 @@ export default {
         followedBy: [],
         tags: [],
         badges: [],
-        ratingSummary: {}
+        ratingSummary: {},
       },
       isOwnProfile: this.$route.params.userId == null,
       alreadyFollowing: false,
-      userIsAdmin: false
+      userIsAdmin: false,
     };
   },
   mounted() {
     this.GetProfile();
     this.AlreadyFollowing();
 
-    apiRegister.GetProfile().then(r => {
-        var compare = r.userType.localeCompare("ADMIN");
-        this.userIsAdmin = compare == 0;
-      })
+    apiRegister.GetProfile().then((r) => {
+      var compare = r.userType.localeCompare("ADMIN");
+      this.userIsAdmin = compare == 0;
+    });
   },
   methods: {
     GetProfile() {
@@ -204,7 +222,7 @@ export default {
 
       apiRegister.FlagUser(userId).then((r) => {
         swal.fire({
-        text: "You successfully flagged the user.",
+          text: "You successfully flagged the user.",
         });
       });
     },
@@ -241,8 +259,8 @@ export default {
         return "warning";
       }
     },
-    DeleteUser(userId){
-        apiRegister.DeleteUser(userId).then((r)=>{
+    DeleteUser(userId) {
+      apiRegister.DeleteUser(userId).then((r) => {
         this.$router.go();
       });
     },
