@@ -64,8 +64,8 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/user/{userId}")
-    public UserDto deleteUser(Principal principal, @PathVariable String userId) {
+    @DeleteMapping("/user/delete/{userId}")
+    public UserDto deleteUser(Principal principal, @PathVariable(value = "userId") long userId) {
         try {
             return service.deleteUser(Long.valueOf(userId), principal);
         } catch (IllegalArgumentException e) {
@@ -145,6 +145,15 @@ public class UserController {
             service.dismissFlags(principal, userId);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/user/flag")
+    public List<UserDto> getAllFlaggedUsers(Principal principal) {
+        try{
+            return service.getAllFlaggedUsers();
+        } catch(Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }

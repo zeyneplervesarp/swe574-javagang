@@ -12,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -401,6 +398,28 @@ public class ServiceService {
                 throw new IllegalArgumentException("You need to be admin to perform this action");
             }
             flagRepository.dismissFlags(FlagStatus.inactive, FlagType.service, serviceId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    @Transactional
+    public List<ServiceDto> getAllFlaggedServices(Principal principal) {
+        try {
+            final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+            List<Flag> serviceFlags = flagRepository.findAllByType(FlagType.service);
+            List<ServiceDto> flaggedServices = new ArrayList<>();
+            List<Long> ids = new ArrayList<>();
+            for (Flag flag : serviceFlags) {
+                Service service = serviceRepository.getById(flag.getFlaggedEntity());
+                if(ids.contains(service.getId())) {
+                    continue;
+                }
+                flaggedServices.add(mapToDto(service, Optional.of(loggedInUser)));
+                ids.add(service.getId());
+            }
+            Collections.sort(flaggedServices, (o1, o2) -> o2.getFlagCount().intValue() - o1.getFlagCount().intValue());
+            return flaggedServices;
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

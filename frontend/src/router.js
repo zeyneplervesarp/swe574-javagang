@@ -24,6 +24,8 @@ import AdminServices from "./views/AdminServices.vue";
 import AdminUsers from "./views/AdminUsers.vue";
 import AdminStats from "./views/AdminStats.vue";
 import Search from "./views/Search.vue";
+import AdminFlaggedServices from "./views/AdminFlaggedServices.vue";
+import AdminFlaggedUsers from "./views/AdminFlaggedUsers.vue";
 import AdminFeed from "./views/AdminFeed.vue";
 
 Vue.use(Router);
@@ -253,6 +255,25 @@ export default new Router({
         footer: AppFooter,
       }
     },
+    {
+      path: "/admin/flagged_services",
+      name: "adminFlaggedServices",
+      components: {
+        header: AdminAppHeader,
+        default: AdminFlaggedServices,
+        footer: AdminAppFooter,
+
+      }
+    },
+    {
+      path: "/admin/flagged_users",
+      name: "adminFlaggedUsers",
+      components: {
+        header: AdminAppHeader,
+        default: AdminFlaggedUsers,
+        footer: AdminAppFooter,
+      }
+    }
 
     
   ],

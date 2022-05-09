@@ -39,6 +39,9 @@ public class UserService {
     private FlagRepository flagRepository;
 
     @Autowired
+    private RatingRepository ratingRepository;
+
+    @Autowired
     private UserServiceApprovalRepository userServiceApprovalRepository;
 
     @Autowired
@@ -168,9 +171,11 @@ public class UserService {
 
         final var dto = mapUserToDTO(userToDelete.get());
 
+        ratingRepository.deleteAllByRater(userToDelete.get());
         svcApprovalRepository.deleteAll(userToDelete.get().getServiceApprovalSet());
         eventApprovalRepository.deleteAll(userToDelete.get().getEventApprovalSet());
 
+        userToDelete.get().setRatings(Collections.emptySet());
         userToDelete.get().setEventApprovalSet(Collections.emptySet());
         userToDelete.get().setServiceApprovalSet(Collections.emptySet());
 
@@ -392,6 +397,29 @@ public class UserService {
         } catch(Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
 
+    @Transactional
+    public List<UserDto> getAllFlaggedUsers() {
+        try {
+            // get all flags of users
+            List<Flag> userFlags = flagRepository.findAllByType(FlagType.user);
+            List<UserDto> flaggedUsers = new ArrayList<>();
+            List<Long> ids = new ArrayList<>();
+            for(Flag flag : userFlags) {
+                Optional<User> user = repository.findById(flag.getFlaggedEntity());
+                if (user.isPresent()) {
+                    if (ids.contains(user.get().getId())) {
+                        continue;
+                    }
+                    flaggedUsers.add(mapUserToDTO(user.get()));
+                    ids.add(user.get().getId());
+                }
+            }
+            Collections.sort(flaggedUsers, (o1, o2) -> (int)o2.getFlagCount() - (int)o1.getFlagCount());
+            return flaggedUsers;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }

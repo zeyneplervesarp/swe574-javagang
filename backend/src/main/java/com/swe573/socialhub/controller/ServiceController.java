@@ -61,7 +61,7 @@ public class ServiceController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ServiceDto> deleteService(@PathVariable(value = "id") long id, Principal principal) {
         try {
             return ResponseEntity.ok(serviceService.deleteService(id, principal));
@@ -176,6 +176,15 @@ public class ServiceController {
         }
     }
 
+    @GetMapping("/flag")
+    public List<ServiceDto> getAllFlaggedServices(Principal principal) {
+        try {
+            return serviceService.getAllFlaggedServices(principal);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+  
     @PostMapping("/cancel/{serviceId}")
     public ResponseEntity<ServiceDto> cancelService(Principal principal, @PathVariable Long serviceId) {
         try {

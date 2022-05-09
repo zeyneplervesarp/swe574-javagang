@@ -37,12 +37,21 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/flagged_services">
+                Flagged Services
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="#/admin/flagged_users">
+                Flagged Users
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link nav-link-icon" href="#">
                 Profile
 
             </a>
-        </li>
-       
+        </li>    
     </ul>
  </base-nav>
 </div>
