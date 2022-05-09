@@ -191,6 +191,9 @@ public class User {
     }
 
     public Set<UserServiceApproval> getServiceApprovalSet() {
+        if (this.serviceApprovalSet == null) {
+            this.serviceApprovalSet = new HashSet<UserServiceApproval>();
+        }
         return serviceApprovalSet;
     }
 
@@ -278,6 +281,10 @@ public class User {
     }
 
     public Set<Badge> getBadges() {
+        if (this.badges == null)
+        {
+            this.badges =  new HashSet<>();
+        }
         return badges;
     }
 

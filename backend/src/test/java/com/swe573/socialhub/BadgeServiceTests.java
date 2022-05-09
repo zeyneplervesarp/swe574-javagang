@@ -21,6 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,12 +84,13 @@ public class BadgeServiceTests {
             for (int i = 0; i < 10; i++) {
                 var approval = new UserServiceApproval();
                 approval.setApprovalStatus(ApprovalStatus.APPROVED);
+                approval.setUser(new User());
                 add(approval);
             }
         }});
 
 
-        var updatedUser = service.checkBadgesAfterApproval(mockUser);
+        var updatedUser = service.checkBadges(mockUser);
 
         assertEquals(0, updatedUser.getBadges().stream().count());
         assertFalse(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.newcomer));
@@ -103,17 +105,36 @@ public class BadgeServiceTests {
             for (int i = 0; i < 20; i++) {
                 var approval = new UserServiceApproval();
                 approval.setApprovalStatus(ApprovalStatus.APPROVED);
+                approval.setUser(new User());
                 add(approval);
             }
         }});
         mockUser.setBadges(new HashSet<>());
 
 
-        var updatedUser = service.checkBadgesAfterApproval(mockUser);
+        var updatedUser = service.checkBadges(mockUser);
 
         assertEquals(1, updatedUser.getBadges().stream().count());
         assertTrue(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.regular));
     }
+
+
+
+    @Test
+    public void checkServiceApproval_AddsReputableBadge() {
+        var mockUser = new User();
+        mockUser.setId(0L);
+        mockUser.setReputationPoint(10);
+        mockUser.setBadges(new HashSet<>());
+        mockUser.setServiceApprovalSet(new HashSet<>());
+
+
+        var updatedUser = service.checkBadges(mockUser);
+        System.out.println(updatedUser.getBadges().stream().map(x->x.getBadgeType()).collect(Collectors.toList()));
+        assertEquals(1, updatedUser.getBadges().stream().count());
+        assertTrue(updatedUser.getBadges().stream().anyMatch(x -> x.getBadgeType() == BadgeType.reputable));
+    }
+
 
     @Test
     public void mapToDto_ReturnsDto() {
