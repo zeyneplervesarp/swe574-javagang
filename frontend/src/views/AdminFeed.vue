@@ -1,8 +1,7 @@
 <template>
   <div class="profile-page">
     <section class="section-profile-cover section-shaped my-0">
-      <div class="shape shape-style-2 shape-primary shape-skew alpha-4">
-        <span></span>
+      <div class="shape shape-style-3 shape-primary shape-skew alpha-4">
         <span></span>
         <span></span>
         <span></span>
@@ -18,43 +17,39 @@
           <div class="px-4">
             <div class="row justify-content-center">
               <div class="col-lg-3 order-lg-2"></div>
+              <div
+                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center">
+              </div>
             </div>
             <div class="text-center mt-5">
-              <h4>User Activites</h4>
-            </div>
-            <div class="mt-5 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-12">
-                  <div class="container ct-example-row">
-                    <div>
+              <h3>
+                  Feed           
+              </h3>
+              <br />
+               <div class="container ct-example-row">
                       <div
                         class="row"
                         v-for="(result, index) in feed"
                         :key="index"
                       >
                         <div class="col mt-2 text-center">
-                          <span
+                        <span
                             v-if="
-                              result.verb == 'login' ||
-                              result.verb == 'join-request'
+                              result.verb == 'follow'
                             "
                           >
                             <base-button
                               @click="GoToUrl(result.target.url)"
                               block
-                              type="info"
+                              type="default"
                               >{{ result.published }} || {{ result.summary }}
-                              <badge class="float-right" pill type="info">{{
+                              <badge class="float-right" pill type="default">{{
                                 result.verb
                               }}</badge>
                             </base-button>
                           </span>
                           <span
-                            v-if="
-                              result.verb == 'create' ||
-                              result.verb == 'approve'
-                            "
-                          >
+                            v-if="result.verb == 'login'">
                             <base-button
                               @click="GoToUrl(result.target.url)"
                               block
@@ -65,14 +60,55 @@
                               }}</badge>
                             </base-button>
                           </span>
-                          <span v-if="result.verb == 'login-failed'">
+                          <span
+                            v-if="result.verb == 'join-request'">
                             <base-button
                               @click="GoToUrl(result.target.url)"
                               block
                               type="info"
                               >{{ result.published }} || {{ result.summary }}
-
                               <badge class="float-right" pill type="info">{{
+                                result.verb
+                              }}</badge>
+                            </base-button>
+                          </span>
+                          <span
+                            v-if="
+                              result.verb == 'create'"
+                          >
+                            <base-button
+                              @click="GoToUrl(result.target.url)"
+                              block
+                              type="primary"
+                              >{{ result.published }} || {{ result.summary }}
+                              <badge class="float-right" pill type="primary">{{
+                                result.verb
+                              }}</badge>
+                            </base-button>
+                          </span>
+                          <span
+                            v-if="
+                              result.verb == 'approve'
+                            "
+                          >
+                            <base-button
+                              @click="GoToUrl(result.target.url)"
+                              block
+                              type="secondary"
+                              >{{ result.published }} || {{ result.summary }}
+                              <badge class="float-right" pill type="secondary">{{
+                                result.verb
+                              }}</badge>
+                            </base-button>
+                          </span>
+                          <span v-if="result.verb == 'login-failed'">
+                            <base-button
+                              @click="GoToUrl(result.target.url)"
+                              block
+                              type="danger"
+                              >{{ result.published }} || {{ result.summary }}
+
+                              <badge class="float-right" pill type="danger">{{
                                 result.verb
                               }}</badge>
                             </base-button>
@@ -80,23 +116,18 @@
                         </div>
                         <div class="w-100"></div>
                       </div>
-                    </div>
                     <infinite-loading
                       @infinite="infiniteHandler"
                       spinner="spiral"
                     ></infinite-loading>
-                  </div>
-                </div>
+              <br />
               </div>
             </div>
           </div>
         </card>
       </div>
     </section>
-<back-to-top text="Back to top" visibleoffset="500"></back-to-top>
-
   </div>
-  
 </template>
 <script>
 import apiRegister from "../api/register";
