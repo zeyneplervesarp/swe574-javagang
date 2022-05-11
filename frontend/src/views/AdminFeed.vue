@@ -39,7 +39,7 @@
                             "
                           >
                             <base-button
-                              @click="GoToUrl(result.target.url)"
+                              @click="GoToUrl(result.object.url)"
                               block
                               type="default"
                               >{{ result.published }} || {{ result.summary }}
@@ -51,7 +51,7 @@
                           <span
                             v-if="result.verb == 'login'">
                             <base-button
-                              @click="GoToUrl(result.target.url)"
+                              @click="GoToUrl(result.actor.url)"
                               block
                               type="success"
                               >{{ result.published }} || {{ result.summary }}
@@ -63,7 +63,7 @@
                           <span
                             v-if="result.verb == 'join-request'">
                             <base-button
-                              @click="GoToUrl(result.target.url)"
+                              @click="GoToUrl(result.object.url)"
                               block
                               type="info"
                               >{{ result.published }} || {{ result.summary }}
@@ -77,7 +77,7 @@
                               result.verb == 'create'"
                           >
                             <base-button
-                              @click="GoToUrl(result.target.url)"
+                              @click="GoToUrl(result.object.url)"
                               block
                               type="primary"
                               >{{ result.published }} || {{ result.summary }}
@@ -92,7 +92,7 @@
                             "
                           >
                             <base-button
-                              @click="GoToUrl(result.target.url)"
+                              @click="GoToUrl(result.actor.url)"
                               block
                               type="secondary"
                               >{{ result.published }} || {{ result.summary }}
