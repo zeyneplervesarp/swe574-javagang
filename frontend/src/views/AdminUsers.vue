@@ -28,16 +28,16 @@
               <div></div>
               <br />
               <div class="text-center">
-                <div>
-                  <table class="table table-striped">
+                <div style="overflow-x:auto;">
+                  <table class="table table-striped" style="width: 100%; table-layout: fixed;">
                     <thead class="">
                       <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">E-mail</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">View</th>
-                        <th scope="col">Ban</th>
+                        <th scope="col" style="width: 10%">#</th>
+                        <th scope="col" style="width: 10%">Username</th>
+                        <th scope="col" style="width: 15%">E-mail</th>
+                        <th scope="col" style="width: 40%">Description</th>
+                        <th scope="col" style="width: 10%">View</th>
+                        <th scope="col" style="width: 10%">Ban</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -53,12 +53,12 @@
                             class="mb-3"
                             @click="GoToUserProfile(user.id)"
                           >
-                            View User
+                            <i class="ni ni-curved-next"></i>
                           </base-button>
                         </td>
                         <td>
                           <base-button block type="warning" @click="DeleteUser(user.id)" class="mb-3">
-                            Delete User
+                           <i class="ni ni-bell-55"></i>
                           </base-button>
                         </td>
                       </tr>

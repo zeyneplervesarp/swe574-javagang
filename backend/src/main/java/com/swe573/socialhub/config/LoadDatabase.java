@@ -246,7 +246,7 @@ class LoadDatabase {
                 (int) randomLongBetween(1, 10),
                 0,
                 user,
-                Double.valueOf(faker.address().latitude()), Double.valueOf(faker.address().longitude()),
+                Double.valueOf(faker.address().latitude().replace(",", ".")), Double.valueOf(faker.address().longitude().replace(",", ".")),
                 new HashSet<>(pickedTags)
             );
         } else {
