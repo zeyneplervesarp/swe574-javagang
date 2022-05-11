@@ -95,10 +95,6 @@
                               @click="GoToUrl(result.actor.url)"
                               block
                               type="secondary"
-                              style=".table tbody > tr > td.vert-align_td,
-.table tbody > tr > th.vert-align_th {
-   white-space: normal;
-}"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
                               <badge class="float-right" pill type="secondary">{{
                                 result.verb
