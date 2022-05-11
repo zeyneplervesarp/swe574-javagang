@@ -42,7 +42,7 @@
                               @click="GoToUrl(result.object.url)"
                               block
                               type="default"
-                              >{{ result.published }} || {{ result.summary }}
+                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
                               <badge class="float-right" pill type="default">{{
                                 result.verb
                               }}</badge>
@@ -54,7 +54,7 @@
                               @click="GoToUrl(result.actor.url)"
                               block
                               type="success"
-                              >{{ result.published }} || {{ result.summary }}
+                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
                               <badge class="float-right" pill type="success">{{
                                 result.verb
                               }}</badge>
@@ -66,7 +66,7 @@
                               @click="GoToUrl(result.object.url)"
                               block
                               type="info"
-                              >{{ result.published }} || {{ result.summary }}
+                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
                               <badge class="float-right" pill type="info">{{
                                 result.verb
                               }}</badge>
@@ -80,7 +80,7 @@
                               @click="GoToUrl(result.object.url)"
                               block
                               type="primary"
-                              >{{ result.published }} || {{ result.summary }}
+                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
                               <badge class="float-right" pill type="primary">{{
                                 result.verb
                               }}</badge>
@@ -95,7 +95,11 @@
                               @click="GoToUrl(result.actor.url)"
                               block
                               type="secondary"
-                              >{{ result.published }} || {{ result.summary }}
+                              style=".table tbody > tr > td.vert-align_td,
+.table tbody > tr > th.vert-align_th {
+   white-space: normal;
+}"
+                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
                               <badge class="float-right" pill type="secondary">{{
                                 result.verb
                               }}</badge>
@@ -106,7 +110,7 @@
                               @click="GoToUrl(result.target.url)"
                               block
                               type="danger"
-                              >{{ result.published }} || {{ result.summary }}
+                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
 
                               <badge class="float-right" pill type="danger">{{
                                 result.verb
@@ -133,6 +137,7 @@
 import apiRegister from "../api/register";
 import infiniteLoading from "vue-infinite-loading";
 import BackToTop from 'vue-backtotop'
+import moment from 'moment';
 
 export default {
   components: {
@@ -149,6 +154,9 @@ export default {
     this.GetFeed();
   },
   methods: {
+    GetFormattedDate(date) {
+            return moment(date).format("YYYY-MM-DD")
+    },
     GetFeed() {
       apiRegister.GetAdminFeed().then((r) => {
         this.feed = r.items;
