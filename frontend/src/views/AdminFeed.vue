@@ -26,6 +26,70 @@
                   Feed           
               </h3>
               <br />
+
+              <div class="row justify-content-center">
+              <div class="row pull-left">
+                <base-dropdown>
+                  <base-button
+                    slot="title"
+                    type="warning"
+                    class="dropdown-toggle float-right"
+                  >
+                    Filter By
+                  </base-button>
+                  <a class="dropdown-item" href="#" v-on:click="GetFeed()"
+                    >Show All
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></a>
+                  <a class="dropdown-item" href="#" v-on:click="GetFilteredFeed('user_login_successful')"
+                    >Successful Login
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></a>
+                  <a class="dropdown-item" href="#" v-on:click="GetFilteredFeed('user_login_failed')"
+                    >Unsuccessful Login
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-desc mr-2"></i>
+                    </span>
+                  </a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    v-on:click="GetFilteredFeed('service_created')"
+                    >Created Service
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    v-on:click="GetFilteredFeed('service_join_requested')"
+                    >Service Join Request
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
+                  ></a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    v-on:click="GetFilteredFeed('service_join_approved')"
+                    >Service Join Approval
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    v-on:click="GetFilteredFeed('follow')"
+                    >Follow
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
+                  ></a>
+                </base-dropdown>
+              </div>
+              </div>
+
+
                <div class="container ct-example-row">
                       <div
                         class="row"
@@ -134,16 +198,19 @@ import apiRegister from "../api/register";
 import infiniteLoading from "vue-infinite-loading";
 import BackToTop from 'vue-backtotop'
 import moment from 'moment';
+import BaseDropdown from "@/components/BaseDropdown";
 
 export default {
   components: {
     infiniteLoading,
     BackToTop,
+    BaseDropdown,
   },
   data() {
     return {
       feed: [],
       next: "",
+      filter_key: "",
     };
   },
   mounted() {
@@ -151,7 +218,7 @@ export default {
   },
   methods: {
     GetFormattedDate(date) {
-            return moment(date).format("YYYY-MM-DD")
+      return moment(date).format("YYYY-MM-DD")
     },
     GetFeed() {
       apiRegister.GetAdminFeed().then((r) => {
@@ -159,16 +226,19 @@ export default {
         this.next = r.next;
       });
     },
-    GoToUrl(url) {
-      url = url.replace("user", "profile");
-      url = "#" + url;
-      window.location.href = url;
+    GetFilteredFeed(key) {
+      apiRegister.GetAdminFeed(this.next, key).then((r) => {
+        this.feed = r.items;
+        this.next =  r.next;
+        this.filter_key = r.filterKey;
+      })
     },
     infiniteHandler($state) {
-      apiRegister.GetAdminFeed(this.next).then((r) => {
+      apiRegister.GetAdminFeed(this.next, this.filter_key).then((r) => {
         if (r.items.length) {
           setTimeout(() => {
             this.next = r.next;
+            this.filter_key = r.filterKey;
             var merged = [...this.feed, ...r.items];
             this.feed = merged;
             $state.loaded();
@@ -177,6 +247,11 @@ export default {
           $state.complete();
         }
       });
+    },
+    GoToUrl(url) {
+      url = url.replace("user", "profile");
+      url = "#" + url;
+      window.location.href = url;
     },
   },
 };

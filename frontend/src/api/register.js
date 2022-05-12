@@ -129,16 +129,18 @@ export default {
     DeleteService(serviceId) {
         return http.delete(process.env.VUE_APP_API + "service/delete/" + serviceId, null, true)
     },
-    GetAdminFeed(url) {
-        console.log(url)
+    GetAdminFeed(url, filter_key) {
+        if(filter_key == "" || filter_key == null) {
+            var data = null;
+        } else {
+            var data = {"filterKey": filter_key};
+        }
         if(url == null || url == "")
         {
-            return http.get(process.env.VUE_APP_API + 'admin/feed')
-
+            return http.get(process.env.VUE_APP_API + 'admin/feed', data, null, true);
         }
         else{
-            return http.get(process.env.VUE_APP_API + url)
-
+            return http.get(process.env.VUE_APP_API + url + "&filterKey=" + filter_key, null, true);
         }
     },
     GetAllUsers(){
@@ -150,5 +152,4 @@ export default {
     CancelService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/cancel/" + serviceId, null, true, "Could not cancel service");
     }
-
 }
