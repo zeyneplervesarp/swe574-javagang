@@ -140,6 +140,7 @@
               v-if="!userIsAdmin && !isOwnProfile"
               class="mt-2 py-5 border-top text-center"
             >
+              <p> {{isOwnProfile}} </p>
               <base-button block type="primary" class="mb-3" @click="Flag()">
                 Flag User
               </base-button>
@@ -184,7 +185,7 @@ export default {
         badges: [],
         ratingSummary: {},
       },
-      isOwnProfile: this.$route.params.userId == null,
+      isOwnProfile: false,
       alreadyFollowing: false,
       userIsAdmin: false,
     };
@@ -194,8 +195,10 @@ export default {
     this.AlreadyFollowing();
 
     apiRegister.GetProfile().then((r) => {
+      console.log("result:" + r.id);
       var compare = r.userType.localeCompare("ADMIN");
       this.userIsAdmin = compare == 0;
+      this.isOwnProfile =  this.$route.params.userId == r.id || this.$route.params.userId == null;
     });
   },
   methods: {
