@@ -3,8 +3,8 @@ package com.swe573.socialhub.dto;
 import org.springframework.data.domain.Sort;
 
 public class DistanceBasedPagination extends Pagination<Double> {
-    private static final Double DEFAULT_GT = 0D;
-    private static final Double DEFAULT_LT = 50000000000D;
+    public static final Double DEFAULT_GT = 0D;
+    public static final Double DEFAULT_LT = 50000000000D;
 
     public DistanceBasedPagination(Double greaterThanKms, Double lowerThanKms, int size) {
         super(
@@ -17,7 +17,11 @@ public class DistanceBasedPagination extends Pagination<Double> {
 
     @Override
     public Pagination<Double> nextPage(Double lastValue) {
-        return null;
+        return new DistanceBasedPagination(
+                this.getSortDirection().isAscending() ? lastValue : this.getGreaterThan(),
+                this.getSortDirection().isAscending() ? this.getLowerThan() : lastValue,
+                this.getSize()
+        );
     }
 
     @Override

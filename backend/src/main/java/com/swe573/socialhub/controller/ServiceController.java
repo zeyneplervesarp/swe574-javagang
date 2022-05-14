@@ -42,26 +42,34 @@ public class ServiceController {
 
             final var urlPrefix = "service/" + getOngoingOnly.toString() + "/" + filter.toString();
             final var sortBySuffix = "&sortBy=" + sortBy.toString();
-            gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
-            lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
             switch (sortBy) {
                 case distanceAsc:
+                    gt = gt != null ? gt : String.valueOf(DistanceBasedPagination.DEFAULT_GT);
+                    lt = lt != null ? lt : String.valueOf(DistanceBasedPagination.DEFAULT_LT);
                     var dsPagination = ControllerUtils.parseDistancePagination(Double.valueOf(gt), Double.valueOf(lt), size);
                     var items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, dsPagination, sortBy);
                     return new PaginatedResponse<>(items, urlPrefix, sortBySuffix, dsPagination, ServiceDto::getDistanceToUser);
                 case serviceDateDesc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
                     var tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
                     return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
                 case createdDateDesc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
                     return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
                 case serviceDateAsc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
                     return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
                 case createdDateAsc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
                     return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );

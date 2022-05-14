@@ -15,12 +15,6 @@
             <span class="btn-inner--icon">
               <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
           ></a>
-          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceDesc')"
-            >Distance
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc mr-2"></i>
-            </span>
-          </a>
           <a
             class="dropdown-item"
             href="#"
@@ -145,14 +139,9 @@ export default {
   },
   methods: {
     GetServices() {
-      if (this.filter == "first3") {
-        apiRegister.GetAllServicesForHome().then((response) => {
-          this.serviceResult = response.items;
-          this.nestedServiceArray = this.SplitList();
-        });
-      } else if (this.filter == "featured") {
+      if (this.filter == "featured") {
         apiRegister.GetFeaturedServices().then((response) => {
-          this.serviceResult = response.items;
+          this.serviceResult = response;
           this.nestedServiceArray = this.SplitList();
         });
       } else {
