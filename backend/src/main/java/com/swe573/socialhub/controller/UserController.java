@@ -13,6 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -94,9 +96,17 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/getAll")
-    public List<UserDto> getAllUsers(Principal principal) {
-        return service.getAllUsers();
+    @GetMapping("/user/getPaginated")
+    public PaginatedResponse<UserDto> getAllUsers(
+            Principal principal,
+            @RequestParam(required = false) Long gt,
+            @RequestParam(required = false) Long lt,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sort
+    ) {
+        final var pagination = ControllerUtils.parseTimestampPagination(gt, lt, size, sort);
+        final var items = service.getAllUsers(pagination);
+        return new PaginatedResponse<>(items, "user/getPaginated", "", pagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())));
     }
 
     @GetMapping("/user/follow/{userId}")

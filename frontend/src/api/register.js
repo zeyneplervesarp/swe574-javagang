@@ -31,17 +31,25 @@ export default {
     GetAllServices(getOngoingOnly, filter) {
         return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter)
     },
-    GetAllServicesSorted(getOngoingOnly, filter, sortBy) {
-        return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?sortBy=" + sortBy)
+    GetAllServicesSorted(getOngoingOnly, filter, sortBy, url) {
+        const urlToCall = url ? process.env.VUE_APP_API + url : process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?sortBy=" + sortBy;
+        console.log("predefined url: ", url)
+        console.log("calling url", urlToCall);
+        if (!url) {
+            return http.get(urlToCall)
+        } else {
+
+            return http.get(urlToCall)
+        }
     },
     GetFeaturedServices() {
         return http.get(process.env.VUE_APP_API + 'service/feature')
     },
     FeatureService(id) {
-        return http.post(process.env.VUE_APP_API + 'service/feature/' + id, null,true)
+        return http.post(process.env.VUE_APP_API + 'service/feature/' + id, null, true)
     },
     UnfeatureService(id) {
-        return http.delete(process.env.VUE_APP_API + 'service/feature/' + id, null,true)
+        return http.delete(process.env.VUE_APP_API + 'service/feature/' + id, null, true)
     },
     SetTags(data) {
         return http.post(process.env.VUE_APP_API + 'user/setTags', data)
@@ -90,25 +98,20 @@ export default {
     },
     RateService(serviceId, rating) {
         return http.post(process.env.VUE_APP_API + 'rating/service/' + serviceId + "/" + rating, null, true)
-    },    
-    AddTag(tag)
-    {
-        return http.post(process.env.VUE_APP_API + 'tags', tag,false)
     },
-    FlagService(serviceId)
-    {
+    AddTag(tag) {
+        return http.post(process.env.VUE_APP_API + 'tags', tag, false)
+    },
+    FlagService(serviceId) {
         return http.post(process.env.VUE_APP_API + 'service/flag/' + serviceId, null, true)
     },
-    FlagUser(userId) 
-    {
+    FlagUser(userId) {
         return http.post(process.env.VUE_APP_API + "user/flag/" + userId, null, true)
     },
-    DismissFlagsForUser(userId)
-    {
+    DismissFlagsForUser(userId) {
         return http.post(process.env.VUE_APP_API + "user/flag/dismiss/" + userId, null, true)
     },
-    GetAllFlaggedUsers() 
-    {
+    GetAllFlaggedUsers() {
         return http.get(process.env.VUE_APP_API + "user/flag", null, false)
     },
     DismissFlagsForService(serviceId) {
@@ -120,8 +123,8 @@ export default {
     GetAllStats() {
         return http.get(process.env.VUE_APP_API + 'stats', null, true, "Couldn't fetch stats");
     },
-    Search(searchQuery){
-        return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50',null,true,"Search could not be completed")
+    Search(searchQuery) {
+        return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50', null, true, "Search could not be completed")
     },
     DeleteUser(userId) {
         return http.delete(process.env.VUE_APP_API + "user/delete/" + userId, null, true)
@@ -131,21 +134,23 @@ export default {
     },
     GetAdminFeed(url) {
         console.log(url)
-        if(url == null || url == "")
-        {
+        if (url == null || url == "") {
             return http.get(process.env.VUE_APP_API + 'admin/feed')
 
         }
-        else{
+        else {
             return http.get(process.env.VUE_APP_API + url)
 
         }
     },
-    GetAllUsers(){
-        return http.get(process.env.VUE_APP_API + "user/getAll", null, true, "Could not get users list");
+    GetAllUsers(url) {
+        if (url) {
+            return http.get(process.env.VUE_APP_API + url, null, true, "Could not get users list");    
+        }
+        return http.get(process.env.VUE_APP_API + "user/getPaginated", null, true, "Could not get users list");
     },
-    DeleteUser(userId){
-        return http.delete(process.env.VUE_APP_API + "user/"+userId, null, true, "Could not delete user");
+    DeleteUser(userId) {
+        return http.delete(process.env.VUE_APP_API + "user/" + userId, null, true, "Could not delete user");
     },
     CancelService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/cancel/" + serviceId, null, true, "Could not cancel service");

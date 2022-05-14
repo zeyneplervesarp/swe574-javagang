@@ -89,16 +89,6 @@ public class ActivityStreamService {
         return mapToCollection(activities, pagination, endpointBase);
     }
 
-    private String makeUrlString(TimestampBasedPagination pagination, String endpointBase) {
-        var map =  Map.of("sort", pagination.getSortDirection().toString(),
-                "gt", Long.toString(pagination.getGreaterThan().toInstant().toEpochMilli()),
-                "lt", Long.toString(pagination.getLowerThan().toInstant().toEpochMilli()),
-                "size", Integer.toString(pagination.getSize())
-        );
-
-        return endpointBase + "?" + Joiner.on("&").withKeyValueSeparator("=").join(map);
-    }
-
     private Collection mapToCollection(List<Activity> activityList, TimestampBasedPagination pagination, String endpointBase) {
         final var builder = collection()
                 .items(activityList)
@@ -106,7 +96,7 @@ public class ActivityStreamService {
 
         if (!activityList.isEmpty()) {
             final var nextPagination = pagination.nextPage(activityList.get(activityList.size() - 1).published().toDate());
-            final var nextUrl = makeUrlString(nextPagination, endpointBase);
+            final var nextUrl = nextPagination.makeUrlString(endpointBase, "");
             builder.pageLink(Collection.Page.NEXT, nextUrl);
         }
 
