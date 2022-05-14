@@ -1,6 +1,8 @@
 package com.swe573.socialhub.controller;
 
 import com.swe573.socialhub.domain.Flag;
+import com.swe573.socialhub.dto.DistanceBasedPagination;
+import com.swe573.socialhub.dto.Pagination;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.enums.ServiceFilter;
 import com.swe573.socialhub.enums.ServiceSortBy;
@@ -25,10 +27,33 @@ public class ServiceController {
 
     @GetMapping("/{getOngoingOnly}/{filter}")
     @ResponseBody
-    public List<ServiceDto> findAllServices(@RequestParam (required = false) ServiceSortBy sortBy, Principal principal, @PathVariable Boolean getOngoingOnly, @PathVariable(value = "filter") ServiceFilter filter) {
-
+    public List<ServiceDto> findAllServices(
+            Principal principal,
+            @RequestParam (required = false) ServiceSortBy sortBy,
+            @RequestParam(required = false) String gt,
+            @RequestParam(required = false) String lt,
+            @RequestParam(required = false) Integer size,
+            @PathVariable Boolean getOngoingOnly,
+            @PathVariable(value = "filter") ServiceFilter filter
+    ) {
         try {
-            return serviceService.findPaginated(principal,getOngoingOnly,filter,sortBy);
+
+            Pagination pagination = null;
+            switch (sortBy) {
+                case distanceAsc:
+                    pagination = ControllerUtils.parseDistancePagination(Double.valueOf(gt), Double.valueOf(lt), size);
+                    break;
+                case serviceDateDesc:
+                case createdDateDesc:
+                    pagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
+                    break;
+                case serviceDateAsc:
+                case createdDateAsc:
+                    pagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
+                    break;
+            }
+
+            return serviceService.findPaginated(principal, getOngoingOnly, filter, pagination, sortBy);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }

@@ -21,4 +21,13 @@ public class TimestampBasedPagination extends Pagination<Date> {
     public Pageable toPageable() {
         return toPageable("created");
     }
+
+    public TimestampBasedPagination nextPage(Date lastValue) {
+        return new TimestampBasedPagination(
+                this.getSortDirection().isAscending() ? lastValue : this.getGreaterThan(),
+                this.getSortDirection().isAscending() ? this.getLowerThan() : lastValue,
+                this.getSize(),
+                this.getSortDirection()
+        );
+    }
 }

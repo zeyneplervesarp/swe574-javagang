@@ -85,9 +85,6 @@ public class EventService {
             case createdByUser:
                 entities = entities.stream().filter(x -> x.getCreatedUser() == loggedInUser).collect(Collectors.toUnmodifiableList());
                 break;
-            case first3:
-                entities = entities.stream().limit(3).collect(Collectors.toUnmodifiableList());
-                break;
             case attending:
                 entities = entities.stream().filter(x -> x.getApprovalSet().stream().anyMatch(y -> y.getUser() == loggedInUser && y.getApprovalStatus() == ApprovalStatus.APPROVED)).collect(Collectors.toUnmodifiableList());
                 break;
@@ -119,11 +116,6 @@ public class EventService {
                 case distanceAsc:
                     list = list.stream()
                             .sorted(Comparator.comparing(EventDto::getDistanceToUser))
-                            .collect(Collectors.toList());
-                    break;
-                case distanceDesc:
-                    list = list.stream()
-                            .sorted(Comparator.comparing(EventDto::getDistanceToUser).reversed())
                             .collect(Collectors.toList());
                     break;
                 case createdDateAsc:

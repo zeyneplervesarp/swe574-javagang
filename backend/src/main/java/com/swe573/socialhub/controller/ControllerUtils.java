@@ -25,18 +25,14 @@ public class ControllerUtils {
     }
 
     static DistanceBasedPagination parseDistancePagination(
-            Long gt,
-            Long lt,
-            Integer size,
-            String sort
+            Double gt,
+            Double lt,
+            Integer size
     ) {
-        final var sortDirection = sort != null && sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
         return new DistanceBasedPagination(
                 gt,
                 lt,
-                size != null ? size : 20,
-                sortDirection
+                size != null ? size : 20
         );
     }
 }
