@@ -40,7 +40,7 @@ public class ServiceController {
         try {
 
 
-            final var urlPrefix = "/service/" + getOngoingOnly.toString() + "/" + filter.toString();
+            final var urlPrefix = "service/" + getOngoingOnly.toString() + "/" + filter.toString();
             final var sortBySuffix = "&sortBy=" + sortBy.toString();
             gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
             lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
@@ -77,15 +77,17 @@ public class ServiceController {
 
     @GetMapping
     @ResponseBody
-    public List<ServiceDto> findAllServices(
+    public PaginatedResponse<ServiceDto> findAllServices(
             @RequestParam(required = false) Long gt,
             @RequestParam(required = false) Long lt,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String sort
     )  {
+        final var urlPrefix = "service";
         try {
             final var pagination = ControllerUtils.parseTimestampPagination(gt, lt, size, sort);
-            return serviceService.findPaginatedOngoing(pagination);
+            final var items =  serviceService.findPaginatedOngoing(pagination);
+            return new PaginatedResponse<>(items, urlPrefix, "", pagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
