@@ -44,17 +44,10 @@ public class ActivityStreamsController {
                 FeedEvent.FOLLOW
         );
 
-        final var sortDirection = sort != null && sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
         final var results = service.fetchFeedValidated(
                 principal,
                 eventsToFetchForAdmin,
-                new TimestampBasedPagination(
-                        gt != null ? new Date(gt) : null,
-                        lt != null ? new Date(lt) : null,
-                        size != null ? size : 20,
-                        sortDirection
-                ),
+                ControllerUtils.parsePagination(gt, lt, size, sort),
                 "admin/feed"
         );
 
