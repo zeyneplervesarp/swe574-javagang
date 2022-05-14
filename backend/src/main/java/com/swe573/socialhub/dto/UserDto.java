@@ -3,6 +3,7 @@ package com.swe573.socialhub.dto;
 import com.swe573.socialhub.domain.Badge;
 import com.swe573.socialhub.enums.UserType;
 
+import java.util.Date;
 import java.util.List;
 
 public class UserDto {
@@ -26,8 +27,14 @@ public class UserDto {
     private long flagCount;
     private int reputationPoint;
     private List<BadgeDto> badges;
+    private Long createdTimestamp;
 
-    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount,  int reputationPoint, List<BadgeDto> badges) {
+    public Long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount, int reputationPoint, List<BadgeDto> badges, Date created) {
+        this.createdTimestamp = created.toInstant().toEpochMilli();
         this.id = id;
         this.ratingSummary = ratingSummary;
         this.username = username;

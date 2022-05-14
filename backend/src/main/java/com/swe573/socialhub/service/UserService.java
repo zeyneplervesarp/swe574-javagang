@@ -5,6 +5,7 @@ import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import com.swe573.socialhub.config.JwtTokenUtil;
+import com.swe573.socialhub.repository.activitystreams.TimestampPaginatedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -208,14 +209,11 @@ public class UserService {
         return mapUserToDTO(userOption.get(), true);
     }
 
-    public List<UserDto> getAllUsers() {
-        final List<User> users = repository.findAll();
-        List<UserDto> list = new ArrayList<UserDto>();
-        for (User user : users) {
-            var dto = mapUserToDTO(user, false);
-            list.add(dto);
-        }
-        return list;
+    public List<UserDto> getAllUsers(TimestampBasedPagination pagination) {
+        return new TimestampPaginatedRepository<>(repository).findAllMatching(pagination)
+                .stream()
+                .map(u -> mapUserToDTO(u, false))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public UserDto mapUserToDTO(User user, boolean extended) {
@@ -256,7 +254,9 @@ public class UserService {
                 user.getUserType(),
                 flagCount,
                 user.getReputationPoint(),
-                user.getBadges().stream().map(x -> new BadgeDto(x.getId(), x.getBadgeType())).collect(Collectors.toUnmodifiableList()));
+                user.getBadges().stream().map(x -> new BadgeDto(x.getId(), x.getBadgeType())).collect(Collectors.toUnmodifiableList()),
+                user.getCreated()
+        );
     }
 
     public UserDto getUserByPrincipal(Principal principal) {

@@ -143,8 +143,11 @@ export default {
 
         }
     },
-    GetAllUsers() {
-        return http.get(process.env.VUE_APP_API + "user/getAll", null, true, "Could not get users list");
+    GetAllUsers(url) {
+        if (url) {
+            return http.get(process.env.VUE_APP_API + url, null, true, "Could not get users list");    
+        }
+        return http.get(process.env.VUE_APP_API + "user/getPaginated", null, true, "Could not get users list");
     },
     DeleteUser(userId) {
         return http.delete(process.env.VUE_APP_API + "user/" + userId, null, true, "Could not delete user");
