@@ -8,7 +8,6 @@ import com.swe573.socialhub.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,7 +28,7 @@ public class ServiceController {
     public List<ServiceDto> findAllServices(@RequestParam (required = false) ServiceSortBy sortBy, Principal principal, @PathVariable Boolean getOngoingOnly, @PathVariable(value = "filter") ServiceFilter filter) {
 
         try {
-            return serviceService.findAllServices(principal,getOngoingOnly,filter,sortBy);
+            return serviceService.findOngoingPaginated(principal,getOngoingOnly,filter,sortBy);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
@@ -37,10 +36,15 @@ public class ServiceController {
 
     @GetMapping
     @ResponseBody
-    public List<ServiceDto> findAllServices(@RequestParam (required = false) String sortBy)  {
+    public List<ServiceDto> findAllServices(
+            @RequestParam(required = false) Long gt,
+            @RequestParam(required = false) Long lt,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sort
+    )  {
         try {
-            var foo = sortBy;
-            return serviceService.findAllServices();
+            final var pagination = ControllerUtils.parsePagination(gt, lt, size, sort);
+            return serviceService.findOngoingPaginated(pagination);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }

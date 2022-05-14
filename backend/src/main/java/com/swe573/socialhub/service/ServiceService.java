@@ -3,6 +3,7 @@ package com.swe573.socialhub.service;
 import com.swe573.socialhub.domain.*;
 import com.swe573.socialhub.dto.ServiceDto;
 import com.swe573.socialhub.dto.TagDto;
+import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.dto.UserDto;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
@@ -43,17 +44,15 @@ public class ServiceService {
     @Autowired
     private RatingService ratingService;
 
-    public List<ServiceDto> findAllServices() {
-        var entities = serviceRepository.findAll();
-        entities = entities.stream().filter(x -> x.getTime().isAfter(LocalDateTime.now())).limit(3).collect(Collectors.toUnmodifiableList());
-
-        var list = entities.stream().map(service -> mapToDto(service, Optional.empty())).collect(Collectors.toUnmodifiableList());
-
-
-        return list;
+    public List<ServiceDto> findOngoingPaginated(TimestampBasedPagination pagination) {
+        return serviceRepository
+                .findAllByDateBetweenOngoing(pagination.getGreaterThan(), pagination.getLowerThan(), pagination.toPageable())
+                .stream()
+                .map(s -> mapToDto(s, Optional.empty()))
+                .collect(Collectors.toUnmodifiableList());
     }
 
-    public List<ServiceDto> findAllServices(Principal principal, Boolean getOngoingOnly, ServiceFilter filter, ServiceSortBy sortBy) {
+    public List<ServiceDto> findOngoingPaginated(Principal principal, Boolean getOngoingOnly, ServiceFilter filter, ServiceSortBy sortBy) {
         var entities = serviceRepository.findAll();
         //get logged in user
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
