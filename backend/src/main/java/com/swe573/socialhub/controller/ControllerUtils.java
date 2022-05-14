@@ -4,6 +4,8 @@ import com.swe573.socialhub.dto.DistanceBasedPagination;
 import com.swe573.socialhub.dto.TimestampBasedPagination;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class ControllerUtils {
@@ -34,5 +36,9 @@ public class ControllerUtils {
                 lt,
                 size != null ? size : 20
         );
+    }
+
+    static Date localDateTimeToDate(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

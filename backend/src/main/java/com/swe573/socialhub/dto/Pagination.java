@@ -1,10 +1,13 @@
 package com.swe573.socialhub.dto;
 
+import com.google.common.base.Joiner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-public class Pagination<T> {
+import java.util.Map;
+
+public abstract class Pagination<T> {
     private final T greaterThan;
     private final T lowerThan;
     private final int size;
@@ -44,13 +47,17 @@ public class Pagination<T> {
         return PageRequest.of(0, size, sort);
     }
 
-    public Pagination<T> nextPage(T lastValue) {
-        final var currentPagination = this;
-        return new Pagination<>(
-                currentPagination.getSortDirection().isAscending() ? lastValue : currentPagination.getGreaterThan(),
-                currentPagination.getSortDirection().isAscending() ? currentPagination.getLowerThan() : lastValue,
-                currentPagination.getSize(),
-                currentPagination.getSortDirection()
+    public abstract Pagination<T> nextPage(T lastValue);
+
+    abstract String toUrlString(T lastValue);
+
+    public String makeUrlString(String endpointPrefix) {
+        var map =  Map.of("sort", this.getSortDirection().toString(),
+                "gt", toUrlString(getGreaterThan()),
+                "lt", toUrlString(getLowerThan()),
+                "size", Integer.toString(getSize())
         );
+
+        return endpointPrefix + "?" + Joiner.on("&").withKeyValueSeparator("=").join(map);
     }
 }

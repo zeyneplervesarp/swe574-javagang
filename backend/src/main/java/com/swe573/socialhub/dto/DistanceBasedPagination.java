@@ -14,4 +14,14 @@ public class DistanceBasedPagination extends Pagination<Double> {
                 Sort.Direction.ASC
         );
     }
+
+    @Override
+    public Pagination<Double> nextPage(Double lastValue) {
+        return null;
+    }
+
+    @Override
+    String toUrlString(Double lastValue) {
+        return Double.toString(lastValue);
+    }
 }

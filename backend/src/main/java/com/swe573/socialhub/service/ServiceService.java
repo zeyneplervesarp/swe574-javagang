@@ -13,7 +13,6 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @org.springframework.stereotype.Service
 public class ServiceService {
@@ -42,7 +41,7 @@ public class ServiceService {
     @Autowired
     private RatingService ratingService;
 
-    public List<ServiceDto> findPaginated(TimestampBasedPagination pagination) {
+    public List<ServiceDto> findPaginatedOngoing(TimestampBasedPagination pagination) {
         return serviceRepository
                 .findAllByDateBetweenOngoing(pagination.getGreaterThan(), pagination.getLowerThan(), pagination.toPageable())
                 .stream()
@@ -50,7 +49,7 @@ public class ServiceService {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public List<ServiceDto> findPaginated(
+    public List<ServiceDto> findPaginatedOngoing(
             Principal principal,
             Boolean getOngoingOnly,
             ServiceFilter filter,
@@ -464,7 +463,7 @@ public class ServiceService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
         long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured());
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured(), service.getCreated());
     }
 
 

@@ -30,4 +30,9 @@ public class TimestampBasedPagination extends Pagination<Date> {
                 this.getSortDirection()
         );
     }
+
+    @Override
+    String toUrlString(Date lastValue) {
+        return Long.toString(lastValue.toInstant().toEpochMilli());
+    }
 }
