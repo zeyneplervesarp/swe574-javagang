@@ -28,7 +28,7 @@ public class ServiceController {
     public List<ServiceDto> findAllServices(@RequestParam (required = false) ServiceSortBy sortBy, Principal principal, @PathVariable Boolean getOngoingOnly, @PathVariable(value = "filter") ServiceFilter filter) {
 
         try {
-            return serviceService.findOngoingPaginated(principal,getOngoingOnly,filter,sortBy);
+            return serviceService.findPaginated(principal,getOngoingOnly,filter,sortBy);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
@@ -44,7 +44,7 @@ public class ServiceController {
     )  {
         try {
             final var pagination = ControllerUtils.parsePagination(gt, lt, size, sort);
-            return serviceService.findOngoingPaginated(pagination);
+            return serviceService.findPaginated(pagination);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }

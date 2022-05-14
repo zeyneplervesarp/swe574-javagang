@@ -37,6 +37,15 @@ public interface ServiceRepository extends JpaRepository<Service, Long>, DateQue
     @Query("select s from Service s where s.created > :createdGt and s.created < :createdLt and s.time > CURRENT_DATE")
     List<Service> findAllByDateBetweenOngoing(Date createdGt, Date createdLt, Pageable pageable);
 
+    @Query("select s from Service s where s.created > :createdGt and s.created < :createdLt and s.createdUser.id = :userId")
+    List<Service> findAllByDateBetweenCreatedByUser(Date createdGt, Date createdLt, Pageable pageable, Long userId);
+
+    @Query("select s from Service s where s.created > :createdGt and s.created < :createdLt and s.createdUser.id in :userIds")
+    List<Service> findAllByDateBetweenCreatedByUsers(Date createdGt, Date createdLt, Pageable pageable, List<Long> userIds);
+
+    @Query("select s from Service s JOIN s.approvalSet a where s.created > :createdGt and s.created < :createdLt and a.approvalStatus = com.swe573.socialhub.enums.ApprovalStatus.APPROVED and a.user.id = :userId")
+    List<Service> findAllByDateBetweenAttendingByUser(Date createdGt, Date createdLt, Pageable pageable, Long userId);
+
     @Query("select count(s) from Service s where s.created > :createdGt and s.created < :createdLt")
     long countByDateBetween(Date createdGt, Date createdLt);
 }

@@ -9,6 +9,7 @@ import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
@@ -44,7 +45,7 @@ public class ServiceService {
     @Autowired
     private RatingService ratingService;
 
-    public List<ServiceDto> findOngoingPaginated(TimestampBasedPagination pagination) {
+    public List<ServiceDto> findPaginated(TimestampBasedPagination pagination) {
         return serviceRepository
                 .findAllByDateBetweenOngoing(pagination.getGreaterThan(), pagination.getLowerThan(), pagination.toPageable())
                 .stream()
@@ -52,7 +53,51 @@ public class ServiceService {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public List<ServiceDto> findOngoingPaginated(Principal principal, Boolean getOngoingOnly, ServiceFilter filter, ServiceSortBy sortBy) {
+    public List<ServiceDto> findPaginated(
+            Principal principal,
+            Boolean getOngoingOnly,
+            ServiceFilter filter,
+            ServiceSortBy sortBy,
+            TimestampBasedPagination pagination
+    ) {
+        final var entityList = new ArrayList<Service>();
+
+//        Pageable pageable = null;
+//        switch (sortBy) {
+//            case distanceAsc:
+//                break;
+//            case distanceDesc:
+//                break;
+//            case serviceDateDesc:
+//                break;
+//            case createdDateDesc:
+//                break;
+//            case serviceDateAsc:
+//                break;
+//            case createdDateAsc:
+//                break;
+//        }
+//
+//
+//        switch (filter) {
+//            case createdByUser:
+//                entityList.addAll(serviceRepository.findAllByDateBetweenCreatedByUser(pagination.getGreaterThan(), pagination.getLowerThan(), page))
+//            case first3:
+//                return dtoStream.limit(3);
+//            case attending:
+//                return dtoStream.filter(x -> x.getApprovalSet().stream().anyMatch(y -> y.getUser() == loggedInUser && y.getApprovalStatus() == ApprovalStatus.APPROVED));
+//            case followingUser:
+//                var followingUsers = loggedInUser.getFollowingUsers();
+//                var followedUserIds = followingUsers.stream()
+//                        .map(UserFollowing::getFollowedUser)
+//                        .map(User::getId)
+//                        .collect(Collectors.toUnmodifiableSet());
+//
+//                return dtoStream.filter(service -> followedUserIds.contains(service.getCreatedUser().getId()));
+//            case all:
+//                return dtoStream;
+//        }
+
         var entities = serviceRepository.findAll();
         //get logged in user
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();

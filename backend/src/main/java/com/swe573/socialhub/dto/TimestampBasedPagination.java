@@ -40,7 +40,11 @@ public class TimestampBasedPagination {
     }
 
     public Pageable toPageable() {
-        var sort = Sort.by("created");
+        return toPageable("created");
+    }
+
+    public Pageable toPageable(String sortByField) {
+        var sort = Sort.by(sortByField);
         if (sortDirection == Sort.Direction.ASC) {
             sort = sort.ascending();
         } else {
