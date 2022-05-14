@@ -29,42 +29,49 @@ public class ServiceController {
     @ResponseBody
     public PaginatedResponse<ServiceDto> findAllServices(
             Principal principal,
-            @RequestParam (required = false) ServiceSortBy sortBy,
+            @RequestParam (required = false, defaultValue = "createdDateDesc") ServiceSortBy sortBy,
             @RequestParam(required = false) String gt,
             @RequestParam(required = false) String lt,
             @RequestParam(required = false) Integer size,
             @PathVariable Boolean getOngoingOnly,
             @PathVariable(value = "filter") ServiceFilter filter
     ) {
+        final var started = Instant.now();
         try {
 
+
             final var urlPrefix = "/service/" + getOngoingOnly.toString() + "/" + filter.toString();
+            final var sortBySuffix = "&sortBy=" + sortBy.toString();
+            gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+            lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
             switch (sortBy) {
                 case distanceAsc:
                     var dsPagination = ControllerUtils.parseDistancePagination(Double.valueOf(gt), Double.valueOf(lt), size);
                     var items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, dsPagination, sortBy);
-                    return new PaginatedResponse<>(items, urlPrefix, dsPagination, ServiceDto::getDistanceToUser);
+                    return new PaginatedResponse<>(items, urlPrefix, sortBySuffix, dsPagination, ServiceDto::getDistanceToUser);
                 case serviceDateDesc:
                     var tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
-                    return new PaginatedResponse<>(items, urlPrefix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
                 case createdDateDesc:
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
-                    return new PaginatedResponse<>(items, urlPrefix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
                 case serviceDateAsc:
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
-                    return new PaginatedResponse<>(items, urlPrefix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
                 case createdDateAsc:
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
-                    return new PaginatedResponse<>(items, urlPrefix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
             }
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request.");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        } finally {
+            System.out.println("Service loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds.");
         }
     }
 

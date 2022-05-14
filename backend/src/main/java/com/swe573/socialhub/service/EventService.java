@@ -264,7 +264,7 @@ public class EventService {
             }
         }
         var approvals = event.getApprovalSet();
-        var attendingUserList =  approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).map(users -> userService.mapUserToDTO(users.getUser())).collect(Collectors.toList());
+        var attendingUserList =  approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).map(users -> userService.mapUserToDTO(users.getUser(), false)).collect(Collectors.toList());
 
         Double distanceToUser;
 

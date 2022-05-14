@@ -31,8 +31,13 @@ export default {
     GetAllServices(getOngoingOnly, filter) {
         return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter)
     },
-    GetAllServicesSorted(getOngoingOnly, filter, sortBy) {
-        return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?sortBy=" + sortBy)
+    GetAllServicesSorted(getOngoingOnly, filter, sortBy, url) {
+        console.log(url)
+        if (!url) {
+            return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?sortBy=" + sortBy)
+        } else{
+            return http.get(process.env.VUE_APP_API + url)
+        }
     },
     GetFeaturedServices() {
         return http.get(process.env.VUE_APP_API + 'service/feature')

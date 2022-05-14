@@ -96,7 +96,7 @@ public class ActivityStreamService {
 
         if (!activityList.isEmpty()) {
             final var nextPagination = pagination.nextPage(activityList.get(activityList.size() - 1).published().toDate());
-            final var nextUrl = nextPagination.makeUrlString(endpointBase);
+            final var nextUrl = nextPagination.makeUrlString(endpointBase, "");
             builder.pageLink(Collection.Page.NEXT, nextUrl);
         }
 

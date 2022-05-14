@@ -115,7 +115,7 @@ export default {
     },
     GetAllServices() {
       apiRegister.GetAllServices(false, "all").then((r) => {
-        this.allServices = r.sort((a, b) => b.featured - a.featured);
+        this.allServices = r.items.sort((a, b) => b.featured - a.featured);
       });
     },
     GoToService(serviceId) {

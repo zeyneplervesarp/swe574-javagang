@@ -121,7 +121,7 @@ public class UserService {
         try {
             //save entity
             final User createdUser = repository.save(userEntity);
-            var savedDto = mapUserToDTO(createdUser);
+            var savedDto = mapUserToDTO(createdUser, true);
             loginAttemptRepository.save(new LoginAttempt(0L, createdUser.getUsername(), LoginAttemptType.SUCCESSFUL, new Date()));
             return savedDto;
         } catch (Exception e) {
@@ -144,7 +144,7 @@ public class UserService {
 
             if (passwordMatch) {
                 loginAttemptRepository.save(new LoginAttempt(0L, user.getUsername(), LoginAttemptType.SUCCESSFUL, new Date()));
-                return mapUserToDTO(user);
+                return mapUserToDTO(user, true);
 
             } else {
                 loginAttemptRepository.save(new LoginAttempt(0L, user.getUsername(), LoginAttemptType.WRONG_PASSWORD, new Date()));
@@ -169,7 +169,7 @@ public class UserService {
             throw new IllegalArgumentException("You can not delete your own account.");
         }
 
-        final var dto = mapUserToDTO(userToDelete.get());
+        final var dto = mapUserToDTO(userToDelete.get(), true);
 
         ratingRepository.deleteAllByRater(userToDelete.get());
         svcApprovalRepository.deleteAll(userToDelete.get().getServiceApprovalSet());
@@ -205,31 +205,38 @@ public class UserService {
         final Optional<User> userOption = repository.findById(Long.valueOf(id));
         if (userOption.isEmpty())
             throw new IllegalArgumentException("User doesn't exist.");
-        return mapUserToDTO(userOption.get());
+        return mapUserToDTO(userOption.get(), true);
     }
 
     public List<UserDto> getAllUsers() {
         final List<User> users = repository.findAll();
         List<UserDto> list = new ArrayList<UserDto>();
         for (User user : users) {
-            var dto = mapUserToDTO(user);
+            var dto = mapUserToDTO(user, false);
             list.add(dto);
         }
         return list;
     }
 
-    public UserDto mapUserToDTO(User user) {
+    public UserDto mapUserToDTO(User user, boolean extended) {
         var notificationList = new ArrayList<NotificationDto>();
-        if (user.getNotificationSet() != null) {
-            for (var notification : user.getNotificationSet()) {
-                var dto = notificationService.mapNotificationToDTO(notification);
-                notificationList.add(dto);
+        var balanceOnHold = 0;
+        RatingSummaryDto ratingSummary = null;
+        long flagCount = 0;
+        if (extended) {
+            if (user.getNotificationSet() != null) {
+                for (var notification : user.getNotificationSet()) {
+                    var dto = notificationService.mapNotificationToDTO(notification);
+                    notificationList.add(dto);
+                }
             }
+
+            var approvalList = userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING);
+            balanceOnHold = approvalList.stream().mapToInt(o -> o.getService().getCredit()).sum();
+            flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.user, user.getId(), FlagStatus.active);
+            ratingSummary = ratingService.getUserRatingSummary(user);
         }
 
-        var approvalList = userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING);
-        var balanceOnHold = approvalList.stream().mapToInt(o -> o.getService().getCredit()).sum();
-        long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.user, user.getId(), FlagStatus.active);
 
         return new UserDto(
                 user.getId(),
@@ -245,24 +252,16 @@ public class UserService {
                 user.getFollowedBy().stream().map(u -> u.getFollowingUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getFollowingUsers().stream().map(u -> u.getFollowedUser().getUsername()).collect(Collectors.toUnmodifiableList()),
                 user.getTags().stream().map(x -> new TagDto(x.getId(), x.getName())).collect(Collectors.toUnmodifiableList()),
-                ratingService.getUserRatingSummary(user),
+                ratingSummary,
                 user.getUserType(),
                 flagCount,
                 user.getReputationPoint(),
                 user.getBadges().stream().map(x -> new BadgeDto(x.getId(), x.getBadgeType())).collect(Collectors.toUnmodifiableList()));
     }
 
-    public UserDto getUserByUsername(String userName, Principal principal) {
-        final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
-        final Optional<User> userOption = repository.findUserByUsername(userName);
-        if (userOption.isEmpty())
-            throw new IllegalArgumentException("User doesn't exist.");
-        return mapUserToDTO(userOption.get());
-    }
-
     public UserDto getUserByPrincipal(Principal principal) {
         final User loggedInUser = repository.findUserByUsername(principal.getName()).get();
-        var dto = mapUserToDTO(loggedInUser);
+        var dto = mapUserToDTO(loggedInUser, true);
         if (loggedInUser == null)
             throw new IllegalArgumentException("User doesn't exist.");
         return dto;
@@ -412,7 +411,7 @@ public class UserService {
                     if (ids.contains(user.get().getId())) {
                         continue;
                     }
-                    flaggedUsers.add(mapUserToDTO(user.get()));
+                    flaggedUsers.add(mapUserToDTO(user.get(), false));
                     ids.add(user.get().getId());
                 }
             }

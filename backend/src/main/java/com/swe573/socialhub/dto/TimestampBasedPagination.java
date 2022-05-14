@@ -6,8 +6,8 @@ import org.springframework.data.domain.Sort;
 import java.util.Date;
 
 public class TimestampBasedPagination extends Pagination<Date> {
-    private static final Date DEFAULT_GT = new Date(0L);
-    private static final Date DEFAULT_LT = new Date(System.currentTimeMillis() + System.currentTimeMillis());
+    public static final Date DEFAULT_GT = new Date(0L);
+    public static final Date DEFAULT_LT = new Date(System.currentTimeMillis() + System.currentTimeMillis());
 
     public TimestampBasedPagination(Date greaterThan, Date lowerThan, int size, Sort.Direction sortDirection) {
         super(

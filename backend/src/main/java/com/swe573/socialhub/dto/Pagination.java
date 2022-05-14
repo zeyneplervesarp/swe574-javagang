@@ -51,13 +51,13 @@ public abstract class Pagination<T> {
 
     abstract String toUrlString(T lastValue);
 
-    public String makeUrlString(String endpointPrefix) {
+    public String makeUrlString(String endpointPrefix, String endpointSuffix) {
         var map =  Map.of("sort", this.getSortDirection().toString(),
                 "gt", toUrlString(getGreaterThan()),
                 "lt", toUrlString(getLowerThan()),
                 "size", Integer.toString(getSize())
         );
 
-        return endpointPrefix + "?" + Joiner.on("&").withKeyValueSeparator("=").join(map);
+        return endpointPrefix + "?" + Joiner.on("&").withKeyValueSeparator("=").join(map) + endpointSuffix;
     }
 }

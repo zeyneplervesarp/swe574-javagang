@@ -147,19 +147,19 @@ export default {
     GetServices() {
       if (this.filter == "first3") {
         apiRegister.GetAllServicesForHome().then((response) => {
-          this.serviceResult = response;
+          this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
         });
       } else if (this.filter == "featured") {
         apiRegister.GetFeaturedServices().then((response) => {
-          this.serviceResult = response;
+          this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
         });
       } else {
         apiRegister
           .GetAllServices(this.getOngoingOnly, this.filter)
           .then((response) => {
-            this.serviceResult = response;
+            this.serviceResult = response.items;
             this.nestedServiceArray = this.SplitList();
           });
       }
@@ -212,7 +212,7 @@ export default {
       apiRegister
         .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy)
         .then((response) => {
-          this.serviceResult = response;
+          this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
         });
     },

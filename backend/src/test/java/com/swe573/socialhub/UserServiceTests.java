@@ -263,7 +263,7 @@ public class UserServiceTests {
 
 
         Mockito.when(userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING)).thenReturn(new ArrayList<>());
-        var dto = service.mapUserToDTO(user);
+        var dto = service.mapUserToDTO(user, false);
 
         assertEquals(user.getUsername(),dto.getUsername());
         assertEquals(user.getId(),dto.getId());
