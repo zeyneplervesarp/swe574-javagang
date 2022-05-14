@@ -43,7 +43,7 @@ public class ServiceController {
             @RequestParam(required = false) String sort
     )  {
         try {
-            final var pagination = ControllerUtils.parsePagination(gt, lt, size, sort);
+            final var pagination = ControllerUtils.parseTimestampPagination(gt, lt, size, sort);
             return serviceService.findPaginated(pagination);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
