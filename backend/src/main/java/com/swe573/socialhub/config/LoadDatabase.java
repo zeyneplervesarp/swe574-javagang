@@ -70,6 +70,7 @@ class LoadDatabase {
                     badgeRepository,
                     loginAttemptRepository,
                     ratingRepository,
+                    flagRepository,
                     simulateServiceResults(
                             requestGraph,
                             users,
@@ -659,12 +660,48 @@ class LoadDatabase {
         ).flatMap(Collection::stream).collect(Collectors.toUnmodifiableList());
     }
 
+    private List<Flag> simulateFlags(List<Service> services, List<User> users) {
+        final var servicesToFlag = services.parallelStream()
+                .sorted(Comparator.comparing(Service::getCreated).reversed())
+                .limit(3)
+                .collect(Collectors.toUnmodifiableList());
+
+        final var svcCreatorIds = servicesToFlag
+                .stream()
+                .map(s -> s.getCreatedUser().getId())
+                .collect(Collectors.toUnmodifiableSet());
+
+        final var usersToFlag = users.parallelStream()
+                .filter(u -> !svcCreatorIds.contains(u.getId()))
+                .limit(3)
+                .map(User::getId)
+                .collect(Collectors.toUnmodifiableList());
+
+        if (usersToFlag.size() < 3 || servicesToFlag.size() < 3)
+            return Collections.emptyList();
+
+        final var flags = new ArrayList<Flag>();
+
+        for (int i = 0; i < 3; i++) {
+            final var svc = servicesToFlag.get(i);
+            final var usr = usersToFlag.get(i);
+
+            final var svcFlag = new Flag(FlagType.service, usr, svc.getId(), FlagStatus.active);
+            final var usrFlag = new Flag(FlagType.user, svc.getCreatedUser().getId(), usr, FlagStatus.active);
+            flags.add(svcFlag);
+            flags.add(usrFlag);
+        }
+
+        return flags;
+    }
+
     private SimulatedServiceResults persistSimulatedResults(
             NotificationRepository notificationRepository,
             UserRepository userRepository,
             BadgeRepository badgeRepository,
             LoginAttemptRepository loginAttemptRepository,
             RatingRepository ratingRepository,
+            FlagRepository flagRepository,
             SimulatedServiceResults results
     ) {
         return new SimulatedServiceResults(
@@ -672,7 +709,8 @@ class LoadDatabase {
                 userRepository.saveAll(results.updatedUsers),
                 notificationRepository.saveAll(results.notifications),
                 loginAttemptRepository.saveAll(results.loginAttempts),
-                ratingRepository.saveAll(results.ratings)
+                ratingRepository.saveAll(results.ratings),
+                flagRepository.saveAll(results.flags)
         );
     }
 
@@ -686,12 +724,14 @@ class LoadDatabase {
         final var simulatedNotifications = simulateNotifications(serviceApprovals, followGraph, services);
         final var simulatedLoginAttempts = simulateLoginAttempts(users);
         final var simulatedBadgesAndReps = simulateBadgesAndReputation(users, serviceApprovals, simulatedRatings);
+        final var simulatedFlags = simulateFlags(services, users);
         return new SimulatedServiceResults(
                 simulatedBadgesAndReps.getRight(),
                 simulatedBadgesAndReps.getLeft(),
                 simulatedNotifications,
                 simulatedLoginAttempts,
-                simulatedRatings
+                simulatedRatings,
+                simulatedFlags
         );
     }
 
@@ -701,13 +741,15 @@ class LoadDatabase {
         final List<Notification> notifications;
         final List<LoginAttempt> loginAttempts;
         final List<Rating> ratings;
+        final List<Flag> flags;
 
-        public SimulatedServiceResults(List<Badge> badges, List<User> updatedUsers, List<Notification> notifications, List<LoginAttempt> loginAttempts, List<Rating> ratings) {
+        public SimulatedServiceResults(List<Badge> badges, List<User> updatedUsers, List<Notification> notifications, List<LoginAttempt> loginAttempts, List<Rating> ratings, List<Flag> flags) {
             this.badges = badges;
             this.updatedUsers = updatedUsers;
             this.notifications = notifications;
             this.loginAttempts = loginAttempts;
             this.ratings = ratings;
+            this.flags = flags;
         }
     }
 
