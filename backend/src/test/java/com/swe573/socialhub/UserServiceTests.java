@@ -32,10 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.security.auth.Subject;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -217,7 +214,7 @@ public class UserServiceTests {
 
     @Test
     public void Register_ShouldThrowError_WhenDataIsInvalid() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null, UserType.USER, 0, 10, null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null, UserType.USER, 0, 10, null, new Date());
         assertThrows(IllegalArgumentException.class, () -> service.register(testUser));
         testUser.setPassword("123456");
         testUser.setUsername("");
@@ -232,7 +229,7 @@ public class UserServiceTests {
 
     @Test
     public void Register_ShouldReturnEntity() {
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER, 0, 10, null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER, 0, 10, null, new Date());
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
         var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER, 5);
@@ -245,7 +242,7 @@ public class UserServiceTests {
     @Test
     public void Register_ShouldReturnUserType() {
 
-        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER, 0, 10, null);
+        var testUser = new UserDto(null, "test", "test", "test", 0, null, 0, "", "", "", null, null,null, null,  UserType.USER, 0, 10, null, new Date());
         testUser.setPassword("123456");
         Mockito.when(passwordEncoder.encode(testUser.getPassword())).thenReturn("testHash");
         var user = new User(null,testUser.getUsername(),testUser.getEmail(),testUser.getBio(),null,0,"","","", UserType.USER, 5);
@@ -263,7 +260,7 @@ public class UserServiceTests {
 
 
         Mockito.when(userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING)).thenReturn(new ArrayList<>());
-        var dto = service.mapUserToDTO(user);
+        var dto = service.mapUserToDTO(user, false);
 
         assertEquals(user.getUsername(),dto.getUsername());
         assertEquals(user.getId(),dto.getId());

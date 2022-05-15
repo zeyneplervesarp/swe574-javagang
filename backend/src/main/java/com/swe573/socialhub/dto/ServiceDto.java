@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,8 +36,10 @@ public class ServiceDto implements Serializable {
     private final RatingSummaryDto ratingSummary;
     private final Long flagCount;
     private final Boolean isFeatured;
+    private final Long createdTimestamp;
 
-    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int hours, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, Boolean isFeatured) {
+    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int hours, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, Boolean isFeatured, Date createdTimestamp) {
+        this.createdTimestamp = createdTimestamp.toInstant().toEpochMilli();
         this.id = id;
         Header = header;
         Description = description;
@@ -73,6 +76,10 @@ public class ServiceDto implements Serializable {
         String formattedDateTime = time.format(formatter); // "1986-04-08 12:30"
         TimeString = formattedDateTime;
         ShowServiceOverButton = time.isBefore(LocalDateTime.now()) ;
+    }
+
+    public Long getCreatedTimestamp() {
+        return createdTimestamp;
     }
 
     public Long getId() {

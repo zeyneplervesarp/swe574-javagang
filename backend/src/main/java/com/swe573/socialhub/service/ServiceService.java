@@ -1,20 +1,18 @@
 package com.swe573.socialhub.service;
 
 import com.swe573.socialhub.domain.*;
-import com.swe573.socialhub.dto.ServiceDto;
-import com.swe573.socialhub.dto.TagDto;
-import com.swe573.socialhub.dto.UserDto;
+import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.repository.*;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @org.springframework.stereotype.Service
 public class ServiceService {
@@ -43,97 +41,214 @@ public class ServiceService {
     @Autowired
     private RatingService ratingService;
 
-    public List<ServiceDto> findAllServices() {
-        var entities = serviceRepository.findAll();
-        entities = entities.stream().filter(x -> x.getTime().isAfter(LocalDateTime.now())).limit(3).collect(Collectors.toUnmodifiableList());
-
-        var list = entities.stream().map(service -> mapToDto(service, Optional.empty())).collect(Collectors.toUnmodifiableList());
-
-
-        return list;
+    public List<ServiceDto> findPaginatedOngoing(TimestampBasedPagination pagination) {
+        return serviceRepository
+                .findAllByDateBetweenOngoing(pagination.getGreaterThan(), pagination.getLowerThan(), pagination.toPageable())
+                .stream()
+                .map(s -> mapToDto(s, Optional.empty()))
+                .collect(Collectors.toUnmodifiableList());
     }
 
-    public List<ServiceDto> findAllServices(Principal principal, Boolean getOngoingOnly, ServiceFilter filter, ServiceSortBy sortBy) {
-        var entities = serviceRepository.findAll();
-        //get logged in user
+    public List<ServiceDto> findPaginatedOngoing(
+            Principal principal,
+            Boolean getOngoingOnly,
+            ServiceFilter filter,
+            Pagination pagination,
+            ServiceSortBy sortBy
+    ) {
         final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        final var entityList = new ArrayList<Service>();
 
-        final var filteredEntityStream = filterStream(
-                entities.stream(),
-                sortBy,
-                getOngoingOnly ,
-                filter,
-                loggedInUser
-        );
-
-        final var dtoStream = filteredEntityStream
-                .map(service -> mapToDto(service, Optional.of(loggedInUser)));
-
-        final var sortedDtoStream = sortStream(dtoStream, sortBy);
-
-        return sortedDtoStream.collect(Collectors.toUnmodifiableList());
-    }
-
-    private Stream<Service> filterStream(Stream<Service> stream, ServiceSortBy sortBy, Boolean getOngoingOnly, ServiceFilter filter, User loggedInUser) {
-        var dtoStream = stream;
-        //filter if getongoingonly
-        if (getOngoingOnly) {
-            dtoStream = dtoStream.filter(x -> x.getTime().isAfter(LocalDateTime.now()));
+        String sortByField = "created";
+        switch (sortBy) {
+            case serviceDateDesc:
+            case serviceDateAsc:
+                sortByField = "time";
+                break;
+            default:
+                break;
         }
 
-        final var pickedDistanceFilter = sortBy != null && (sortBy.equals(ServiceSortBy.distanceAsc) || sortBy.equals(ServiceSortBy.distanceDesc));
-        if (pickedDistanceFilter) {
-            dtoStream = dtoStream.filter(service -> service.getLocationType().equals(LocationType.Physical));
-        }
-        if (filter == null) return dtoStream;
-
-        //filter by filter
         switch (filter) {
             case createdByUser:
-                return dtoStream.filter(x -> x.getCreatedUser() == loggedInUser);
-            case first3:
-                return dtoStream.limit(3);
+                if (pagination instanceof TimestampBasedPagination) {
+                    final var tsPagination = (TimestampBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ? serviceRepository
+                                    .findAllByDateBetweenCreatedByUserOngoing(
+                                            tsPagination.getGreaterThan(),
+                                            tsPagination.getLowerThan(),
+                                            tsPagination.toPageable(sortByField),
+                                            loggedInUser.getId()
+                                    ) :
+                            serviceRepository
+                                    .findAllByDateBetweenCreatedByUser(
+                                            tsPagination.getGreaterThan(),
+                                            tsPagination.getLowerThan(),
+                                            tsPagination.toPageable(sortByField),
+                                            loggedInUser.getId()
+                                    )
+                    );
+                } else if (pagination instanceof DistanceBasedPagination) {
+                    final var distPagination = (DistanceBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ? serviceRepository
+                                    .findAllByDistanceBetweenCreatedByUserOngoing(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            loggedInUser.getId(),
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    )
+                                    : serviceRepository
+                                    .findAllByDistanceBetweenCreatedByUser(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            loggedInUser.getId(),
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    )
+                    );
+                }
+                break;
             case attending:
-                return dtoStream.filter(x -> x.getApprovalSet().stream().anyMatch(y -> y.getUser() == loggedInUser && y.getApprovalStatus() == ApprovalStatus.APPROVED));
+                if (pagination instanceof TimestampBasedPagination) {
+                    final var tsPagination = (TimestampBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ?
+                            serviceRepository
+                                    .findAllByDateBetweenAttendingByUserOngoing(
+                                            tsPagination.getGreaterThan(),
+                                            tsPagination.getLowerThan(),
+                                            tsPagination.toPageable(sortByField),
+                                            loggedInUser.getId()
+                                    ) :
+                            serviceRepository.findAllByDateBetweenAttendingByUser(
+                                tsPagination.getGreaterThan(),
+                                tsPagination.getLowerThan(),
+                                tsPagination.toPageable(sortByField),
+                                loggedInUser.getId()
+                            )
+                    );
+                } else if (pagination instanceof DistanceBasedPagination) {
+                    final var distPagination = (DistanceBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ? serviceRepository
+                                    .findAllByDistanceBetweenAttendingByUserOngoing(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            loggedInUser.getId(),
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    ) : serviceRepository
+                                    .findAllByDistanceBetweenAttendingByUser(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            loggedInUser.getId(),
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    )
+                    );
+                }
+                break;
             case followingUser:
                 var followingUsers = loggedInUser.getFollowingUsers();
                 var followedUserIds = followingUsers.stream()
                         .map(UserFollowing::getFollowedUser)
                         .map(User::getId)
-                        .collect(Collectors.toUnmodifiableSet());
+                        .collect(Collectors.toUnmodifiableList());
+                if (pagination instanceof TimestampBasedPagination) {
+                    final var tsPagination = (TimestampBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ?
+                            serviceRepository
+                                    .findAllByDateBetweenCreatedByUsersOngoing(
+                                            tsPagination.getGreaterThan(),
+                                            tsPagination.getLowerThan(),
+                                            tsPagination.toPageable(sortByField),
+                                            followedUserIds
+                                    ) : serviceRepository
+                                    .findAllByDateBetweenCreatedByUsers(
+                                            tsPagination.getGreaterThan(),
+                                            tsPagination.getLowerThan(),
+                                            tsPagination.toPageable(sortByField),
+                                            followedUserIds
+                                    )
+                    );
+                } else if (pagination instanceof DistanceBasedPagination) {
+                    final var distPagination = (DistanceBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ?
+                            serviceRepository
+                                    .findAllByDistanceBetweenCreatedByUsersOngoing(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            followedUserIds,
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    ) : serviceRepository
+                                    .findAllByDistanceBetweenCreatedByUsers(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            followedUserIds,
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    )
+                    );
+                }
+                break;
 
-                return dtoStream.filter(service -> followedUserIds.contains(service.getCreatedUser().getId()));
             case all:
-                return dtoStream;
+                if (pagination instanceof TimestampBasedPagination) {
+                    final var tsPagination = (TimestampBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ?
+                                    serviceRepository
+                                            .findAllByDateBetweenOngoing(
+                                                    tsPagination.getGreaterThan(),
+                                                    tsPagination.getLowerThan(),
+                                                    tsPagination.toPageable(sortByField)
+                                            ) : serviceRepository
+                                    .findAllByDateBetween(
+                                            tsPagination.getGreaterThan(),
+                                            tsPagination.getLowerThan(),
+                                            tsPagination.toPageable(sortByField)
+                                    )
+                    );
+                } else if (pagination instanceof DistanceBasedPagination) {
+                    final var distPagination = (DistanceBasedPagination) pagination;
+                    entityList.addAll(
+                            getOngoingOnly ?
+                                    serviceRepository
+                                            .findAllByDistanceBetweenOngoing(
+                                                    distPagination.getGreaterThan(),
+                                                    distPagination.getLowerThan(),
+                                                    Pageable.ofSize(distPagination.getSize()),
+                                                    loggedInUser.getLatitude(),
+                                                    loggedInUser.getLongitude()
+                                            ) : serviceRepository
+                                    .findAllByDistanceBetween(
+                                            distPagination.getGreaterThan(),
+                                            distPagination.getLowerThan(),
+                                            Pageable.ofSize(distPagination.getSize()),
+                                            loggedInUser.getLatitude(),
+                                            loggedInUser.getLongitude()
+                                    )
+                    );
+                }
+                break;
         }
-        return dtoStream;
-    }
 
-    private Stream<ServiceDto> sortStream(Stream<ServiceDto> stream, ServiceSortBy sortBy) {
-        if (sortBy == null) return stream;
-        {
-            switch (sortBy) {
-                case distanceAsc:
-                    return stream
-                            .sorted(Comparator.comparing(ServiceDto::getDistanceToUser));
-                case distanceDesc:
-                    return stream
-                            .sorted(Comparator.comparing(ServiceDto::getDistanceToUser).reversed());
-                case createdDateAsc:
-                    return stream
-                            .sorted(Comparator.comparing(ServiceDto::getId));
-                case createdDateDesc:
-                    return stream
-                            .sorted(Comparator.comparing(ServiceDto::getId).reversed());
-                case serviceDateAsc:
-                    return stream
-                            .sorted(Comparator.comparing(ServiceDto::getTime));
-                case serviceDateDesc:
-                    return stream
-                            .sorted(Comparator.comparing(ServiceDto::getTime).reversed());
-            }
-        }
-        return stream;
+
+        return entityList.stream()
+                .map(service -> mapToDto(service, Optional.of(loggedInUser)))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public Optional<ServiceDto> findById(Long id) {
@@ -334,7 +449,7 @@ public class ServiceService {
             }
         }
         var approvals = service.getApprovalSet();
-        var attendingUserList =  approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).map(users -> userService.mapUserToDTO(users.getUser())).collect(Collectors.toList());
+        var attendingUserList =  approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).map(users -> userService.mapUserToDTO(users.getUser(), false)).collect(Collectors.toList());
 
         Double distanceToUser;
 
@@ -348,7 +463,7 @@ public class ServiceService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
         long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured());
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured(), service.getCreated());
     }
 
 

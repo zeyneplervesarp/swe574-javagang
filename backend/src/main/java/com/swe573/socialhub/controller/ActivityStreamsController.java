@@ -1,15 +1,12 @@
 package com.swe573.socialhub.controller;
 
 import com.ibm.common.activitystreams.IO;
-import com.swe573.socialhub.dto.TimestampBasedPagination;
 import com.swe573.socialhub.enums.FeedEvent;
 import com.swe573.socialhub.service.ActivityStreamService;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.OutputStream;
 import java.security.Principal;
-import java.util.Date;
 import java.util.Set;
 
 @RestController
@@ -76,17 +73,10 @@ public class ActivityStreamsController {
                 }
         }
 
-        final var sortDirection = sort != null && sort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
-        var results = service.fetchFeedValidated(
+        final var results = service.fetchFeedValidated(
                 principal,
                 eventsToFetchForAdmin,
-                new TimestampBasedPagination(
-                        gt != null ? new Date(gt) : null,
-                        lt != null ? new Date(lt) : null,
-                        size != null ? size : 20,
-                        sortDirection
-                ),
+                ControllerUtils.parseTimestampPagination(gt, lt, size, sort),
                 "admin/feed",
                 filterKey
         );

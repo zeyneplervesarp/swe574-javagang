@@ -1,7 +1,8 @@
 <template>
   <div class="profile-page">
     <section class="section-profile-cover section-shaped my-0">
-      <div class="shape shape-style-3 shape-primary shape-skew alpha-4">
+      <div class="shape shape-style-2 shape-primary shape-skew alpha-4">
+        <span></span>
         <span></span>
         <span></span>
         <span></span>
@@ -17,105 +18,133 @@
           <div class="px-4">
             <div class="row justify-content-center">
               <div class="col-lg-3 order-lg-2"></div>
-              <div
-                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
-              ></div>
             </div>
             <div class="text-center mt-5">
               <h3>Services</h3>
-              <div></div>
-              <br />
-              <div class="text-center">
-                <div>
-                  <table class="table table-striped">
-                    <thead class="">
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Owner</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">View</th>
-                        <th scope="col">Featured</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(service, index) in allServices" :key="index">
-                        <th scope="row">{{ index + 1 }}</th>
-                        <td>{{ service.header }}</td>
-                        <td>{{ service.createdUserName }}</td>
-                        <td>{{ service.timeString }}</td>
-                        <td>
-                          <base-button
-                            block
-                            type="primary"
-                            class="mb-3"
-                            @click="GoToService(service.id)"
+            </div>
+            <div class="mt-5 py-5 border-top text-center">
+              <div class="row justify-content-center">
+                <div class="col-lg-12">
+                  <div class="container ct-example-row">
+                    <div>
+                      <table class="table table-striped">
+                        <thead class="">
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">View</th>
+                            <th scope="col">Featured</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="(service, index) in allServices"
+                            :key="index"
                           >
-                            View
-                          </base-button>
-                        </td>
-                        <td>
-                          <base-button
-                            v-if="service.featured"
-                            block
-                            type="warning"
-                            @click="RemoveFeatured(service.id)"
-                            class="mb-3"
-                          >
-                            Unfeature
-                          </base-button>
+                            <th scope="row">{{ index + 1 }}</th>
+                            <td>{{ service.header }}</td>
+                            <td>{{ service.createdUserName }}</td>
+                            <td>{{ service.timeString }}</td>
+                            <td>
+                              <base-button
+                                block
+                                type="primary"
+                                class="mb-3"
+                                @click="GoToService(service.id)"
+                              >
+                                View
+                              </base-button>
+                            </td>
+                            <td>
+                              <base-button
+                                v-if="service.featured"
+                                block
+                                type="warning"
+                                @click="RemoveFeatured(service.id)"
+                                class="mb-3"
+                              >
+                                Unfeature
+                              </base-button>
 
-                          <base-button
-                            v-else
-                            block
-                            type="success"
-                            @click="AddFeatured(service.id)"
-                            class="mb-3"
-                          >
-                            Feature
-                          </base-button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                              <base-button
+                                v-else
+                                block
+                                type="success"
+                                @click="AddFeatured(service.id)"
+                                class="mb-3"
+                              >
+                                Feature
+                              </base-button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <infinite-loading
+                      @infinite="infiniteHandler"
+                      spinner="spiral"
+                    ></infinite-loading>
+                  </div>
                 </div>
               </div>
-              <br />
-              <div></div>
             </div>
           </div>
         </card>
       </div>
     </section>
+    <back-to-top text="Back to top" visibleoffset="500"></back-to-top>
   </div>
 </template>
 <script>
 import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
+import infiniteLoading from "vue-infinite-loading";
+import BackToTop from "vue-backtotop";
 import swal from "sweetalert2";
 
 export default {
-  components: { BaseButton },
+  components: {
+    BaseButton,
+    infiniteLoading,
+    BackToTop,
+  },
   data() {
     return {
       allServices: [],
-      stats: null,
+      next: null,
     };
   },
   mounted() {
-    this.GetAllStats();
     this.GetAllServices();
   },
   computed: {},
   methods: {
-    GetAllStats() {
-      apiRegister.GetAllStats().then((stats) => {
-        this.stats = stats;
-      });
+    infiniteHandler($state) {
+      if (!this.next) return;
+      console.log("will call url", this.next);
+      apiRegister
+        .GetAllServicesSorted(false, "all", null, this.next)
+        .then((r) => {
+          if (r.items.length) {
+            setTimeout(() => {
+              this.next = r.nextPage;
+              var merged = [...this.allServices, ...r.items];
+              this.allServices = merged;
+              $state.loaded();
+              console.log("svc count: ", this.allServices.length);
+            }, 1000);
+          } else {
+            $state.complete();
+          }
+        });
     },
     GetAllServices() {
       apiRegister.GetAllServices(false, "all").then((r) => {
-        this.allServices = r.sort((a, b) => b.featured - a.featured);
+        this.allServices = r.items;
+        this.next = r.nextPage;
+        console.log("response", r);
       });
     },
     GoToService(serviceId) {

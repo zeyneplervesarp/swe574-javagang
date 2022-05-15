@@ -88,7 +88,7 @@ public class UserEventApprovalService {
 
     private UserEventApprovalDto getApprovalDto(UserEventApproval entity) {
         var event = entity.getEvent();
-        var userDto = userService.mapUserToDTO(entity.getUser());
+        var userDto = userService.mapUserToDTO(entity.getUser(), false);
         var eventDto = new EventDto(event.getId(), event.getHeader(), "", event.getLocation(), event.getTime(), 0, event.getQuota(), event.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), event.getStatus(), 0L, null, null, flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.event, event.getId(), FlagStatus.active));
         var dto = new UserEventApprovalDto(userDto, eventDto, entity.getApprovalStatus());
         return dto;
