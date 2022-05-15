@@ -480,8 +480,7 @@ class LoadDatabase {
                 .parallelStream()
                 .map(user -> Pair.of(user, userJoinedSvcCountMap.get(user.getId())))
                 .filter(pair -> pair.getRight() < 10 || pair.getRight() >= 20)
-                .map(pair -> new Badge(pair.getLeft(), pair.getRight() >= 20 ? BadgeType.regular : BadgeType.newcomer))
-                .collect(Collectors.toList());
+                .map(pair -> new Badge(pair.getLeft(), pair.getRight() >= 20 ? BadgeType.regular : BadgeType.newcomer));
 
         final var reputationUpdatedUsers = users
                 .parallelStream()
@@ -490,7 +489,46 @@ class LoadDatabase {
                 })
                 .collect(Collectors.toUnmodifiableList());
 
-        return Pair.of(reputationUpdatedUsers, joinedSvcBasedBadges);
+        final var reputableBadges = reputationUpdatedUsers
+                .parallelStream()
+                .filter(user -> user.getReputationPoint() > 10 && user.getReputationPoint() <= 25)
+                .map(user -> new Badge(user, BadgeType.reputable));
+
+        final var wellKnownBadges = reputationUpdatedUsers
+                .parallelStream()
+                .filter(user -> user.getReputationPoint() > 25 && user.getReputationPoint() <= 50)
+                .map(user -> new Badge(user, BadgeType.wellKnown));
+
+        final var guruBadges = reputationUpdatedUsers
+                .parallelStream()
+                .filter(user -> user.getReputationPoint() > 50)
+                .map(user -> new Badge(user, BadgeType.guru));
+
+        final var communityBuilderBadges = reputationUpdatedUsers
+                .parallelStream()
+                .filter(user -> user.getCreatedServices().size() > 10)
+                .map(user -> new Badge(user, BadgeType.communityBuilder));
+
+        final var randomMentors = reputationUpdatedUsers
+                .parallelStream()
+                .filter(user -> user.getReputationPoint() > 100)
+                .filter(u -> randomLongBetween(0, 3) > 1)
+                .map(user -> new Badge(user, randomLongBetween(0, 3) > 1 ? BadgeType.superMentor : BadgeType.mentor));
+
+
+        final var masterBadges = Stream.of(
+                joinedSvcBasedBadges,
+                reputableBadges,
+                wellKnownBadges,
+                guruBadges,
+                communityBuilderBadges,
+                randomMentors
+        )
+                .flatMap(s -> s)
+                .collect(Collectors.toUnmodifiableList());
+
+
+        return Pair.of(reputationUpdatedUsers, masterBadges);
     }
 
     private List<Rating> simulateRatings(
