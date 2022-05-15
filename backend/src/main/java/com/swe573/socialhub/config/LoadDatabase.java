@@ -88,6 +88,7 @@ class LoadDatabase {
             System.out.println("Created " + simulatedSvcResults.loginAttempts.size() + " login attempts.");
             System.out.println("Created " + simulatedSvcResults.notifications.size() + " notifications.");
             System.out.println("Created " + simulatedSvcResults.ratings.size() + " ratings.");
+            System.out.println("Created " + simulatedSvcResults.flags.size() + " flags.");
             System.out.println("Initial db loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds. Requested user count: " + userCount + ".");
         };
     }
