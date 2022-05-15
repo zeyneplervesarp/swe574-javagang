@@ -123,6 +123,7 @@
           </div>
         </base-dropdown>
         <base-input
+          v-if="userLoggedIn"
           v-model="searchQuery"
           v-on:keyup.enter="OnEnter()"
           class="mt-3"
