@@ -1,9 +1,7 @@
 package com.swe573.socialhub.config;
 
-import antlr.collections.impl.IntRange;
 import com.github.javafaker.Faker;
 import com.swe573.socialhub.domain.*;
-import com.swe573.socialhub.domain.key.UserEventApprovalKey;
 import com.swe573.socialhub.domain.key.UserServiceApprovalKey;
 import com.swe573.socialhub.enums.*;
 import com.swe573.socialhub.enums.ApprovalStatus;
@@ -478,7 +476,7 @@ class LoadDatabase {
                 .parallelStream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
 
-        final var badges = users
+        final var joinedSvcBasedBadges = users
                 .parallelStream()
                 .map(user -> Pair.of(user, userJoinedSvcCountMap.get(user.getId())))
                 .filter(pair -> pair.getRight() < 10 || pair.getRight() >= 20)
@@ -492,7 +490,7 @@ class LoadDatabase {
                 })
                 .collect(Collectors.toUnmodifiableList());
 
-        return Pair.of(reputationUpdatedUsers, badges);
+        return Pair.of(reputationUpdatedUsers, joinedSvcBasedBadges);
     }
 
     private List<Rating> simulateRatings(
