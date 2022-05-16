@@ -92,29 +92,29 @@
               </h3>
               <div></div>
               <br />
-         <div class="text-center" v-if="serviceData.locationType === ''">
+              <div class="text-center" v-if="serviceData.imageUrl !== ''">
                 <base-button
-                  v-if="serviceData.formattedAddress != ''"
                   type="secondary"
                 >
-                  <img v-bind:src=serviceData.imageUrl>
+                  <img v-bind:src="serviceData.imageUrl" />
                 </base-button>
               </div>
+              
 
-          
               <div class="text-center">
-                <p> Location: {{serviceData.location}} </p>
+                <p>Location: {{ serviceData.location }}</p>
               </div>
               <br />
 
               <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
-              <div   v-if="
-                userData.attendsService &&
-                serviceData.status === 'COMPLETED'
-              "
-              class="row justify-content-center">
+              <div
+                v-if="
+                  userData.attendsService && serviceData.status === 'COMPLETED'
+                "
+                class="row justify-content-center"
+              >
                 <star-rating
                   :star-size="20"
                   @rating-selected="SetRating"
@@ -124,14 +124,12 @@
               <div v-if="serviceData.ratingSummary.raterCount > 0">
                 <p>
                   Rated by {{ serviceData.ratingSummary.raterCount }} people.
-                  Average rating: {{ serviceData.ratingSummary.ratingAverage }} .
+                  Average rating:
+                  {{ serviceData.ratingSummary.ratingAverage }} .
                 </p>
               </div>
             </div>
-                      <div
-              v-if="userData.ownsService"
-              class="mt-1 py-3  text-center"
-            >
+            <div v-if="userData.ownsService" class="mt-1 py-3 text-center">
               <div class="row justify-content-center">
                 <div class="col-lg-9">
                   <base-button @click="GoToServiceEdit()" type="warning"
@@ -185,54 +183,63 @@
               </div>
             </div>
 
-        <!-- physical -->
-              <div style="margin-bottom:100px" class="text-center" v-if="serviceData.locationType === 'Physical'">
-                <base-button
-                  v-if="serviceData.formattedAddress != ''"
-                  type="secondary"
+            <!-- physical -->
+            <div
+              style="margin-bottom: 100px"
+              class="text-center"
+              v-if="serviceData.locationType === 'Physical'"
+            >
+              <base-button
+                v-if="serviceData.formattedAddress != ''"
+                type="secondary"
+              >
+                <GmapMap
+                  :center="coordinates"
+                  :zoom="13"
+                  map-type-id="roadmap"
+                  style="width: 500px; height: 300px"
+                  ref="mapRef"
                 >
-                  <GmapMap
-                    :center="coordinates"
-                    :zoom="13"
-                    map-type-id="roadmap"
-                    style="width: 500px; height: 300px"
-                    ref="mapRef"
-                  >
-                    <GmapMarker :position="coordinates" />
-                  </GmapMap>
-                </base-button>
-              </div>
-            </div> -->
-            <div 
-              v-if="serviceData.status === 'CANCELLED'">
-              <div class="text-center">
-                <p> Cancelled service </p>
-              </div>
-            </div>
-            <div
-                v-if="serviceData.status != 'CANCELLED'  && userData.ownsService"
-                class="mt-2 py-5 border-top text-center">
-                  <base-button block type="primary" class="mb-3" @click="CancelService()">
-                  Cancel Service
-                  </base-button>
-              
-              </div>
-            <div
-              v-if="!userData.ownsService && !userIsAdmin"
-              class="mt-2 py-5 border-top text-center"
-            >
-              <base-button block type="primary" class="mb-3" @click="Flag()">
-                Flag Service
+                  <GmapMarker :position="coordinates" />
+                </GmapMap>
               </base-button>
             </div>
-            <div
-              v-if="userIsAdmin"
-              class="mt-2 py-5 border-top text-center"
-            >
-              <base-button block type="primary" class="mb-3" @click="DismissFlags()">
-                Dismiss Flags
-              </base-button>
+          </div>
+          <div v-if="serviceData.status === 'CANCELLED'">
+            <div class="text-center">
+              <p>Cancelled service</p>
             </div>
+          </div>
+          <div
+            v-if="serviceData.status != 'CANCELLED' && userData.ownsService"
+            class="mt-2 py-5 border-top text-center"
+          >
+            <base-button
+              block
+              type="primary"
+              class="mb-3"
+              @click="CancelService()"
+            >
+              Cancel Service
+            </base-button>
+          </div>
+          <div
+            v-if="!userData.ownsService && !userIsAdmin"
+            class="mt-2 py-5 border-top text-center"
+          >
+            <base-button block type="primary" class="mb-3" @click="Flag()">
+              Flag Service
+            </base-button>
+          </div>
+          <div v-if="userIsAdmin" class="mt-2 py-5 border-top text-center">
+            <base-button
+              block
+              type="primary"
+              class="mb-3"
+              @click="DismissFlags()"
+            >
+              Dismiss Flags
+            </base-button>
           </div>
         </card>
       </div>
@@ -269,37 +276,37 @@ export default {
         participantUserList: [],
         ratingSummary: {},
         flagCount: 0,
-        imageUrl: ""
+        imageUrl: "",
       },
       userData: {
         hasServiceRequest: "",
         ownsService: "",
         attendsService: false,
       },
-      ratingData:{
-        readOnly : false
+      ratingData: {
+        readOnly: false,
       },
       coordinates: {
         lat: 0,
         lng: 0,
       },
-      userIsAdmin: false
+      userIsAdmin: false,
     };
   },
   mounted() {
     this.GetService();
     this.GetUserDetails();
 
-    apiRegister.GetProfile().then(r => {
-        var compare = r.userType.localeCompare("ADMIN");
-        this.userIsAdmin = compare == 0;
-      })
+    apiRegister.GetProfile().then((r) => {
+      var compare = r.userType.localeCompare("ADMIN");
+      this.userIsAdmin = compare == 0;
+    });
   },
   computed: {},
   methods: {
     IsCancellationDatePassed() {
       var date = new Date();
-      if (this.serviceData.locationType === 'Physical') {
+      if (this.serviceData.locationType === "Physical") {
         date = date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
       } else {
         date = date.setTime(date.getTime() + 0.5 * 60 * 60 * 1000);
@@ -376,13 +383,12 @@ export default {
       var serviceId = this.$route.params.service_id;
 
       apiRegister.DismissFlagsForService(serviceId).then((r) => {
-        swal.fire( {
-          text: "You've dismissed all flags for this service."
+        swal.fire({
+          text: "You've dismissed all flags for this service.",
         });
-        location.reload();     
-
+        location.reload();
       });
-      location.reload();     
+      location.reload();
     },
     ConfirmServiceOverCreator() {
       modal.confirm(
@@ -394,21 +400,24 @@ export default {
     },
     CancelService() {
       if (this.IsCancellationDatePassed()) {
-        swal.fire({
-          title: 'Do you want to cancel this service? You will lose 5 reputation points because of the cancellation deadline.',
-          showCancelButton: true,
-          confirmButtonText: 'Yes',
-          }).then((result) => {
-              if (result.isConfirmed) {
-                  var serviceId = this.$route.params.service_id;
-                  apiRegister.CancelService(serviceId).then((r) => {
-                    swal.fire( {
-                    text: "You've cancelled this service"
-                    });
-                });
-                location.reload();     
-                }
+        swal
+          .fire({
+            title:
+              "Do you want to cancel this service? You will lose 5 reputation points because of the cancellation deadline.",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
           })
+          .then((result) => {
+            if (result.isConfirmed) {
+              var serviceId = this.$route.params.service_id;
+              apiRegister.CancelService(serviceId).then((r) => {
+                swal.fire({
+                  text: "You've cancelled this service",
+                });
+              });
+              location.reload();
+            }
+          });
       } else {
         var serviceId = this.$route.params.service_id;
         apiRegister.CancelService(serviceId).then((r) => {

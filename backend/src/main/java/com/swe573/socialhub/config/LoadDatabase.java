@@ -168,6 +168,7 @@ class LoadDatabase {
         final var isPhysical = faker.random().nextBoolean();
         String title = "";
         String subtitle = "";
+        String imageUrl = "";
         switch (mainTag.getName()) {
             case "movies":
                 var chosenPair = chooseBetween(List.of(
@@ -186,6 +187,7 @@ class LoadDatabase {
 
                 title = chosenPair.getLeft() + " " + chooseBetween(List.of("Appreciation Day", "Analysis", "Lessons"));
                 subtitle = chosenPair.getRight();
+                imageUrl = chooseBetween(List.of("https://i.guim.co.uk/img/media/71d1e9b39e3cd707097b310ebdef78e2f5f8893a/1577_1063_1988_1193/500.jpg?quality=85&auto=format&fit=max&s=7eeefd6fe9d0b62fe4e7699eb0e9b3a5", "https://i.guim.co.uk/img/media/9f1d73bab5474543b8318958c4593e633a78d18b/266_92_5026_3015/500.jpg?quality=85&auto=format&fit=max&s=e3d01ef76c6279bc0c40c0dce93c457a", "https://www.globaltimes.cn/Portals/0/attachment/2019/2019-12-15/0c3745ce-7839-4d3f-80ac-1d84117bbc62.jpeg", "https://icdn.digitaltrends.com/image/digitaltrends/home-theater-popcorn-500x500.jpg"));
                 break;
             case "arts":
                 chosenPair = chooseBetween(List.of(
@@ -247,7 +249,7 @@ class LoadDatabase {
                 0,
                 user,
                 Double.valueOf(faker.address().latitude().replace(",", ".")), Double.valueOf(faker.address().longitude().replace(",", ".")),
-                new HashSet<>(pickedTags), ""
+                new HashSet<>(pickedTags),  imageUrl
             );
         } else {
 
@@ -261,7 +263,7 @@ class LoadDatabase {
                 (int) randomLongBetween(1, 10),
                 0,
                 user,
-                "",
+                imageUrl,
                 new HashSet<>(pickedTags)
             );
         }
