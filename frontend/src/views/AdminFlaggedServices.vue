@@ -32,21 +32,20 @@
                   <table class="table table-striped">
                     <thead class="">
                       <tr>
-                        <th scope="col">#</th>
                         <th scope="col">Name</th>
+                        <th scope="col">Description</th>
                         <th scope="col">Owner</th>
-                        <th scope="col">Date</th>
+                        <th scope="col">Rating</th>
                         <th scope="col">FlagCount</th>
                         <th scope="col">View</th>
-                        <th scope="col">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="(service, index) in flaggedServices" :key="index">
-                        <th scope="row">{{ index + 1 }}</th>
                         <td>{{ service.header }}</td>
+                        <td>{{ service.description }}
                         <td>{{ service.createdUserName }}</td>
-                        <td>{{ service.timeString }}</td>
+                        <td>{{ FormatDouble(service.ratingSummary.ratingAverage) }} / 5</td>
                         <td>{{ service.flagCount }}</td>
                         <td>
                           <base-button
@@ -55,15 +54,7 @@
                             class="mb-3"
                             @click="GoToService(service.id)"
                           >
-                            View
-                          </base-button>
-                        </td>
-                        <td>
-                          <base-button block 
-                            type="warning"
-                            class="mb-3"
-                            @click="DeleteService(service.id)">
-                            Delete
+                          <i class="ni ni-curved-next"></i>
                           </base-button>
                         </td>
                       </tr>
@@ -98,6 +89,9 @@ export default {
   },
   computed: {},
   methods: {
+    FormatDouble(num) {
+      return Math.round(num * 10) / 10;
+    },
     GetAllFlaggedServices() {
       apiRegister.GetAllFlaggedServices().then((r) => {
         this.flaggedServices = r;
@@ -107,22 +101,7 @@ export default {
       var url = "#/service/" + serviceId;
       window.location.href = url;
     },
-    DeleteService(serviceId) {
-        swal.fire({
-            title: 'Do you want to delete this user?',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    apiRegister.DeleteService(serviceId).then((r) => {
-                    swal.fire( {
-                    text: "You've deleted this service"
-                    });
-                });
-                location.reload();     
-            }
-            })
-    }
+    
   },
 };
 </script>
