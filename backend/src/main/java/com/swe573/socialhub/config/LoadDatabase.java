@@ -168,6 +168,7 @@ class LoadDatabase {
         final var isPhysical = faker.random().nextBoolean();
         String title = "";
         String subtitle = "";
+        String imageUrl = "";
         switch (mainTag.getName()) {
             case "movies":
                 var chosenPair = chooseBetween(List.of(
@@ -186,6 +187,7 @@ class LoadDatabase {
 
                 title = chosenPair.getLeft() + " " + chooseBetween(List.of("Appreciation Day", "Analysis", "Lessons"));
                 subtitle = chosenPair.getRight();
+                imageUrl = chooseBetween(List.of("https://i.guim.co.uk/img/media/71d1e9b39e3cd707097b310ebdef78e2f5f8893a/1577_1063_1988_1193/500.jpg?quality=85&auto=format&fit=max&s=7eeefd6fe9d0b62fe4e7699eb0e9b3a5", "https://i.guim.co.uk/img/media/9f1d73bab5474543b8318958c4593e633a78d18b/266_92_5026_3015/500.jpg?quality=85&auto=format&fit=max&s=e3d01ef76c6279bc0c40c0dce93c457a", "https://www.globaltimes.cn/Portals/0/attachment/2019/2019-12-15/0c3745ce-7839-4d3f-80ac-1d84117bbc62.jpeg", "https://icdn.digitaltrends.com/image/digitaltrends/home-theater-popcorn-500x500.jpg"));
                 break;
             case "arts":
                 chosenPair = chooseBetween(List.of(
@@ -199,6 +201,7 @@ class LoadDatabase {
 
                 title = chosenPair.getLeft();
                 subtitle = chosenPair.getRight();
+                imageUrl = chooseBetween(List.of("https://benefitof.net/wp-content/uploads/2014/12/Art.jpg", "https://benefitof.net/wp-content/uploads/2014/12/Art.jpg", "http://ismayonaiseaninstrument.weebly.com/uploads/2/3/5/5/23559096/header_images/1383231686.jpg"));
                 break;
             case "sports":
                 chosenPair = chooseBetween(List.of(
@@ -209,15 +212,18 @@ class LoadDatabase {
 
                 title = chosenPair.getLeft();
                 subtitle = chosenPair.getRight();
+                imageUrl = chooseBetween(List.of("https://i.guim.co.uk/img/media/0403b4abe121b6b24dd81cb0bb5722eb936861bd/0_87_3500_2102/500.jpg?quality=85&auto=format&fit=max&s=931cecff2f0795478f583389a94ee856", "https://orthomass.com/wp-content/uploads/2020/07/sports-medicine.jpg", "https://i.guim.co.uk/img/media/59c0eda6e9f9894522d7e0dc79d5eb41eb5b033c/117_43_2295_1378/500.jpg?quality=85&auto=format&fit=max&s=3c7353d85a26ec601a6f13430312f19a", "https://imengine.public.prod.cdr.navigacloud.com/?uuid=c497f4f7-9154-59c1-9620-d46d43d5b7b5&function=thumbnail&type=preview&source=false&quality=100&width=500&height=300"));
                 break;
             case "comedy":
                 title = chooseBetween(List.of("Comedy Lessons for " + faker.funnyName().name(), faker.funnyName().name()));
                 subtitle = "Haha not everyone is as funny as I am ;;)))";
+                imageUrl = chooseBetween(List.of("https://www.visitstaugustine.com/sites/default/files/styles/large/public/taxonomy/microphone-for-comedy-10x6-web.jpg", "https://ineverycurve.files.wordpress.com/2014/03/audience-watching-a-show-014.jpg?w=500", "https://i0.wp.com/www.tailslate.net/wp-content/uploads/2013/03/21-and-Over-Miles-Teller-Skylar-Astin-Justin-Chon.jpg?resize=500%2C300"));
                 break;
             case "misc":
                 var topic = chooseBetween(List.of(faker.pokemon().name(), faker.pokemon().location(), faker.finance().creditCard(), faker.princessBride().character()));
                 title = topic + " " + chooseBetween(List.of("Appreciation", "Analysis", "Review", "Discussion"));
                 subtitle = "To master our topic, " + topic + ".";
+                imageUrl = chooseBetween(List.of("https://www.shawacademy.com/static/7487dac3c37c0303e5ae7ef9f13e7f24/46604/smartphone-photo.png", "https://images.pexels.com/photos/434337/pexels-photo-434337.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500", "https://images6.fanpop.com/image/photos/41100000/photography-aesthetic-41178203-500-300.png", "https://quizterra.com/files/storage/2019/10/21/BIIkaAlzZ5uRCdHKEOwmdR3l7Kpi7ATz.gif"));
                 break;
             case "education":
                 final var uni = faker.university().name();
@@ -225,6 +231,7 @@ class LoadDatabase {
 
                 title = chooseBetween(List.of(uni, country)) + chooseBetween(List.of(" Exam Prep", " Education Coaching", " Higher Edu. Review"));
                 subtitle = "After all, " + uni + " is one of the best schools in " + uni + ". Not to mention " + faker.address().cityName() + " universities.";
+                imageUrl = chooseBetween(List.of("https://www.anadolu.edu.tr/abp//assets/img/thumbs/genel/sosyal-bilimler-enstitusu.jpg", "https://www.fresnocitycollege.edu/uploaded-files/images/academics/bus/be-marketing-classroom-card-graphic.jpg", "https://adultlearning.cumbria.gov.uk/Images/maths%20and%20english%20_tcm31-446281.jpg"));
                 break;
             case "nature":
                 final var city = chooseBetween(List.of(faker.address().cityName(), faker.address().cityPrefix(), faker.address().city()));
@@ -232,6 +239,7 @@ class LoadDatabase {
 
                 title = chooseBetween(List.of(activity + " of " + city, city + " " + activity));
                 subtitle = "After all, we shouldn't take " + city + "'s beauty for granted!!";
+                imageUrl = chooseBetween(List.of("https://adultlearning.cumbria.gov.uk/Images/maths%20and%20english%20_tcm31-446281.jpg", "https://i.guim.co.uk/img/media/18c7596e2cda2b1f2b943c938b977b59028c5f86/0_500_3915_2348/500.jpg?quality=85&auto=format&fit=max&s=71771279ad7833f8c05fd3cbc393ef79", "https://i.guim.co.uk/img/media/0fb2e0045ccbb19b83c84b3049e4cec8e9714192/0_149_4245_2547/500.jpg?quality=85&auto=format&fit=max&s=3b720600db174849d42c631193cca72e"));
                 break;
         }
 
@@ -247,7 +255,7 @@ class LoadDatabase {
                 0,
                 user,
                 Double.valueOf(faker.address().latitude().replace(",", ".")), Double.valueOf(faker.address().longitude().replace(",", ".")),
-                new HashSet<>(pickedTags), ""
+                new HashSet<>(pickedTags),  imageUrl
             );
         } else {
 
@@ -261,7 +269,7 @@ class LoadDatabase {
                 (int) randomLongBetween(1, 10),
                 0,
                 user,
-                "",
+                imageUrl,
                 new HashSet<>(pickedTags)
             );
         }
