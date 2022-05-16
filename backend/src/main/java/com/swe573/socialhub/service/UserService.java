@@ -234,8 +234,6 @@ public class UserService {
             flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.user, user.getId(), FlagStatus.active);
             ratingSummary = ratingService.getUserRatingSummary(user);
         }
-
-
         return new UserDto(
                 user.getId(),
                 user.getUsername(),
@@ -411,7 +409,7 @@ public class UserService {
                     if (ids.contains(user.get().getId())) {
                         continue;
                     }
-                    flaggedUsers.add(mapUserToDTO(user.get(), false));
+                    flaggedUsers.add(mapUserToDTO(user.get(), true));
                     ids.add(user.get().getId());
                 }
             }
