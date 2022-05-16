@@ -103,7 +103,7 @@
 
           
               <div class="text-center">
-                <p> Meeting Link: {{serviceData.location}} </p>
+                <p> Location: {{serviceData.location}} </p>
               </div>
               <br />
 
@@ -202,10 +202,21 @@
                   </GmapMap>
                 </base-button>
               </div>
-
-     
-              <!-- online -->
-
+            </div> -->
+            <div 
+              v-if="serviceData.status === 'CANCELLED'">
+              <div class="text-center">
+                <p> Cancelled service </p>
+              </div>
+            </div>
+            <div
+                v-if="serviceData.status != 'CANCELLED'  && userData.ownsService"
+                class="mt-2 py-5 border-top text-center">
+                  <base-button block type="primary" class="mb-3" @click="CancelService()">
+                  Cancel Service
+                  </base-button>
+              
+              </div>
             <div
               v-if="!userData.ownsService && !userIsAdmin"
               class="mt-2 py-5 border-top text-center"
@@ -286,6 +297,15 @@ export default {
   },
   computed: {},
   methods: {
+    IsCancellationDatePassed() {
+      var date = new Date();
+      if (this.serviceData.locationType === 'Physical') {
+        date = date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
+      } else {
+        date = date.setTime(date.getTime() + 0.5 * 60 * 60 * 1000);
+      }
+      return Date.parse(this.serviceData.time) < date;
+    },
     GetService() {
       var id = this.$route.params.service_id;
       apiRegister.GetService(id).then((r) => {
@@ -371,6 +391,30 @@ export default {
 
         this.SendServiceOverApprovalForCreator
       );
+    },
+    CancelService() {
+      if (this.IsCancellationDatePassed()) {
+        swal.fire({
+          title: 'Do you want to cancel this service? You will lose 5 reputation points because of the cancellation deadline.',
+          showCancelButton: true,
+          confirmButtonText: 'Yes',
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  var serviceId = this.$route.params.service_id;
+                  apiRegister.CancelService(serviceId).then((r) => {
+                    swal.fire( {
+                    text: "You've cancelled this service"
+                    });
+                });
+                location.reload();     
+                }
+          })
+      } else {
+        var serviceId = this.$route.params.service_id;
+        apiRegister.CancelService(serviceId).then((r) => {
+          location.reload();
+        });
+      }
     },
     SendServiceOverApprovalForCreator() {
       var serviceId = this.$route.params.service_id;

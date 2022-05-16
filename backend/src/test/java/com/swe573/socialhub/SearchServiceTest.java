@@ -9,11 +9,13 @@ import com.swe573.socialhub.repository.EventRepository;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
+import com.swe573.socialhub.service.SearchPrioritizationService;
 import com.swe573.socialhub.service.SearchService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +25,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -42,16 +47,24 @@ public class SearchServiceTest {
     @MockBean
     private EventRepository eventRepository;
 
+    @MockBean
+    private SearchPrioritizationService prioritizationService;
+
     private SearchService service;
 
     private static final int DEFAULT_LIMIT = 20;
 
     private static final Pageable DEFAULT_PAGE = Pageable.ofSize(DEFAULT_LIMIT);
 
+    private final Principal mockPrincipal = new UserServiceTests.MockPrincipal("test");
+
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        this.service = new SearchService(userRepository, tagRepository, serviceRepository, eventRepository);
+        Mockito.when(prioritizationService.assignScoresToServices(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyMap());
+        Mockito.when(prioritizationService.assignScoresToUsers(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyMap());
+        Mockito.when(userRepository.findUserByUsername("test")).thenReturn(Optional.of(new User()));
+        this.service = new SearchService(userRepository, tagRepository, serviceRepository, eventRepository, prioritizationService);
     }
 
     @Test
@@ -62,8 +75,8 @@ public class SearchServiceTest {
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
-                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
+                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE, 0));
+        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -75,8 +88,8 @@ public class SearchServiceTest {
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
-                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getDescription(), DEFAULT_LIMIT);
+                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE, 0));
+        var result = service.search(sampleEntity.getDescription(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -88,8 +101,8 @@ public class SearchServiceTest {
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
-                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE));
-        var result = service.search(sampleEntity.getLocation(), DEFAULT_LIMIT);
+                new SearchMatchDto(sampleEntity.getHeader(), "/service/" + sampleEntity.getId(), SearchMatchType.SERVICE, 0));
+        var result = service.search(sampleEntity.getLocation(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -101,8 +114,8 @@ public class SearchServiceTest {
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
-                new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER));
-        var result = service.search(sampleEntity.getBio(), DEFAULT_LIMIT);
+                new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER, 0));
+        var result = service.search(sampleEntity.getBio(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -114,8 +127,8 @@ public class SearchServiceTest {
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
-                new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER));
-        var result = service.search(sampleEntity.getUsername(), DEFAULT_LIMIT);
+                new SearchMatchDto(sampleEntity.getUsername(), "/user/" + sampleEntity.getId(), SearchMatchType.USER, 0));
+        var result = service.search(sampleEntity.getUsername(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
@@ -127,14 +140,14 @@ public class SearchServiceTest {
                 .thenReturn(List.of(sampleEntity));
 
         var expectedResult = List.of(
-                new SearchMatchDto(sampleEntity.getName(), "/tags/" + sampleEntity.getId(), SearchMatchType.TAG));
-        var result = service.search(sampleEntity.getName(), DEFAULT_LIMIT);
+                new SearchMatchDto(sampleEntity.getName(), "/tags/" + sampleEntity.getId(), SearchMatchType.TAG, 0));
+        var result = service.search(sampleEntity.getName(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertIterableEquals(expectedResult, result);
     }
 
     @Test
     public void SearchService_disallows_MoreThan50Limit() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.search("test", 51));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.search("test", 51, mockPrincipal));
     }
 
     @Test
@@ -146,7 +159,7 @@ public class SearchServiceTest {
         Mockito.when(serviceRepository.findByHeaderLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
                 .thenReturn(sampleList);
 
-        var result = service.search(sampleList.get(0).getHeader(), sampleList.size() - 1);
+        var result = service.search(sampleList.get(0).getHeader(), sampleList.size() - 1, mockPrincipal);
         Assertions.assertEquals(sampleList.size() - 1, result.size());
     }
 
@@ -159,7 +172,7 @@ public class SearchServiceTest {
         Mockito.when(serviceRepository.findByDescriptionLikeIgnoreCase(Mockito.anyString(), Mockito.any(Pageable.class)))
                 .thenReturn(List.of(sampleEntity));
 
-        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT);
+        var result = service.search(sampleEntity.getHeader(), DEFAULT_LIMIT, mockPrincipal);
         Assertions.assertEquals(1, result.size());
     }
 

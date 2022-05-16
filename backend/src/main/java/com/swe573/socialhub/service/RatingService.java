@@ -23,16 +23,18 @@ public class RatingService {
     private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
     private final UserServiceApprovalRepository approvalRepository;
+    private final BadgeService badgeService;
 
     private static final int MIN_RATING = 0;
     private static final int MAX_RATING = 5;
 
 
-    public RatingService(RatingRepository repository, ServiceRepository serviceRepository, UserRepository userRepository, UserServiceApprovalRepository approvalRepository) {
+    public RatingService(RatingRepository repository, ServiceRepository serviceRepository, UserRepository userRepository, UserServiceApprovalRepository approvalRepository, BadgeService badgeService) {
         this.repository = repository;
         this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
         this.approvalRepository = approvalRepository;
+        this.badgeService = badgeService;
     }
 
     @Transactional
@@ -68,11 +70,15 @@ public class RatingService {
             User serviceGiver = service.getCreatedUser();
             int serviceGiverRepPoints = serviceGiver.getReputationPoint() + rating;
             serviceGiver.setReputationPoint(serviceGiverRepPoints);
+            badgeService.checkBadges(serviceGiver);
             userRepository.save(serviceGiver);
+
             // update reputation points of rating giver.
             int userRepPoints = loggedInUser.getReputationPoint() + 1;
             loggedInUser.setReputationPoint(userRepPoints);
+            badgeService.checkBadges(loggedInUser);
             userRepository.save(loggedInUser);
+
             return repository.save(ratingEntity);
         }
 

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,10 +15,10 @@ public class ServiceDto implements Serializable {
     private final Long id;
     private final String Header;
     private final String Description;
-    private final LocationType LocationType;
+    private LocationType LocationType;
     private final String Location;
     private final LocalDateTime Time;
-    private final int Minutes;
+    private final int Hours;
     private final int Quota;
     private final Long AttendingUserCount;
     private final Long CreatedUserIdId;
@@ -36,15 +37,17 @@ public class ServiceDto implements Serializable {
     private final Long flagCount;
     private final String imageUrl;
     private final Boolean isFeatured;
+    private final Long createdTimestamp;
 
-    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int minutes, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, String imageUrl, Boolean isFeatured) {
+    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int hours, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, Boolean isFeatured, Date createdTimestamp) {
+        this.createdTimestamp = createdTimestamp.toInstant().toEpochMilli();
         this.id = id;
         Header = header;
         Description = description;
         LocationType = locationType;
         Location = location;
         Time = time;
-        Minutes = minutes;
+        Hours = hours;
         Quota = quota;
         AttendingUserCount = attendingUserCount;
         CreatedUserIdId = createdUserIdId;
@@ -77,6 +80,10 @@ public class ServiceDto implements Serializable {
         ShowServiceOverButton = time.isBefore(LocalDateTime.now()) ;
     }
 
+    public Long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
     public Long getId() {
         return id;
     }
@@ -102,7 +109,7 @@ public class ServiceDto implements Serializable {
     }
 
     public int getMinutes() {
-        return Minutes;
+        return Hours;
     }
 
     public int getQuota() {
@@ -146,6 +153,10 @@ public class ServiceDto implements Serializable {
         return flagCount;
     }
 
+    public void setLocationType(com.swe573.socialhub.enums.LocationType locationType) {
+        LocationType = locationType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -156,14 +167,14 @@ public class ServiceDto implements Serializable {
                 Objects.equals(this.Description, entity.Description) &&
                 Objects.equals(this.Location, entity.Location) &&
                 Objects.equals(this.Time, entity.Time) &&
-                Objects.equals(this.Minutes, entity.Minutes) &&
+                Objects.equals(this.Hours, entity.Hours) &&
                 Objects.equals(this.Quota, entity.Quota) &&
                 Objects.equals(this.CreatedUserIdId, entity.CreatedUserIdId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, Header, Description, Location, Time, Minutes, Quota, CreatedUserIdId);
+        return Objects.hash(id, Header, Description, Location, Time, Hours, Quota, CreatedUserIdId);
     }
 
     @Override
@@ -174,7 +185,7 @@ public class ServiceDto implements Serializable {
                 "Description = " + Description + ", " +
                 "Location = " + Location + ", " +
                 "Time = " + Time + ", " +
-                "Minutes = " + Minutes + ", " +
+                "Minutes = " + Hours + ", " +
                 "Quota = " + Quota + ", " +
                 "CreatedUserIdId = " + CreatedUserIdId + ")";
     }

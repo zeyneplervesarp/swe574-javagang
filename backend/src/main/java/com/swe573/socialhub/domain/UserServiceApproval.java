@@ -53,6 +53,14 @@ public class UserServiceApproval {
         this.created = created;
     }
 
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
+    }
+
+    public void setDeniedDate(Date deniedDate) {
+        this.deniedDate = deniedDate;
+    }
+
     public UserServiceApproval(UserServiceApprovalKey id, User user, Service service, ApprovalStatus approvalStatus) {
         this.id = id;
         this.user = user;

@@ -6,5 +6,7 @@ public enum BadgeType {
     superMentor,
     regular,
     communityBuilder,
+    reputable,
+    wellKnown,
     guru
 }

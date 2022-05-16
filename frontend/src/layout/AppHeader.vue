@@ -123,6 +123,7 @@
           </div>
         </base-dropdown>
         <base-input
+          v-if="userLoggedIn"
           v-model="searchQuery"
           v-on:keyup.enter="OnEnter()"
           class="mt-3"
@@ -167,7 +168,7 @@
           class="nav-item d-none d-lg-block ml-lg-4"
         >
           <a
-            href="#/admin/services"
+            href="#/admin/feed"
             rel="noopener"
             class="btn btn-default btn-icon"
           >

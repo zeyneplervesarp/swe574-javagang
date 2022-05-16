@@ -7,6 +7,7 @@ import com.swe573.socialhub.domain.UserServiceApproval;
 import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.ServiceStatus;
 import com.swe573.socialhub.repository.*;
+import com.swe573.socialhub.service.BadgeService;
 import com.swe573.socialhub.service.RatingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,9 @@ public class RatingServiceTest {
     @MockBean
     private UserServiceApprovalRepository approvalRepository;
 
+    @MockBean
+    private BadgeService badgeService;
+
     private RatingService ratingService;
 
     private final Principal mockPrincipal = new UserServiceTests.MockPrincipal("test");
@@ -67,7 +71,7 @@ public class RatingServiceTest {
         mockSvc.setStatus(ServiceStatus.COMPLETED);
         mockSvc.setCreatedUser(mockServiceCreator);
         Mockito.when(serviceRepository.findById(mockSvcId)).thenReturn(Optional.of(mockSvc));
-        this.ratingService = new RatingService(ratingRepository, serviceRepository, userRepository, approvalRepository);
+        this.ratingService = new RatingService(ratingRepository, serviceRepository, userRepository, approvalRepository, badgeService);
     }
 
     @Test

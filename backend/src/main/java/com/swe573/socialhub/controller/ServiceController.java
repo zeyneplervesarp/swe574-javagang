@@ -1,18 +1,19 @@
 package com.swe573.socialhub.controller;
 
 import com.swe573.socialhub.domain.Flag;
-import com.swe573.socialhub.dto.ServiceDto;
+import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.ServiceFilter;
 import com.swe573.socialhub.enums.ServiceSortBy;
 import com.swe573.socialhub.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,21 +27,75 @@ public class ServiceController {
 
     @GetMapping("/{getOngoingOnly}/{filter}")
     @ResponseBody
-    public List<ServiceDto> findAllServices(@RequestParam (required = false) ServiceSortBy sortBy, Principal principal, @PathVariable Boolean getOngoingOnly, @PathVariable(value = "filter") ServiceFilter filter) {
-
+    public PaginatedResponse<ServiceDto> findAllServices(
+            Principal principal,
+            @RequestParam (required = false, defaultValue = "createdDateDesc") ServiceSortBy sortBy,
+            @RequestParam(required = false) String gt,
+            @RequestParam(required = false) String lt,
+            @RequestParam(required = false) Integer size,
+            @PathVariable Boolean getOngoingOnly,
+            @PathVariable(value = "filter") ServiceFilter filter
+    ) {
+        final var started = Instant.now();
         try {
-            return serviceService.findAllServices(principal,getOngoingOnly,filter,sortBy);
+
+
+            final var urlPrefix = "service/" + getOngoingOnly.toString() + "/" + filter.toString();
+            final var sortBySuffix = "&sortBy=" + sortBy.toString();
+            switch (sortBy) {
+                case distanceAsc:
+                    gt = gt != null ? gt : String.valueOf(DistanceBasedPagination.DEFAULT_GT);
+                    lt = lt != null ? lt : String.valueOf(DistanceBasedPagination.DEFAULT_LT);
+                    var dsPagination = ControllerUtils.parseDistancePagination(Double.valueOf(gt), Double.valueOf(lt), size);
+                    var items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, dsPagination, sortBy);
+                    return new PaginatedResponse<>(items, urlPrefix, sortBySuffix, dsPagination, ServiceDto::getDistanceToUser);
+                case serviceDateDesc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
+                    var tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
+                    items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
+                case createdDateDesc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
+                    tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "desc");
+                    items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
+                case serviceDateAsc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
+                    tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
+                    items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> ControllerUtils.localDateTimeToDate(item.getTime()));
+                case createdDateAsc:
+                    gt = gt != null ? gt : String.valueOf(TimestampBasedPagination.DEFAULT_GT.toInstant().toEpochMilli());
+                    lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
+                    tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
+                    items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
+                    return new PaginatedResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
+            }
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request.");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        } finally {
+            System.out.println("Service loading took " + (Instant.now().toEpochMilli() - started.toEpochMilli()) + " milliseconds.");
         }
     }
 
     @GetMapping
     @ResponseBody
-    public List<ServiceDto> findAllServices(@RequestParam (required = false) String sortBy)  {
+    public PaginatedResponse<ServiceDto> findAllServices(
+            @RequestParam(required = false) Long gt,
+            @RequestParam(required = false) Long lt,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sort
+    )  {
+        final var urlPrefix = "service";
         try {
-            var foo = sortBy;
-            return serviceService.findAllServices();
+            final var pagination = ControllerUtils.parseTimestampPagination(gt, lt, size, sort);
+            final var items =  serviceService.findPaginatedOngoing(pagination);
+            return new PaginatedResponse<>(items, urlPrefix, "", pagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
@@ -61,7 +116,7 @@ public class ServiceController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ServiceDto> deleteService(@PathVariable(value = "id") long id, Principal principal) {
         try {
             return ResponseEntity.ok(serviceService.deleteService(id, principal));
@@ -80,9 +135,8 @@ public class ServiceController {
         }
     }
 
-
     @PostMapping
-    public ResponseEntity<Long> upsertService(Principal principal, @Validated @RequestBody ServiceDto service) {
+    public ResponseEntity<Long> upsertService(Principal principal, @RequestBody ServiceDto service) {
         try {
             var result = serviceService.upsert(principal, service);
             return ResponseEntity.ok().body(result);
@@ -90,8 +144,6 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
-
-
 
     @GetMapping("/approve/{serviceId}")
     public void App(Principal principal, @PathVariable Long serviceId) {
@@ -174,6 +226,25 @@ public class ServiceController {
         try {
             serviceService.dismissFlags(principal, serviceId);
             return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/flag")
+    public List<ServiceDto> getAllFlaggedServices(Principal principal) {
+        try {
+            return serviceService.getAllFlaggedServices(principal);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+  
+    @PostMapping("/cancel/{serviceId}")
+    public ResponseEntity<ServiceDto> cancelService(Principal principal, @PathVariable Long serviceId) {
+        try {
+            ServiceDto serviceToCancel = serviceService.cancelService(serviceId, principal);
+            return ResponseEntity.ok(serviceToCancel);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }

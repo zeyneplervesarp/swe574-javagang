@@ -1,0 +1,130 @@
+<template>
+  <div class="profile-page">
+    <section class="section-profile-cover section-shaped my-0">
+      <div class="shape shape-style-3 shape-primary shape-skew alpha-4">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </section>
+    <section class="section section-skew">
+      <div class="container">
+        <card shadow class="card-profile mt--300" no-body>
+          <div class="px-4">
+            <div class="row justify-content-center">
+              <div class="col-lg-3 order-lg-2"></div>
+              <div
+                class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center">
+              </div>
+            </div>
+            <div class="text-center mt-5">
+              <h3>
+                    Flagged Services              
+              </h3>
+              <div></div>
+              <br />
+              <div class="text-center">
+                <div>
+                  <table class="table table-striped">
+                    <thead class="">
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">FlagCount</th>
+                        <th scope="col">View</th>
+                        <th scope="col">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(service, index) in flaggedServices" :key="index">
+                        <th scope="row">{{ index + 1 }}</th>
+                        <td>{{ service.header }}</td>
+                        <td>{{ service.createdUserName }}</td>
+                        <td>{{ service.timeString }}</td>
+                        <td>{{ service.flagCount }}</td>
+                        <td>
+                          <base-button
+                            block
+                            type="primary"
+                            class="mb-3"
+                            @click="GoToService(service.id)"
+                          >
+                            View
+                          </base-button>
+                        </td>
+                        <td>
+                          <base-button block 
+                            type="warning"
+                            class="mb-3"
+                            @click="DeleteService(service.id)">
+                            Delete
+                          </base-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <br />
+              <div>
+              </div>
+            </div>
+          </div>
+        </card>
+      </div>
+    </section>
+  </div>
+</template>
+<script>
+import BaseButton from "../components/BaseButton.vue";
+import apiRegister from "../api/register";
+import swal from "sweetalert2";
+
+export default {
+  components: { BaseButton },
+  data() {
+    return {
+      flaggedServices: [],
+    };
+  },
+  mounted() {
+    this.GetAllFlaggedServices();
+  },
+  computed: {},
+  methods: {
+    GetAllFlaggedServices() {
+      apiRegister.GetAllFlaggedServices().then((r) => {
+        this.flaggedServices = r;
+      });
+    },
+    GoToService(serviceId) {
+      var url = "#/service/" + serviceId;
+      window.location.href = url;
+    },
+    DeleteService(serviceId) {
+        swal.fire({
+            title: 'Do you want to delete this user?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    apiRegister.DeleteService(serviceId).then((r) => {
+                    swal.fire( {
+                    text: "You've deleted this service"
+                    });
+                });
+                location.reload();     
+            }
+            })
+    }
+  },
+};
+</script>
+<style>
+</style>
