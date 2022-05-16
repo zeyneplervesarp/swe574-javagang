@@ -257,7 +257,7 @@ public class UserServiceTests {
         user.setFollowingUsers(new HashSet<>());
         user.setFollowedBy(new HashSet<>());
         user.setBadges(new HashSet<>());
-
+        user.setCreated(new Date());
 
         Mockito.when(userServiceApprovalRepository.findUserServiceApprovalByUserAndApprovalStatus(user, ApprovalStatus.PENDING)).thenReturn(new ArrayList<>());
         var dto = service.mapUserToDTO(user, false);
