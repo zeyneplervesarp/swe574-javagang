@@ -38,7 +38,12 @@
                     >
                       <div class="col mt-2 text-center">
                         <span>
-                          <base-button @click="GoToUrl(notification.messageBody)" block type="secondary">{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
+                          <base-button 
+                          @click="GoToUrl(notification.messageBody)" 
+                          block 
+                          type="secondary"
+                          style="text-align: left;  text-transform: lowercase; background-color: #A16FD0"
+                          >{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
                         </span>
                       </div>
                       <div class="w-100"></div>
@@ -50,7 +55,12 @@
                     >
                       <div class="col mt-2 text-center">
                         <span>
-                          <base-button  @click="GoToUrl(notification.messageBody)" block  type="succeess">{{getFormattedDate(notification.sentDate)}} | {{
+                          <base-button  
+                          @click="GoToUrl(notification.messageBody)" 
+                          block  
+                          type="succeess"
+                          style="text-align: left;  text-transform: lowercase; background-color: #D0C5DA"
+                          >{{getFormattedDate(notification.sentDate)}} | {{
                             notification.message
                           }}</base-button>
                         </span>
