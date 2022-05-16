@@ -66,7 +66,7 @@ public class ActivityStreamService {
     private final static Set<FeedEvent> ADMIN_ONLY_EVENT_TYPES = Set.of(FeedEvent.USER_LOGIN_FAILED, FeedEvent.USER_LOGIN_SUCCESSFUL);
     private final static int MAX_SIZE = 100;
 
-    public Collection fetchFeedValidated(Principal principal, Set<FeedEvent> eventTypes, TimestampBasedPagination pagination, String endpointBase) {
+    public Collection fetchFeedValidated(Principal principal, Set<FeedEvent> eventTypes, TimestampBasedPagination pagination, String endpointBase, String filterKey) {
         if (pagination.getSize() > MAX_SIZE) {
             throw new IllegalArgumentException("Feed supports maximum 100 items");
         }
@@ -75,10 +75,10 @@ public class ActivityStreamService {
             throw new IllegalArgumentException("Can't request admin only event types");
         }
 
-        return fetchFeed(eventTypes, pagination, endpointBase);
+        return fetchFeed(eventTypes, pagination, endpointBase, filterKey);
     }
 
-    public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination, String endpointBase) {
+    public Collection fetchFeed(Set<FeedEvent> eventTypes, TimestampBasedPagination pagination, String endpointBase, String filterKey) {
         final var activities = eventTypes
                 .parallelStream()
                 .flatMap(et -> mappers.get(et).fetchAndMap(pagination))
@@ -86,19 +86,22 @@ public class ActivityStreamService {
                 .limit(pagination.getSize())
                 .collect(Collectors.toUnmodifiableList());
 
-        return mapToCollection(activities, pagination, endpointBase);
+        return mapToCollection(activities, pagination, endpointBase, filterKey);
     }
 
-    private Collection mapToCollection(List<Activity> activityList, TimestampBasedPagination pagination, String endpointBase) {
+
+    private Collection mapToCollection(List<Activity> activityList, TimestampBasedPagination pagination, String endpointBase, String filterKey) {
         final var builder = collection()
                 .items(activityList)
-                .itemsPerPage(activityList.size());
+                .itemsPerPage(activityList.size())
+                .set("filterKey", filterKey);
 
         if (!activityList.isEmpty()) {
             final var nextPagination = pagination.nextPage(activityList.get(activityList.size() - 1).published().toDate());
             final var nextUrl = nextPagination.makeUrlString(endpointBase, "");
             builder.pageLink(Collection.Page.NEXT, nextUrl);
         }
+        var returnVal = builder.get();
 
         return builder.get();
     }
