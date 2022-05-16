@@ -82,7 +82,7 @@ public class ActivityStreamService {
         final var activities = eventTypes
                 .parallelStream()
                 .flatMap(et -> mappers.get(et).fetchAndMap(pagination))
-                .sorted(pagination.getSortDirection().isAscending() ? Comparator.comparing(Activity::published) : Comparator.comparing(Activity::published).reversed())
+                .sorted(pagination.getSortDirection().isDescending() ? Comparator.comparing(Activity::published) : Comparator.comparing(Activity::published).reversed())
                 .limit(pagination.getSize())
                 .collect(Collectors.toUnmodifiableList());
 
