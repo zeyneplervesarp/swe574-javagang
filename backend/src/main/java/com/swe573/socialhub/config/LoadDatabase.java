@@ -8,6 +8,9 @@ import com.swe573.socialhub.enums.ApprovalStatus;
 import com.swe573.socialhub.enums.BadgeType;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,6 +41,19 @@ import static com.swe573.socialhub.SocialHubApplication.SITE_CREATION_DATE;
 class LoadDatabase {
 
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
+
+    private final List<City> cities;
+
+    public LoadDatabase() throws IOException {
+        final var startedCities = Instant.now();
+        System.out.println("City loading started.");
+        this.cities = loadCities();
+        System.out.println("Loaded " + cities.size() + " cities in " + (Instant.now().toEpochMilli() - startedCities.toEpochMilli()) + " milliseconds.");
+    }
+
+    private City randomCity() {
+        return chooseBetween(cities);
+    }
 
     @Bean
     CommandLineRunner initDatabase(
@@ -52,7 +74,6 @@ class LoadDatabase {
 
 
         return args -> {
-
             final var started = Instant.now();
             System.out.println("Initial db loading started.");
 
@@ -93,6 +114,33 @@ class LoadDatabase {
         };
     }
 
+    private static class City {
+        final String name;
+        final double lat;
+        final double lng;
+
+        public City(String name, double lat, double lng) {
+            this.name = name;
+            this.lat = lat;
+            this.lng = lng;
+        }
+    }
+
+    private List<City> loadCities() throws IOException {
+        return CSVFormat.RFC4180.withFirstRecordAsHeader().parse(new InputStreamReader(Objects
+                .requireNonNull(getClass()
+                        .getClassLoader()
+                        .getResourceAsStream("worldcities.csv")
+                )))
+                .stream()
+                .map(this::getRecordFromLine)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    private City getRecordFromLine(CSVRecord line) {
+        return new City(line.get("city"), Double.parseDouble(line.get("lat")), Double.parseDouble(line.get("lng")));
+    }
+
     private Date randomDate(Date min, Date max) {
         final var minMillis = min.toInstant().toEpochMilli();
         final var maxMillis = max.toInstant().toEpochMilli();
@@ -116,7 +164,9 @@ class LoadDatabase {
             var username = chooseBetween(List.of(faker.internet().slug(), faker.artist().name().trim().toLowerCase() + faker.random().nextInt(99), faker.internet().slug() + faker.internet().domainSuffix()));
             var email = chooseBetween(List.of(username + "@" + faker.internet().domainName() + "." + faker.internet().domainSuffix(), faker.internet().emailAddress()));
             var bio = chooseBetween(List.of(faker.shakespeare().hamletQuote(), faker.shakespeare().kingRichardIIIQuote(), faker.shakespeare().asYouLikeItQuote(), faker.shakespeare().romeoAndJulietQuote(), faker.rickAndMorty().quote(), faker.backToTheFuture().quote()));
-            var u = new User(null, username, email, bio, new HashSet<>(chooseManyBetween(tags, (int) randomLongBetween(0, 3))), 10, faker.address().latitude(), faker.address().longitude(), faker.address().fullAddress(), UserType.USER, 0);
+
+            final var city = randomCity();
+            var u = new User(null, username, email, bio, new HashSet<>(chooseManyBetween(tags, (int) randomLongBetween(0, 3))), 10, Double.toString(city.lat), Double.toString(city.lng), faker.address().fullAddress(), UserType.USER, 0);
             u.setPassword(encodedPw);
             return u;
         }).collect(Collectors.toList());
@@ -244,6 +294,7 @@ class LoadDatabase {
         }
 
         if (isPhysical) {
+            final var city = randomCity();
             return Service.createPhysical(
                 null,
                 title,
@@ -254,7 +305,8 @@ class LoadDatabase {
                 (int) randomLongBetween(1, 10),
                 0,
                 user,
-                Double.valueOf(faker.address().latitude().replace(",", ".")), Double.valueOf(faker.address().longitude().replace(",", ".")),
+                city.lat,
+                city.lng,
                 new HashSet<>(pickedTags),  imageUrl
             );
         } else {
