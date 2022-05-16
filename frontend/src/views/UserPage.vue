@@ -68,7 +68,7 @@
                   </div>
                   <div>
                     <span class="heading">{{
-                      userData.ratingSummary.ratingAverage
+                      FormatDouble(userData.ratingSummary.ratingAverage)
                     }}</span>
                     <span class="description">Rating Summary</span>
                   </div>
@@ -225,6 +225,9 @@ export default {
           text: "You successfully flagged the user.",
         });
       });
+    },
+    FormatDouble(num) {
+      return Math.round(num * 10) / 10;
     },
     DismissFlags() {
       var userId = this.$route.params.userId;
