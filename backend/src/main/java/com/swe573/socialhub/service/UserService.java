@@ -402,7 +402,7 @@ public class UserService {
     public List<UserDto> getAllFlaggedUsers() {
         try {
             // get all flags of users
-            List<Flag> userFlags = flagRepository.findAllByType(FlagType.user);
+            List<Flag> userFlags = flagRepository.findAllByTypeAndStatus(FlagType.user, FlagStatus.active);
             List<UserDto> flaggedUsers = new ArrayList<>();
             List<Long> ids = new ArrayList<>();
             for(Flag flag : userFlags) {

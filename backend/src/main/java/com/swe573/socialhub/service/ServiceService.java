@@ -524,7 +524,8 @@ public class ServiceService {
     public List<ServiceDto> getAllFlaggedServices(Principal principal) {
         try {
             final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
-            List<Flag> serviceFlags = flagRepository.findAllByType(FlagType.service);
+            List<Flag> serviceFlags = flagRepository.findAllByTypeAndStatus(FlagType.service, FlagStatus.active);
+            // remove duplicates
             List<ServiceDto> flaggedServices = new ArrayList<>();
             List<Long> ids = new ArrayList<>();
             for (Flag flag : serviceFlags) {
