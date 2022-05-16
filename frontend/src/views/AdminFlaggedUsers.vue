@@ -43,7 +43,7 @@
                       <tr v-for="(user, index) in flaggedUsers" :key="index">
                         <td>{{ user.username }}</td>
                         <td>{{ user.bio }}</td>
-                        <td>{{ FormatDouble(user.ratingSummary.ratingAverage) }}
+                        <td>{{ FormatDouble(user.ratingSummary.ratingAverage) }} / 5</td>
                         <td>{{ user.flagCount }}</td>
                         <td>
                           <base-button
