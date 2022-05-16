@@ -113,8 +113,8 @@ public class UserServiceApprovalService {
 
     private UserServiceApprovalDto getApprovalDto(UserServiceApproval entity) {
         var service = entity.getService();
-        var userDto = userService.mapUserToDTO(entity.getUser(), false);
-        var serviceDto = new ServiceDto(service.getId(), service.getHeader(), "", service.getLocationType(), service.getLocation(), service.getTime(), 0, service.getQuota(), service.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), service.getStatus(), 0L, null, null, ratingService.getServiceRatingSummary(service), flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active), service.isFeatured(), entity.getService().getCreated());
+            var userDto = userService.mapUserToDTO(entity.getUser(), false);
+        var serviceDto = new ServiceDto(service.getId(), service.getHeader(), "", service.getLocationType(), service.getLocation(), service.getTime(), 0, service.getQuota(), service.getAttendingUserCount(), 0L, "", 0.0, 0.0, Collections.emptyList(), service.getStatus(), 0L, null, null, ratingService.getServiceRatingSummary(service), flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active), service.getImageUrl(),service.isFeatured(), entity.getService().getCreated());
         var dto = new UserServiceApprovalDto(userDto, serviceDto, entity.getApprovalStatus());
         return dto;
     }

@@ -133,9 +133,9 @@ public class ActivityStreamServiceTests {
         loginUser2.setId(1L);
         loginUser2.setUsername("tester2");
 
-        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
+        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null, "");
         testSvc1.setCreated(new Date(System.currentTimeMillis() - 3600 * 1000));
-        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null,"");
         testSvc2.setCreated(new Date());
 
 
@@ -225,8 +225,8 @@ public class ActivityStreamServiceTests {
         loginUser2.setId(1L);
         loginUser2.setUsername("tester2");
 
-        var testSvc1 = Service.createPhysical(123L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
-        var testSvc2 = Service.createPhysical(1234L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+        var testSvc1 = Service.createPhysical(123L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null, "");
+        var testSvc2 = Service.createPhysical(1234L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null, "");
 
         var approval1 = new UserServiceApproval();
         approval1.setApprovalStatus(ApprovalStatus.APPROVED);
@@ -269,8 +269,8 @@ public class ActivityStreamServiceTests {
         loginUser2.setId(1L);
         loginUser2.setUsername("tester2");
 
-        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null);
-        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null);
+        var testSvc1 = Service.createPhysical(0L, "test svc 1", "test desc 1", "ist", null, 10, 10, 0, loginUser1, 0D, 0D, null, "");
+        var testSvc2 = Service.createPhysical(1L, "test svc 2", "test desc 2", "ant", null, 10, 10, 0, loginUser2, 0D, 0D, null, "");
 
         var approval1 = new UserServiceApproval();
         approval1.setCreated(new Date(System.currentTimeMillis() - 3600 * 1000));

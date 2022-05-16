@@ -17,10 +17,11 @@ public class Service {
 
     }
     // constructor for physical services
-    private Service(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, String imageUrl, Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.locationType = LocationType.Physical;
         this.location = location;
         this.time = time;
@@ -36,10 +37,11 @@ public class Service {
     }
 
     // constructor for online services
-    private Service(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
+    private Service(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, String imageUrl, User createdUser,  Set<Tag> serviceTags) {
         this.id = id;
         this.header = header;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.locationType = LocationType.Online;
         this.location = location;
         this.time = time;
@@ -68,6 +70,7 @@ public class Service {
     private Double longitude;
     private ServiceStatus status;
     private boolean isFeatured;
+    private String imageUrl;
 
     @OneToMany(mappedBy="service", cascade = CascadeType.ALL)
     private Set<Rating> ratings;
@@ -93,12 +96,12 @@ public class Service {
     private Date created;
 
 
-    public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Set<Tag> serviceTags) {
-        return new Service(id, header, description, location, time, hours, quota, attendingUserCount, createdUser, serviceTags);
+    public static Service createOnline(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, String imageUrl, Set<Tag> serviceTags) {
+        return new Service(id, header, description, location, time, hours, quota, attendingUserCount, imageUrl, createdUser, serviceTags);
     }
 
-    public static Service createPhysical(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags) {
-        return new Service(id, header, description, location, time, hours, quota, attendingUserCount, createdUser, latitude, longitude, serviceTags);
+    public static Service createPhysical(Long id, String header, String description, String location, LocalDateTime time, int hours, int quota, int attendingUserCount, User createdUser, Double latitude, Double longitude, Set<Tag> serviceTags, String imageUrl) {
+        return new Service(id, header, description, location, time, hours, quota, attendingUserCount, createdUser, latitude, longitude, imageUrl, serviceTags);
     }
 
     public Date getCreated() {
@@ -271,5 +274,13 @@ public class Service {
             this.serviceTags =  new HashSet<Tag>();
         }
         this.serviceTags.add(tag);
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

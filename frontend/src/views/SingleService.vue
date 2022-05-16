@@ -92,24 +92,16 @@
               </h3>
               <div></div>
               <br />
-              <!-- physical -->
-              <div class="text-center" v-if="serviceData.locationType === 'Physical'">
+         <div class="text-center" v-if="serviceData.locationType === ''">
                 <base-button
                   v-if="serviceData.formattedAddress != ''"
                   type="secondary"
                 >
-                  <GmapMap
-                    :center="coordinates"
-                    :zoom="13"
-                    map-type-id="roadmap"
-                    style="width: 500px; height: 300px"
-                    ref="mapRef"
-                  >
-                    <GmapMarker :position="coordinates" />
-                  </GmapMap>
+                  <img v-bind:src=serviceData.imageUrl>
                 </base-button>
               </div>
-              <!-- online -->
+
+          
               <div class="text-center">
                 <p> Location: {{serviceData.location}} </p>
               </div>
@@ -192,27 +184,23 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="mt-2 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <p>
-                    Want to get more information about the tags? Click on the
-                    tag that you would like to get more information about.
-                  </p>
 
-                  <div>
-                    <base-button
-                      block
-                      type="primary"
-                      class="mb-3"
-                      v-for="(tag, index) in serviceData.serviceTags"
-                      :key="index"
-                      @click="GetTagInfo(tag.name)"
-                    >
-                      {{ tag.name }}
-                    </base-button>
-                  </div>
-                </div>
+        <!-- physical -->
+              <div style="margin-bottom:100px" class="text-center" v-if="serviceData.locationType === 'Physical'">
+                <base-button
+                  v-if="serviceData.formattedAddress != ''"
+                  type="secondary"
+                >
+                  <GmapMap
+                    :center="coordinates"
+                    :zoom="13"
+                    map-type-id="roadmap"
+                    style="width: 500px; height: 300px"
+                    ref="mapRef"
+                  >
+                    <GmapMarker :position="coordinates" />
+                  </GmapMap>
+                </base-button>
               </div>
             </div> -->
             <div 
@@ -281,7 +269,7 @@ export default {
         participantUserList: [],
         ratingSummary: {},
         flagCount: 0,
-
+        imageUrl: ""
       },
       userData: {
         hasServiceRequest: "",
@@ -339,6 +327,7 @@ export default {
         this.coordinates.lng = r.longitude;
         this.serviceData.ratingSummary = r.ratingSummary;
         this.serviceData.flagCount = r.flagCount;
+        this.serviceData.imageUrl = r.imageUrl;
         this.serviceData.locationType = r.locationType;
       });
     },
