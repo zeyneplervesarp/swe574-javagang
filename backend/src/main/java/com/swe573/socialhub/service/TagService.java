@@ -4,6 +4,7 @@ import com.swe573.socialhub.domain.Tag;
 import com.swe573.socialhub.dto.TagDto;
 import com.swe573.socialhub.repository.TagRepository;
 import com.swe573.socialhub.repository.UserRepository;
+import org.apache.commons.io.IOUtils;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,10 +13,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,11 +67,9 @@ public class TagService {
         try
         {
             //get the swear-words resource and add them to a list
-            URL res = getClass().getClassLoader().getResource("swear-words");
-            File file = Paths.get(res.toURI()).toFile();
-            var path = file.toPath();
-            List<String> lines = Files.readAllLines(path);
 
+
+            List<String> lines = IOUtils.readLines(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("swear-words")), StandardCharsets.UTF_8);
             for(String line : lines){
                 if (dto.getName().toLowerCase(Locale.ROOT).contains(line))
                 {
