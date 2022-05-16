@@ -32,17 +32,18 @@
                   <table class="table table-striped">
                     <thead class="">
                       <tr>
-                        <th scope="col">#</th>
                         <th scope="col">Username</th>
+                        <th scope="col">Bio</th>
+                        <th scope="col">Rating</th>
                         <th scope="col">FlagCount</th>
                         <th scope="col">View</th>
-                        <th scope="col">Delete</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="(user, index) in flaggedUsers" :key="index">
-                        <th scope="row">{{ index + 1 }}</th>
                         <td>{{ user.username }}</td>
+                        <td>{{ user.bio }}</td>
+                        <td>{{ FormatDouble(user.ratingSummary.ratingAverage) }}
                         <td>{{ user.flagCount }}</td>
                         <td>
                           <base-button
@@ -51,16 +52,7 @@
                             class="mb-3"
                             @click="GoToProfile(user.id)"
                           >
-                            View
-                          </base-button>
-                        </td>
-                        <td>
-                          <base-button 
-                            block 
-                            type="warning" 
-                            class="mb-3"
-                            @click="DeleteUser(user.id)">
-                            Delete
+                            <i class="ni ni-curved-next"></i>
                           </base-button>
                         </td>
                       </tr>
@@ -95,6 +87,9 @@ export default {
   },
   computed: {},
   methods: {
+    FormatDouble(num) {
+      return Math.round(num * 10) / 10;
+    },
     GetAllFlaggedUsers() {
       apiRegister.GetAllFlaggedUsers().then((r) => {
         this.flaggedUsers = r;
@@ -104,11 +99,6 @@ export default {
       var url = "#/profile/" + userId;
       window.location.href = url;
     },
-    DeleteUser(userId) {
-        apiRegister.DeleteUser(userId).then((r) => {
-          location.reload();
-      });
-    }
   },
 };
 </script>
