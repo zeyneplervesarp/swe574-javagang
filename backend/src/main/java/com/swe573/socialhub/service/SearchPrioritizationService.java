@@ -219,38 +219,38 @@ public class SearchPrioritizationService extends CacheLoader<Long, SearchPriorit
 
         final var followingUsers = user
                 .getFollowingUsers()
-                .parallelStream()
+                .stream()
                 .map(UserFollowing::getFollowedUser)
                 .collect(Collectors.toUnmodifiableSet());
 
         final var followingUserTags = followingUsers
-                .parallelStream()
+                .stream()
                 .flatMap(uf -> uf.getTags().stream())
                 .map(Tag::getName)
                 .collect(Collectors.toUnmodifiableSet());
 
         final var followingUserJoinedServicesTags = getServicesTags(
                 followingUsers
-                        .parallelStream()
+                        .stream()
                         .flatMap(uf -> uf.getServiceApprovalSet().stream())
                         .map(UserServiceApproval::getService)
         );
 
         final var followingUserCreatedServicesTags = getServicesTags(
                 followingUsers
-                        .parallelStream()
+                        .stream()
                         .flatMap(uf -> uf.getCreatedServices().stream())
         );
 
         final var joinedServicesTags = getServicesTags(
                 user.getServiceApprovalSet()
-                        .parallelStream()
+                        .stream()
                         .map(UserServiceApproval::getService)
         );
 
         final var createdServicesTags = getServicesTags(
                 user.getCreatedServices()
-                        .parallelStream()
+                        .stream()
         );
 
         final var userPhysicalSvcsSorted = user
