@@ -89,25 +89,25 @@
               </div>
               </div>
 
-
                <div class="container ct-example-row">
                       <div
                         class="row"
                         v-for="(result, index) in feed"
                         :key="index"
                       >
-                        <div class="col mt-2 text-center">
-                        <span
-                            v-if="
-                              result.verb == 'follow'
-                            "
-                          >
+                        <div class="col mt-2">
+                            <span
+                                v-if="
+                                  result.verb == 'follow'
+                                "
+                              >
                             <base-button
                               @click="GoToUrl(result.object.url)"
                               block
                               type="default"
+                              style="text-align: left;  text-transform: lowercase; background-color: #7559C0"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
-                              <badge class="float-right" pill type="default">{{
+                              <badge class="float-right" pill type="#7559C0">{{
                                 result.verb
                               }}</badge>
                             </base-button>
@@ -117,9 +117,10 @@
                             <base-button
                               @click="GoToUrl(result.actor.url)"
                               block
-                              type="success"
+                              type="default"
+                              style="text-align: left;  text-transform: lowercase;  background-color: #16A085"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
-                              <badge class="float-right" pill type="success">{{
+                              <badge class="float-right" pill type="#16A085">{{
                                 result.verb
                               }}</badge>
                             </base-button>
@@ -130,8 +131,9 @@
                               @click="GoToUrl(result.object.url)"
                               block
                               type="info"
+                              style="text-align: left;  text-transform: lowercase; background-color: #4553FE"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
-                              <badge class="float-right" pill type="info">{{
+                              <badge class="float-right" pill type="#4553FE">{{
                                 result.verb
                               }}</badge>
                             </base-button>
@@ -143,9 +145,10 @@
                             <base-button
                               @click="GoToUrl(result.object.url)"
                               block
-                              type="primary"
+                              type="default"
+                              style="text-align: left;  text-transform: lowercase; background-color: #8E44AD"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
-                              <badge class="float-right" pill type="primary">{{
+                              <badge class="float-right" pill type="#8E44AD">{{
                                 result.verb
                               }}</badge>
                             </base-button>
@@ -159,8 +162,9 @@
                               @click="GoToUrl(result.actor.url)"
                               block
                               type="secondary"
+                              style="text-align: left;  text-transform: lowercase; background-color: #99A3A4"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
-                              <badge class="float-right" pill type="secondary">{{
+                              <badge class="float-right" pill type="#99A3A4">{{
                                 result.verb
                               }}</badge>
                             </base-button>
@@ -170,6 +174,7 @@
                               @click="GoToUrl(result.target.url)"
                               block
                               type="danger"
+                              style="text-align: left;  text-transform: lowercase; background-color: #F7985E"
                               >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
 
                               <badge class="float-right" pill type="danger">{{
