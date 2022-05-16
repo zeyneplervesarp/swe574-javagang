@@ -39,7 +39,7 @@ public class ServiceDto implements Serializable {
     private final Boolean isFeatured;
     private final Long createdTimestamp;
 
-    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int hours, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount, Boolean isFeatured, Date createdTimestamp) {
+    public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int hours, int quota, long attendingUserCount, Long createdUserIdId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount,  String imageUrl,Boolean isFeatured, Date createdTimestamp) {
         this.createdTimestamp = createdTimestamp.toInstant().toEpochMilli();
         this.id = id;
         Header = header;

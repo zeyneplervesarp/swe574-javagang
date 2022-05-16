@@ -101,7 +101,7 @@ public class ServiceServiceUnitTests {
         testUser.setId(1L);
         testUser.setUsername("test user");
 
-        var testService = new ServiceDto(1L, "Test Service", ",", LocationType.Physical, "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null, 0l, false, new Date());
+        var testService = new ServiceDto(1L, "Test Service", ",", LocationType.Physical, "", LocalDateTime.of(2022, 02, 01, 10, 00), 3, 20, 0, 1L, "", 00.00, 00.00, null, ServiceStatus.ONGOING, null, null, null, null, 0l,null, false, new Date());
 
         var mockUser = new MockPrincipal(testUser.getUsername());
         Mockito.when(userRepository.findUserByUsername(testUser.getUsername())).thenReturn(Optional.of(testUser));

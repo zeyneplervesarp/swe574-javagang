@@ -463,13 +463,14 @@ public class ServiceService {
         var attending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.APPROVED).count();
         var pending = approvals.stream().filter(x -> x.getApprovalStatus() == ApprovalStatus.PENDING).count();
         long flagCount = flagRepository.countByTypeAndFlaggedEntityAndStatus(FlagType.service, service.getId(), FlagStatus.active);
-        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.isFeatured(), service.getCreated());
+        return new ServiceDto(service.getId(), service.getHeader(), service.getDescription(), service.getLocationType(), service.getLocation(), service.getTime(), service.getCredit(), service.getQuota(), attending, service.getCreatedUser().getId(), service.getCreatedUser().getUsername(), service.getLatitude(), service.getLongitude(), list, service.getStatus(), pending, distanceToUser, attendingUserList, ratingService.getServiceRatingSummary(service), flagCount, service.getImageUrl(), service.isFeatured(), service.getCreated());
+
     }
 
 
     private Service mapToEntity(ServiceDto dto) {
         if(dto.getLocationType().equals(LocationType.Online))
-            return Service.createOnline(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, null, dto.getImageUrl());
+            return Service.createOnline(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null,  dto.getImageUrl(),null);
         else
             return Service.createPhysical(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null, dto.getImageUrl());
     }
