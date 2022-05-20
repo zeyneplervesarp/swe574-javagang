@@ -111,7 +111,15 @@ export default {
   computed: {},
   methods: {
     infiniteHandler($state) {
-      if (!this.next) return;
+      console.log("called infinite handler");
+      if (!this.next) {
+        console.log("no next found");
+        setTimeout(() => {
+            console.log("recalling infinite handler");
+            this.infiniteHandler($state);
+          }, 500);
+        return;
+      }
       console.log("will call url", this.next);
       apiRegister.GetAllUsers(this.next).then((r) => {
         if (r.items.length) {
