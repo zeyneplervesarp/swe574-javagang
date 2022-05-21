@@ -169,15 +169,17 @@
               <div class="row justify-content-center">
                 <div class="col-lg-9">
                   <p>{{ serviceData.description }}</p>
-
                   <div>
-                    <badge
+                   <div>
+                    <base-badge-button
                       v-for="(tag, index) in serviceData.serviceTags"
                       :key="index"
                       v-bind:type="GetClass(index)"
                       rounded
-                      >{{ tag.name }}</badge
-                    >
+                      @click="GetTagInfo(tag.name)"
+                      >{{tag.name }}
+                    </base-badge-button>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -253,9 +255,10 @@ import modal from "../utils/modal";
 import swal from "sweetalert2";
 import StarRating from "vue-star-rating";
 import register from "../api/register";
+import BaseBadgeButton from '../components/BaseBadgeButton.vue';
 
 export default {
-  components: { BaseButton, StarRating },
+  components: { BaseButton, StarRating, BaseBadgeButton },
   data() {
     return {
       serviceData: {
