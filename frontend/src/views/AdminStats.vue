@@ -153,6 +153,8 @@ export default {
       for (let i = 1; i < collectionData.length; i++) {
         const curArr = collectionData[i];
         const curDay = curArr[0];
+        if (timeFilter && (curDay < timeFilter.gt || curDay > timeFilter.lt))
+          continue;
         itemKeys.forEach((key) => {
           const curStat = this.dailyStats.items[key][curDay];
           curArr.push(curStat);
