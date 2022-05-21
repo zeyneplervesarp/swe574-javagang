@@ -143,7 +143,7 @@ export default {
     Print(any) {
       console.log("Printing: ", any);
     },
-    MakeDataForItemKeys(itemKeys, itemKeysPretty) {
+    MakeDataForItemKeys(itemKeys, itemKeysPretty, timeFilter) {
       let days = Object.keys(this.dailyStats.items[itemKeys[0]]);
       days.sort();
       const collectionData = [
@@ -154,7 +154,8 @@ export default {
         const curArr = collectionData[i];
         const curDay = curArr[0];
         itemKeys.forEach((key) => {
-          curArr.push(this.dailyStats.items[key][curDay]);
+          const curStat = this.dailyStats.items[key][curDay];
+          curArr.push(curStat);
         });
       }
       this.collectionData = collectionData;
