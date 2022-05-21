@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 import static com.swe573.socialhub.SocialHubApplication.SITE_CREATION_DATE;
@@ -75,13 +76,27 @@ public class StatsService {
         );
 
         final var dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-        for (final var interval : intervals) {
-            acc.getApprovedServiceApplications().put(dateFormat.format(interval.getFirst()), approvedServiceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
-            acc.getServiceApplications().put(dateFormat.format(interval.getFirst()), serviceApprovalRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
-            acc.getCreatedServices().put(dateFormat.format(interval.getFirst()), serviceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
-            acc.getRegisteredUsers().put(dateFormat.format(interval.getFirst()), userRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+        final var ps = true;
+        final var fetchStart = Instant.now();
+        System.out.println("Daily stat fetch started.");
+        if (ps) {
+                    intervals
+                .parallelStream()
+                .forEach(interval -> {
+                    acc.getApprovedServiceApplications().put(dateFormat.format(interval.getFirst()), approvedServiceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                    acc.getServiceApplications().put(dateFormat.format(interval.getFirst()), serviceApprovalRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                    acc.getCreatedServices().put(dateFormat.format(interval.getFirst()), serviceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                    acc.getRegisteredUsers().put(dateFormat.format(interval.getFirst()), userRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                });
+        } else {
+            for (final var interval : intervals) {
+                acc.getApprovedServiceApplications().put(dateFormat.format(interval.getFirst()), approvedServiceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                acc.getServiceApplications().put(dateFormat.format(interval.getFirst()), serviceApprovalRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                acc.getCreatedServices().put(dateFormat.format(interval.getFirst()), serviceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+                acc.getRegisteredUsers().put(dateFormat.format(interval.getFirst()), userRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+            }
         }
+        System.out.println("Daily stat fetch took " + (Instant.now().toEpochMilli() - fetchStart.toEpochMilli()) + " milliseconds.");
 
         final var nextPage = pagination
                 .nextPage(pagination.getSortDirection().isAscending() ? fixedLt : fixedGt)
