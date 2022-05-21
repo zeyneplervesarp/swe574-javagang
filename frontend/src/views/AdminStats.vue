@@ -25,7 +25,7 @@
               <h3>socialHub with charts</h3>
               <div></div>
               <br />
-              <div v-if="this.itemKeysPretty != null" class="row pull-left">
+              <div class="row pull-left">
                 <base-dropdown>
                   <base-button
                     slot="title"
@@ -35,16 +35,14 @@
                     Metric
                   </base-button>
 
-                  <a
+                  <p
                     class="dropdown-item"
-                    href="#"
                     v-on:click="MakeDataForItemKeys(itemKeys, itemKeysPretty)"
                     >All<span class="btn-inner--icon"
                       ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-                  ></a>
-                  <a
+                  ></p>
+                  <p
                     class="dropdown-item"
-                    href="#"
                     v-on:click="
                       MakeDataForItemKeys([itemKeys[index]], [itemKeyPretty])
                     "
@@ -53,7 +51,7 @@
                     >{{ itemKeyPretty }}
                     <span class="btn-inner--icon">
                       <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-                  ></a>
+                  ></p>
                 </base-dropdown>
               </div>
 
