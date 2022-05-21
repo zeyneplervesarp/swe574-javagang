@@ -1,7 +1,7 @@
 package com.swe573.socialhub.service;
 
-import com.swe573.socialhub.dto.StatContainerDto;
-import com.swe573.socialhub.dto.StatsDto;
+import com.swe573.socialhub.SocialHubApplication;
+import com.swe573.socialhub.dto.*;
 import com.swe573.socialhub.enums.UserType;
 import com.swe573.socialhub.repository.ServiceRepository;
 import com.swe573.socialhub.repository.UserRepository;
@@ -12,9 +12,11 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.swe573.socialhub.SocialHubApplication.SITE_CREATION_DATE;
 
 @Service
 public class StatsService {
@@ -44,6 +46,61 @@ public class StatsService {
                 fetchStatsFromRepository(approvedServiceRepository),
                 fetchStatsFromRepository(userRepository)
         );
+    }
+
+    public PaginatedResponse<DailyStatsDto> fetchDailyStats(
+            Principal principal,
+            TimestampBasedPagination pagination,
+            String endpointBase
+    ) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        }
+
+        if (pagination.getGreaterThan().toInstant().toEpochMilli() > pagination.getLowerThan().toInstant().toEpochMilli())
+            throw new IllegalArgumentException("Invalid pagination parameters.");
+
+        final var now = new Date();
+        final var fixedGt = pagination.getGreaterThan().toInstant().toEpochMilli() < SITE_CREATION_DATE.toInstant().toEpochMilli() ? SITE_CREATION_DATE : pagination.getGreaterThan();
+        final var fixedLt = pagination.getLowerThan().toInstant().toEpochMilli() > now.toInstant().toEpochMilli() ? now : pagination.getLowerThan();
+
+        final var intervals = makeIntervalsForDailyStats(fixedLt, fixedGt);
+
+        final var acc = new DailyStatsDto(
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>()
+        );
+
+        final var dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        for (final var interval : intervals) {
+            acc.getApprovedServiceApplications().put(dateFormat.format(interval.getFirst()), approvedServiceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+            acc.getServiceApplications().put(dateFormat.format(interval.getFirst()), serviceApprovalRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+            acc.getCreatedServices().put(dateFormat.format(interval.getFirst()), serviceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+            acc.getRegisteredUsers().put(dateFormat.format(interval.getFirst()), userRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
+        }
+
+        final var nextPage = pagination
+                .nextPage(pagination.getSortDirection().isAscending() ? fixedLt : fixedGt)
+                .makeUrlString(endpointBase, "");
+
+        return new PaginatedResponse<>(acc, nextPage);
+    }
+
+    private List<Pair<Date, Date>> makeIntervalsForDailyStats(Date fixedLt, Date fixedGt) {
+        final var intervalList = new ArrayList<Pair<Date, Date>>();
+
+        var cursor = fixedLt;
+        while (cursor.toInstant().toEpochMilli() > fixedGt.toInstant().toEpochMilli()) {
+            final var nextCursor = subtractHours(cursor, 24);
+            intervalList.add(Pair.of((Date) nextCursor.clone(), (Date) cursor.clone()));
+            cursor = nextCursor;
+        }
+
+        return intervalList;
     }
 
     private StatContainerDto fetchStatsFromRepository(DateCountableRepository repository) {
