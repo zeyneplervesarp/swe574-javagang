@@ -21,6 +21,11 @@
                 class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
               ></div>
             </div>
+            <GChart
+              type="LineChart"
+              :options="options"
+              :data="collectionData"
+            />
             <div class="text-center mt-5">
               <h3>socialHub in numbers</h3>
               <div></div>
@@ -30,7 +35,7 @@
                   <table class="table table-striped" v-if="stats != null">
                     <thead class="">
                       <tr>
-                        <th scope="col"> </th>
+                        <th scope="col"></th>
                         <th scope="col">Last 24 Hours</th>
                         <th scope="col">Last 7 Days</th>
                         <th scope="col">Last 30 Days</th>
@@ -39,7 +44,12 @@
                     </thead>
                     <tbody>
                       <tr v-for="(stat, key) in stats" :key="key">
-                        <td>{{ key.charAt(0).toUpperCase() + key.replace(/([A-Z])/g, " $1").slice(1) }}</td>
+                        <td>
+                          {{
+                            key.charAt(0).toUpperCase() +
+                            key.replace(/([A-Z])/g, " $1").slice(1)
+                          }}
+                        </td>
                         <td>{{ stat.last24HoursCount }}</td>
                         <td>{{ stat.lastWeekCount }}</td>
                         <td>{{ stat.lastMonthCount }}</td>
@@ -61,13 +71,23 @@
 <script>
 import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
-import swal from "sweetalert2";
+import { GChart } from "vue-google-charts/legacy";
 
 export default {
-  components: { BaseButton },
+  components: { BaseButton, GChart },
   data() {
     return {
       stats: null,
+      dailyStats: null,
+      collectionData: [],
+      options: {
+        chart: {
+          title: "First 7 days movies collection",
+          subtitle: "In millions of dollars (USD)",
+        },
+        width: 1000,
+        height: 400,
+      },
     };
   },
   mounted() {
@@ -84,8 +104,32 @@ export default {
     GetDailyStats() {
       apiRegister.GetDailyStats("dailystats").then((dailyStats) => {
         console.log("fetched daily stats: ", dailyStats);
-      })
-    }
+        const items = dailyStats.items;
+        const itemKeys = Object.keys(items);
+        let days = Object.keys(items[itemKeys[0]]);
+        days.sort();
+        const collectionData = [
+          [
+            "Day",
+            ...itemKeys.map(
+              (key) =>
+                key.charAt(0).toUpperCase() +
+                key.replace(/([A-Z])/g, " $1").slice(1)
+            ),
+          ],
+          ...days.map((day) => [day]),
+        ];
+        for (let i = 1; i < collectionData.length; i++) {
+          const curArr = collectionData[i];
+          const curDay = curArr[0];
+          itemKeys.forEach((key) => {
+            curArr.push(items[key][curDay]);
+          });
+        }
+
+        this.collectionData = collectionData;
+      });
+    },
   },
 };
 </script>
