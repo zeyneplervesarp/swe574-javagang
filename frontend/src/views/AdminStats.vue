@@ -82,8 +82,8 @@ export default {
       collectionData: [],
       options: {
         chart: {
-          title: "First 7 days movies collection",
-          subtitle: "In millions of dollars (USD)",
+          title: "Daily stats",
+          subtitle: "",
         },
         width: 1000,
         height: 400,
