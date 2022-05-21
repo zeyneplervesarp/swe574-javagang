@@ -21,59 +21,44 @@
                 class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
               ></div>
             </div>
-            <div v-if="this.filter == 'all'" class="row pull-left">
-        <base-dropdown>
-          <base-button
-            slot="title"
-            type="warning"
-            class="dropdown-toggle float-right"
-          >
-            Sort By
-          </base-button>
-          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceAsc')"
-            >Distance
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('serviceDateAsc')"
-            >Service Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('serviceDateDesc')"
-            >Service Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('createdDateAsc')"
-            >Created Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('createdDateDesc')"
-            >Created Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
-          ></a>
-        </base-dropdown>
-      </div>
-            <GChart
-              type="LineChart"
-              :options="options"
-              :data="collectionData"
-            />
+            <div v-if="this.itemKeysPretty != null" class="row pull-left">
+              <base-dropdown>
+                <base-button
+                  slot="title"
+                  type="warning"
+                  class="dropdown-toggle float-right"
+                >
+                  Metric
+                </base-button>
+
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  v-on:click="MakeDataForItemKeys(itemKeys, itemKeysPretty)"
+                  >All<span class="btn-inner--icon"
+                    ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                ></a>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  v-on:click="
+                    MakeDataForItemKeys([itemKeys[index]], [itemKeyPretty])
+                  "
+                  v-for="(itemKeyPretty, index) in this.itemKeysPretty"
+                  :key="index"
+                  >{{ itemKeyPretty }}
+                  <span class="btn-inner--icon">
+                    <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                ></a>
+              </base-dropdown>
+            </div>
+            <div class="text-center mt-5" v-if="this.itemKeysPretty != null">
+              <GChart
+                type="LineChart"
+                :options="options"
+                :data="collectionData"
+              />
+            </div>
             <div class="text-center mt-5">
               <h3>socialHub in numbers</h3>
               <div></div>
@@ -120,9 +105,10 @@
 import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import { GChart } from "vue-google-charts/legacy";
+import BaseDropdown from "@/components/BaseDropdown";
 
 export default {
-  components: { BaseButton, GChart },
+  components: { BaseButton, GChart, BaseDropdown },
   data() {
     return {
       stats: null,
@@ -151,35 +137,38 @@ export default {
         this.stats = stats;
       });
     },
+    Print(any) {
+      console.log("Printing: ", any);
+    },
+    MakeDataForItemKeys(itemKeys, itemKeysPretty) {
+      let days = Object.keys(this.dailyStats.items[itemKeys[0]]);
+      days.sort();
+      const collectionData = [
+        ["Day", ...itemKeysPretty],
+        ...days.map((day) => [day]),
+      ];
+      for (let i = 1; i < collectionData.length; i++) {
+        const curArr = collectionData[i];
+        const curDay = curArr[0];
+        itemKeys.forEach((key) => {
+          curArr.push(this.dailyStats.items[key][curDay]);
+        });
+      }
+      this.collectionData = collectionData;
+    },
     GetDailyStats() {
       apiRegister.GetDailyStats("dailystats").then((dailyStats) => {
+        this.dailyStats = dailyStats;
         console.log("fetched daily stats: ", dailyStats);
         const items = dailyStats.items;
         const itemKeys = Object.keys(items);
         this.itemKeys = itemKeys;
         this.itemKeysPretty = itemKeys.map(
-              (key) =>
-                key.charAt(0).toUpperCase() +
-                key.replace(/([A-Z])/g, " $1").slice(1)
-            );
-        let days = Object.keys(items[itemKeys[0]]);
-        days.sort();
-        const collectionData = [
-          [
-            "Day",
-            ...this.itemKeysPretty,
-          ],
-          ...days.map((day) => [day]),
-        ];
-        for (let i = 1; i < collectionData.length; i++) {
-          const curArr = collectionData[i];
-          const curDay = curArr[0];
-          itemKeys.forEach((key) => {
-            curArr.push(items[key][curDay]);
-          });
-        }
-
-        this.collectionData = collectionData;
+          (key) =>
+            key.charAt(0).toUpperCase() +
+            key.replace(/([A-Z])/g, " $1").slice(1)
+        );
+        this.MakeDataForItemKeys(this.itemKeys, this.itemKeysPretty);
       });
     },
   },
