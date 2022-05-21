@@ -30,7 +30,6 @@
                       <table class="table table-striped">
                         <thead class="">
                           <tr>
-                            <th scope="col">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Owner</th>
                             <th scope="col">Date</th>
@@ -43,7 +42,6 @@
                             v-for="(service, index) in allServices"
                             :key="index"
                           >
-                            <th scope="row">{{ index + 1 }}</th>
                             <td>{{ service.header }}</td>
                             <td>{{ service.createdUserName }}</td>
                             <td>{{ service.timeString }}</td>

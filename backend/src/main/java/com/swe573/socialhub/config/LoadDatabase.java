@@ -265,8 +265,29 @@ class LoadDatabase {
                 imageUrl = chooseBetween(List.of("https://i.guim.co.uk/img/media/0403b4abe121b6b24dd81cb0bb5722eb936861bd/0_87_3500_2102/500.jpg?quality=85&auto=format&fit=max&s=931cecff2f0795478f583389a94ee856", "https://orthomass.com/wp-content/uploads/2020/07/sports-medicine.jpg", "https://i.guim.co.uk/img/media/59c0eda6e9f9894522d7e0dc79d5eb41eb5b033c/117_43_2295_1378/500.jpg?quality=85&auto=format&fit=max&s=3c7353d85a26ec601a6f13430312f19a", "https://imengine.public.prod.cdr.navigacloud.com/?uuid=c497f4f7-9154-59c1-9620-d46d43d5b7b5&function=thumbnail&type=preview&source=false&quality=100&width=500&height=300"));
                 break;
             case "comedy":
-                title = chooseBetween(List.of("Comedy Lessons for " + faker.funnyName().name(), faker.funnyName().name()));
-                subtitle = "Haha not everyone is as funny as I am ;;)))";
+                title = chooseBetween(List.of(faker.funnyName().name() + " Comedy Show", faker.funnyName().name(), faker.hipster().word()));
+                subtitle = chooseBetween(List.of(
+                    "I told him to be himself; that was pretty mean, I guess.",
+                    "I know they say that money talks, but all mine says is ‘Goodbye.’",
+                    "My father has schizophrenia, but he’s good people.",
+                    "The problem with kleptomaniacs is that they always take things literally.",
+                    "I can’t believe I got fired from the calendar factory. All I did was take a day off.",
+                    "Most people are shocked when they find out how bad I am as an electrician.",
+                    "Never trust atoms; they make up everything.",
+                    "My wife just found out I replaced our bed with a trampoline. She hit the ceiling!",
+                    "I was addicted to the hokey pokey, but then I turned myself around.",
+                    "I used to think I was indecisive. But now I’m not so sure.",
+                    "Russian dolls are so full of themselves.",
+                    "The easiest time to add insult to injury is when you’re signing someone’s cast.",
+                    "Light travels faster than sound, which is the reason that some people appear bright before you hear them speak.",
+                    "My therapist says I have a preoccupation for revenge. We’ll see about that.",
+                    "A termite walks into the bar and asks, ‘Is the bar tender here?’",
+                    "A told my girlfriend she drew her eyebrows too high. She seemed surprised.",
+                    "People who use selfie sticks really need to have a good, long look at themselves.",
+                    "Two fish are in a tank. One says, ‘How do you drive this thing?’",
+                    "I always take life with a grain of salt. And a slice of lemon. And a shot of tequila.",
+                    "Just burned 2,000 calories. That’s the last time I leave brownies in the oven while I nap."
+                ));
                 imageUrl = chooseBetween(List.of("https://www.visitstaugustine.com/sites/default/files/styles/large/public/taxonomy/microphone-for-comedy-10x6-web.jpg", "https://ineverycurve.files.wordpress.com/2014/03/audience-watching-a-show-014.jpg?w=500", "https://i0.wp.com/www.tailslate.net/wp-content/uploads/2013/03/21-and-Over-Miles-Teller-Skylar-Astin-Justin-Chon.jpg?resize=500%2C300"));
                 break;
             case "misc":
