@@ -33,17 +33,14 @@
                   >
                     <thead class="">
                       <tr>
-                        <th scope="col" style="width: 10%">#</th>
-                        <th scope="col" style="width: 10%">Username</th>
-                        <th scope="col" style="width: 15%">E-mail</th>
+                        <th scope="col" style="width: 15%">Username</th>
+                        <th scope="col" style="width: 30%">E-mail</th>
                         <th scope="col" style="width: 40%">Description</th>
                         <th scope="col" style="width: 10%">View</th>
-                        <th scope="col" style="width: 10%">Ban</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="(user, index) in allUsers" :key="index">
-                        <th scope="row">{{ index + 1 }}</th>
                         <td>{{ user.username }}</td>
                         <td>{{ user.email }}</td>
                         <td>{{ user.bio }}</td>
@@ -55,16 +52,6 @@
                             @click="GoToUserProfile(user.id)"
                           >
                             <i class="ni ni-curved-next"></i>
-                          </base-button>
-                        </td>
-                        <td>
-                          <base-button
-                            block
-                            type="warning"
-                            @click="DeleteUser(user.id)"
-                            class="mb-3"
-                          >
-                            <i class="ni ni-bell-55"></i>
                           </base-button>
                         </td>
                       </tr>
@@ -89,7 +76,6 @@
 <script>
 import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
-import swal from "sweetalert2";
 import infiniteLoading from "vue-infinite-loading";
 import BackToTop from "vue-backtotop";
 
@@ -140,7 +126,7 @@ export default {
       window.location.href = url;
     },
     GetAllUsers() {
-      apiRegister.GetAllUsers(null).then((r) => {
+      apiRegister.GetAllUsers("user/getPaginated?sort=desc").then((r) => {
         this.allUsers = r.items;
         this.next = r.nextPage;
       });
