@@ -21,6 +21,54 @@
                 class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
               ></div>
             </div>
+            <div v-if="this.filter == 'all'" class="row pull-left">
+        <base-dropdown>
+          <base-button
+            slot="title"
+            type="warning"
+            class="dropdown-toggle float-right"
+          >
+            Sort By
+          </base-button>
+          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceAsc')"
+            >Distance
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('serviceDateAsc')"
+            >Service Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('serviceDateDesc')"
+            >Service Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('createdDateAsc')"
+            >Created Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+          ></a>
+          <a
+            class="dropdown-item"
+            href="#"
+            v-on:click="SortBy('createdDateDesc')"
+            >Created Date
+            <span class="btn-inner--icon">
+              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
+          ></a>
+        </base-dropdown>
+      </div>
             <GChart
               type="LineChart"
               :options="options"
@@ -79,6 +127,8 @@ export default {
     return {
       stats: null,
       dailyStats: null,
+      itemKeys: null,
+      itemKeysPretty: null,
       collectionData: [],
       options: {
         chart: {
@@ -106,16 +156,18 @@ export default {
         console.log("fetched daily stats: ", dailyStats);
         const items = dailyStats.items;
         const itemKeys = Object.keys(items);
+        this.itemKeys = itemKeys;
+        this.itemKeysPretty = itemKeys.map(
+              (key) =>
+                key.charAt(0).toUpperCase() +
+                key.replace(/([A-Z])/g, " $1").slice(1)
+            );
         let days = Object.keys(items[itemKeys[0]]);
         days.sort();
         const collectionData = [
           [
             "Day",
-            ...itemKeys.map(
-              (key) =>
-                key.charAt(0).toUpperCase() +
-                key.replace(/([A-Z])/g, " $1").slice(1)
-            ),
+            ...this.itemKeysPretty,
           ],
           ...days.map((day) => [day]),
         ];
