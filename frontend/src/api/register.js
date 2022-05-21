@@ -123,6 +123,10 @@ export default {
     GetAllStats() {
         return http.get(process.env.VUE_APP_API + 'stats', null, true, "Couldn't fetch stats");
     },
+
+    GetDailyStats(url) {
+        return http.get(process.env.VUE_APP_API + url, null, true, "Couldn't fetch daily stats");
+    },
     Search(searchQuery) {
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50', null, true, "Search could not be completed")
     },

@@ -72,6 +72,7 @@ export default {
   },
   mounted() {
     this.GetAllStats();
+    this.GetDailyStats();
   },
   computed: {},
   methods: {
@@ -80,6 +81,11 @@ export default {
         this.stats = stats;
       });
     },
+    GetDailyStats() {
+      apiRegister.GetDailyStats("dailystats").then((dailyStats) => {
+        console.log("fetched daily stats: ", dailyStats);
+      })
+    }
   },
 };
 </script>
