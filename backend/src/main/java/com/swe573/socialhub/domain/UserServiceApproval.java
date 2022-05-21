@@ -8,6 +8,11 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(indexes = {
+        @Index(columnList = "created"),
+        @Index(columnList = "approved"),
+        @Index(columnList = "denied"),
+})
 public class UserServiceApproval {
     @EmbeddedId
     UserServiceApprovalKey id;

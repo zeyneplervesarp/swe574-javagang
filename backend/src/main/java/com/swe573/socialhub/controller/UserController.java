@@ -97,7 +97,7 @@ public class UserController {
     }
 
     @GetMapping("/user/getPaginated")
-    public PaginatedResponse<UserDto> getAllUsers(
+    public PaginatedListResponse<UserDto> getAllUsers(
             Principal principal,
             @RequestParam(required = false) Long gt,
             @RequestParam(required = false) Long lt,
@@ -106,7 +106,7 @@ public class UserController {
     ) {
         final var pagination = ControllerUtils.parseTimestampPagination(gt, lt, size, sort);
         final var items = service.getAllUsers(pagination);
-        return new PaginatedResponse<>(items, "user/getPaginated", "", pagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())));
+        return new PaginatedListResponse<>(items, "user/getPaginated", "", pagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())));
     }
 
     @GetMapping("/user/follow/{userId}")
