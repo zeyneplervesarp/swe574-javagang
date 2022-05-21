@@ -21,43 +21,49 @@
                 class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
               ></div>
             </div>
-            <div v-if="this.itemKeysPretty != null" class="row pull-left">
-              <base-dropdown>
-                <base-button
-                  slot="title"
-                  type="warning"
-                  class="dropdown-toggle float-right"
-                >
-                  Metric
-                </base-button>
-
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  v-on:click="MakeDataForItemKeys(itemKeys, itemKeysPretty)"
-                  >All<span class="btn-inner--icon"
-                    ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-                ></a>
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  v-on:click="
-                    MakeDataForItemKeys([itemKeys[index]], [itemKeyPretty])
-                  "
-                  v-for="(itemKeyPretty, index) in this.itemKeysPretty"
-                  :key="index"
-                  >{{ itemKeyPretty }}
-                  <span class="btn-inner--icon">
-                    <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-                ></a>
-              </base-dropdown>
-            </div>
             <div class="text-center mt-5" v-if="this.itemKeysPretty != null">
-              <GChart
-                type="LineChart"
-                :options="options"
-                :data="collectionData"
-              />
+              <h3>socialHub with charts</h3>
+              <div></div>
+              <br />
+              <div v-if="this.itemKeysPretty != null" class="row pull-left">
+                <base-dropdown>
+                  <base-button
+                    slot="title"
+                    type="warning"
+                    class="dropdown-toggle float-right"
+                  >
+                    Metric
+                  </base-button>
+
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    v-on:click="MakeDataForItemKeys(itemKeys, itemKeysPretty)"
+                    >All<span class="btn-inner--icon"
+                      ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    v-on:click="
+                      MakeDataForItemKeys([itemKeys[index]], [itemKeyPretty])
+                    "
+                    v-for="(itemKeyPretty, index) in this.itemKeysPretty"
+                    :key="index"
+                    >{{ itemKeyPretty }}
+                    <span class="btn-inner--icon">
+                      <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></a>
+                </base-dropdown>
+              </div>
+
+              <div class="text-center mt-5" v-if="this.itemKeysPretty != null">
+                <GChart
+                  type="LineChart"
+                  :options="options"
+                  :data="collectionData"
+                />
+              </div>
             </div>
             <div class="text-center mt-5">
               <h3>socialHub in numbers</h3>
@@ -121,8 +127,7 @@ export default {
           title: "Daily stats",
           subtitle: "",
         },
-        width: 1000,
-        height: 400,
+        height: 600,
       },
     };
   },
