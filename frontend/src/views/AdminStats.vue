@@ -232,7 +232,6 @@ export default {
       this.itemKeysInUse = itemKeys;
       this.itemKeysPrettyInUse = itemKeysPretty;
 
-      console.log("time filter: ", this.timeFilterInUse);
       let daySet = new Set();
 
       Object.keys(this.dailyStats.items).forEach((ik) =>
@@ -244,7 +243,6 @@ export default {
         console.log("timeFilterGt: ", timeFilter.gt);
         days = days.filter((d) => d >= timeFilter.gt);
       }
-      console.log("day count: ", days.length);
 
       const collectionData = [
         ["Day", ...itemKeysPretty],
@@ -256,24 +254,12 @@ export default {
         itemKeys.forEach((key) => {
           let curStat = this.dailyStats.items[key][curDay];
           if (!curStat) {
-            console.log("curkey: ", key);
-            console.log("curday: ", curDay);
-            console.log(
-              "dailyStats.items.keys",
-              Object.keys(this.dailyStats.items)
-            );
-            console.log("dailyStats.items[key]", this.dailyStats.items[key]);
-            console.log(
-              "dailyStats.items[key].size",
-              Object.keys(this.dailyStats.items[key]).length
-            );
             curStat = 0;
           }
           curArr.push(curStat);
         });
       }
       this.collectionData = collectionData;
-      console.log("Loaded itemkey: ", itemKeys);
     },
     GetDailyStats() {
       apiRegister.GetDailyStats("dailystats").then((dailyStats) => {
