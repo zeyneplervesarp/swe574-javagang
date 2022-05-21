@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(indexes = {
+        @Index(columnList = "created")
+})
 public class User {
     private @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
