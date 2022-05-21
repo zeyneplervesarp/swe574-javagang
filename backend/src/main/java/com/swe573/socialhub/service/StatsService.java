@@ -70,17 +70,16 @@ public class StatsService {
         final var intervals = makeIntervalsForDailyStats(fixedLt, fixedGt);
 
         final var acc = new DailyStatsDto(
-                new ConcurrentHashMap<>(),
-                new ConcurrentHashMap<>(),
-                new ConcurrentHashMap<>(),
-                new ConcurrentHashMap<>()
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>()
         );
 
         final var dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         final var fetchStart = Instant.now();
         System.out.println("Daily stat fetch started.");
         intervals
-                .parallelStream()
                 .forEach(interval -> {
                     acc.getApprovedServiceApplications().put(dateFormat.format(interval.getFirst()), approvedServiceRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
                     acc.getServiceApplications().put(dateFormat.format(interval.getFirst()), serviceApprovalRepository.countByDateBetween(interval.getFirst(), interval.getSecond()));
