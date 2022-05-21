@@ -37,20 +37,58 @@
 
                   <p
                     class="dropdown-item"
-                    v-on:click="MakeDataForItemKeys(itemKeys, itemKeysPretty)"
+                    v-on:click="MakeDataForItemKeys(itemKeys, itemKeysPretty, timeFilterInUse)"
                     >All<span class="btn-inner--icon"
                       ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
                   ></p>
                   <p
                     class="dropdown-item"
                     v-on:click="
-                      MakeDataForItemKeys([itemKeys[index]], [itemKeyPretty])
+                      MakeDataForItemKeys([itemKeys[index]], [itemKeyPretty], timeFilterInUse)
                     "
                     v-for="(itemKeyPretty, index) in this.itemKeysPretty"
                     :key="index"
                     >{{ itemKeyPretty }}
                     <span class="btn-inner--icon">
                       <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></p>
+                </base-dropdown>
+
+                <base-dropdown>
+                  <base-button
+                    slot="title"
+                    type="warning"
+                    class="dropdown-toggle float-right"
+                  >
+                    Timespan
+                  </base-button>
+
+                  <p
+                    class="dropdown-item"
+                    v-on:click="MakeDataForItemKeys(itemKeysInUse, itemKeysPrettyInUse)"
+                    >All Time<span class="btn-inner--icon"
+                      ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></p>
+
+                  <p
+                    class="dropdown-item"
+                    v-on:click="MakeDataForItemKeys(itemKeysInUse, itemKeysPrettyInUse, {gt: GetFormattedDaysAgo(7)})"
+                    >Last 7 Days<span class="btn-inner--icon"
+                      ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></p>
+
+                  <p
+                    class="dropdown-item"
+                    v-on:click="MakeDataForItemKeys(itemKeysInUse, itemKeysPrettyInUse, {gt: GetFormattedDaysAgo(30)})"
+                    >Last 30 Days<span class="btn-inner--icon"
+                      ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
+                  ></p>
+
+                  <p
+                    class="dropdown-item"
+                    v-on:click="MakeDataForItemKeys(itemKeysInUse, itemKeysPrettyInUse, {gt: GetFormattedDaysAgo(90)})"
+                    >Last 90 Days<span class="btn-inner--icon"
+                      ><i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
                   ></p>
                 </base-dropdown>
               </div>
@@ -110,6 +148,7 @@ import BaseButton from "../components/BaseButton.vue";
 import apiRegister from "../api/register";
 import { GChart } from "vue-google-charts/legacy";
 import BaseDropdown from "@/components/BaseDropdown";
+import moment from 'moment';
 
 export default {
   components: { BaseButton, GChart, BaseDropdown },
@@ -119,6 +158,9 @@ export default {
       dailyStats: null,
       itemKeys: null,
       itemKeysPretty: null,
+      timeFilterInUse: null,
+      itemKeysInUse: null,
+      itemKeysPrettyInUse: null,
       collectionData: [],
       options: {
         chart: {
@@ -143,9 +185,26 @@ export default {
     Print(any) {
       console.log("Printing: ", any);
     },
+    GetFormattedDaysAgo(daysAgo) {
+      return moment().subtract(daysAgo, "days").format("YYYY-MM-DD")
+    },
     MakeDataForItemKeys(itemKeys, itemKeysPretty, timeFilter) {
+      
+      if (timeFilter) {
+        this.timeFilterInUse = timeFilter;
+      }
+      
+      this.itemKeysInUse = itemKeys;
+      this.itemKeysPrettyInUse = itemKeysPretty;
+
+      console.log("time filter: ", this.timeFilterInUse)
       let days = Object.keys(this.dailyStats.items[itemKeys[0]]);
       days.sort();
+      if (timeFilter) {
+        console.log("timeFilterGt: ", timeFilter.gt)
+        days = days.filter((d) => d >= timeFilter.gt)
+      }
+        
       const collectionData = [
         ["Day", ...itemKeysPretty],
         ...days.map((day) => [day]),
@@ -153,8 +212,6 @@ export default {
       for (let i = 1; i < collectionData.length; i++) {
         const curArr = collectionData[i];
         const curDay = curArr[0];
-        if (timeFilter && (curDay < timeFilter.gt || curDay > timeFilter.lt))
-          continue;
         itemKeys.forEach((key) => {
           const curStat = this.dailyStats.items[key][curDay];
           curArr.push(curStat);
