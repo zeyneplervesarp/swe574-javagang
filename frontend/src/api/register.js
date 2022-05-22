@@ -137,23 +137,22 @@ export default {
         return http.delete(process.env.VUE_APP_API + "service/delete/" + serviceId, null, true)
     },
     GetAdminFeed(url, filter_key) {
-        if(filter_key == "" || filter_key == null) {
+        if (filter_key == "" || filter_key == null) {
             var data = null;
         } else {
-            var data = {"filterKey": filter_key};
+            var data = { "filterKey": filter_key };
         }
-        if(url == null || url == "")
-        {
+        if (url == null || url == "") {
             return http.get(process.env.VUE_APP_API + 'admin/feed', data, null, true);
         }
-        else{
+        else {
             return http.get(process.env.VUE_APP_API + url + "&filterKey=" + filter_key, null, true);
 
         }
     },
     GetAllUsers(url) {
         if (url) {
-            return http.get(process.env.VUE_APP_API + url, null, true, "Could not get users list");    
+            return http.get(process.env.VUE_APP_API + url, null, true, "Could not get users list");
         }
         return http.get(process.env.VUE_APP_API + "user/getPaginated", null, true, "Could not get users list");
     },
@@ -162,5 +161,11 @@ export default {
     },
     CancelService(serviceId) {
         return http.post(process.env.VUE_APP_API + "service/cancel/" + serviceId, null, true, "Could not cancel service");
+    },
+    GetFollowersByUserId(id) {
+        return http.get(process.env.VUE_APP_API + "user/" + id + "/follower", null, false);
+    },
+    GetFollowingsByUserId(id) {
+        return http.get(process.env.VUE_APP_API + "user/" + id + "/following", null, false);
     }
 }

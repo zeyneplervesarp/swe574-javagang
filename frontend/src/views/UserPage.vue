@@ -43,34 +43,32 @@
               </div>
               <div class="col-lg-4 order-lg-1">
                 <div class="card-profile-stats d-flex justify-content-left">
-                  <div>
-                    <span class="heading">{{ userData.following.length }}</span>
-                    <span class="description">Following</span>
+                  <div @click="OpenFollowingModal()">
+                    <a href="#">
+                      <span class="heading">{{
+                        userData.following.length
+                      }}</span>
+                      <span class="description">Following</span>
+                    </a>
                   </div>
-                  <div>
-                    <span class="heading">{{
-                      userData.followedBy.length
-                    }}</span>
-                    <span class="description">Followers</span>
+                  <div @click="OpenFollowerModal()">
+                    <a href="#">
+                      <span class="heading">{{
+                        userData.followedBy.length
+                      }}</span>
+                      <span class="description">Followers</span>
+                    </a>
                   </div>
                   <div v-if="isOwnProfile">
                     <span class="heading">{{ userData.balance }}</span>
-                    <span class="description">Credits</span>
-                  </div>
-                  <div v-if="isOwnProfile">
-                    <span class="heading">{{ userData.balanceOnHold }}</span>
-                    <span class="description">Credits on Hold</span>
+                    <span class="description"
+                      >Credits ({{ userData.balanceOnHold }} on hold)</span
+                    >
                   </div>
 
                   <div>
                     <span class="heading">{{ userData.reputationPoint }}</span>
                     <span class="description">Reputation Points</span>
-                  </div>
-                  <div>
-                    <span class="heading">{{
-                      FormatDouble(userData.ratingSummary.ratingAverage)
-                    }}</span>
-                    <span class="description">Rating Summary</span>
                   </div>
                   <div v-if="userIsAdmin && !isOwnProfile">
                     <span class="heading">{{ userData.flagCount }}</span>
@@ -79,20 +77,26 @@
                 </div>
               </div>
             </div>
-            <div class="text-center mt-5">
+
+            <div class="text-center mt-4">
               <h3>
                 {{ userData.username }}
                 <span class="font-weight-light"></span>
               </h3>
-              <!-- <badge
-                    v-for="(badge, index) in userData.badges"
-                    :key="index"
-                    v-bind:type="GetClass(index)"
-                    rounded
-                    >{{ badge.badgeType }}</badge
-                  > -->
             </div>
-            <div class="row justify-content-center">
+
+            <div class="row mt-3 mb-3 justify-content-center">
+              Rated
+              <star-rating
+                :inline="true"
+                :star-size="20"
+                :read-only="true"
+                :show-rating="true"
+                :rating="userData.ratingSummary.ratingAverage"
+              ></star-rating
+              >.
+            </div>
+            <div class="row mt-3 justify-content-center">
               <div
                 v-for="(badge, index) in userData.badges"
                 :key="index"
@@ -100,14 +104,13 @@
               >
                 <img
                   v-bind:src="'img/badges/' + badge.badgeType + '.png'"
-                  v-bind:alt="badge.badgeType"               
-                  style="max-width: 100px"
+                  v-bind:alt="badge.badgeType"
+                  style="max-width: 70px"
                 />
-                <!-- <figcaption>Your text</figcaption> -->
               </div>
             </div>
 
-            <div class="py-5 border-top text-center">
+            <div class="py-4 border-top text-center">
               <div class="row justify-content-center">
                 <div class="col-lg-9">
                   <p>{{ userData.bio }}</p>
@@ -118,7 +121,7 @@
                       v-bind:type="GetClass(index)"
                       rounded
                       @click="GetTagInfo(tag.name)"
-                      >{{tag.name }}
+                      >{{ tag.name }}
                     </base-badge-button>
                   </div>
                 </div>
@@ -141,7 +144,7 @@
               v-if="!userIsAdmin && !isOwnProfile"
               class="mt-2 py-5 border-top text-center"
             >
-              <p> {{isOwnProfile}} </p>
+              <p>{{ isOwnProfile }}</p>
               <base-button block type="primary" class="mb-3" @click="Flag()">
                 Flag User
               </base-button>
@@ -168,14 +171,17 @@
 <script>
 import apiRegister from "../api/register";
 import swal from "sweetalert2";
-import BaseButton from '../components/BaseButton.vue';
-import Badge from '../components/Badge.vue';
-import BaseBadgeButton from '../components/BaseBadgeButton.vue';
+import BaseButton from "../components/BaseButton.vue";
+import Badge from "../components/Badge.vue";
+import BaseBadgeButton from "../components/BaseBadgeButton.vue";
+import StarRating from "vue-star-rating";
+
 export default {
-  components: {BaseButton, Badge, BaseBadgeButton},
+  components: { BaseButton, Badge, BaseBadgeButton, StarRating },
   data() {
     return {
       userData: {
+        id: 0,
         username: "",
         email: "",
         bio: "",
@@ -199,16 +205,17 @@ export default {
     this.AlreadyFollowing();
 
     apiRegister.GetProfile().then((r) => {
-      console.log("result:" + r.id);
       var compare = r.userType.localeCompare("ADMIN");
       this.userIsAdmin = compare == 0;
-      this.isOwnProfile =  this.$route.params.userId == r.id || this.$route.params.userId == null;
+      this.isOwnProfile =
+        this.$route.params.userId == r.id || this.$route.params.userId == null;
     });
   },
   methods: {
     GetProfile() {
       var id = this.$route.params.userId;
       apiRegister.GetProfile(id).then((r) => {
+        this.userData.id = r.id;
         this.userData.username = r.username;
         this.userData.email = r.email;
         this.userData.bio = r.bio;
@@ -221,7 +228,6 @@ export default {
         this.userData.flagCount = r.flagCount;
         this.userData.badges = r.badges;
         this.userData.ratingSummary = r.ratingSummary;
-        console.log("ok.");
       });
     },
     Flag() {
@@ -249,14 +255,12 @@ export default {
       var id = this.$route.params.userId;
       apiRegister.FollowUser(id).then((r) => {
         this.AlreadyFollowing();
-        console.log("ok.");
       });
     },
     AlreadyFollowing() {
       var id = this.$route.params.userId;
       apiRegister.CheckIfFollowExists(id).then((r) => {
         this.alreadyFollowing = r;
-        console.log("ok.");
       });
     },
     GetClass(index) {
@@ -274,12 +278,69 @@ export default {
         this.$router.go();
       });
     },
-    GetTagInfo(tagname){
-     apiRegister.GetTagInfo(tagname).then((r) => {
-           swal.fire({
-            text: r
-          })
-      });;
+    GetTagInfo(tagname) {
+      apiRegister.GetTagInfo(tagname).then((r) => {
+        swal.fire({
+          text: r,
+        });
+      });
+    },
+    OpenFollowingModal() {
+      //when clicked on the participant count, a modal shows the list of participants to the user
+      var htmlText = "";
+      var i = 0;
+      apiRegister.GetFollowingsByUserId(this.userData.id).then((r) => {
+        console.log(r);
+        for (i = 0; i < r.length; i++) {
+          var text = "<hr>";
+          var username = r[i].username;
+          var id = r[i].id;
+          text +=
+            "<p><a target='_blank' href='#/profile/" +
+            id +
+            "'>" +
+            username +
+            "</a></p>";
+          htmlText += text;
+        }
+      });
+
+      setTimeout(() => {
+        swal.fire({
+          title: "<strong>Who is following?</strong>",
+          icon: "question",
+          html: htmlText,
+          showCloseButton: true,
+        });
+      }, 1000);
+    },
+    OpenFollowerModal() {
+      //when clicked on the participant count, a modal shows the list of participants to the user
+      var htmlText = "";
+      var i = 0;
+      apiRegister.GetFollowersByUserId(this.userData.id).then((r) => {
+        for (i = 0; i < r.length; i++) {
+          var text = "<hr>";
+          var username = r[i].username;
+          var id = r[i].id;
+          text +=
+            "<p><a target='_blank' href='#/profile/" +
+            id +
+            "'>" +
+            username +
+            "</a></p>";
+          htmlText += text;
+        }
+      });
+
+      setTimeout(() => {
+        swal.fire({
+          title: "<strong>Who is following?</strong>",
+          icon: "question",
+          html: htmlText,
+          showCloseButton: true,
+        });
+      }, 1000);
     },
   },
   props: {
