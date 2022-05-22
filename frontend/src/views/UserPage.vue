@@ -112,13 +112,14 @@
                 <div class="col-lg-9">
                   <p>{{ userData.bio }}</p>
                   <div>
-                    <badge
+                    <base-badge-button
                       v-for="(tag, index) in userData.tags"
                       :key="index"
                       v-bind:type="GetClass(index)"
                       rounded
-                      >{{ tag.name }}</badge
-                    >
+                      @click="GetTagInfo(tag.name)"
+                      >{{tag.name }}
+                    </base-badge-button>
                   </div>
                 </div>
               </div>
@@ -167,8 +168,11 @@
 <script>
 import apiRegister from "../api/register";
 import swal from "sweetalert2";
+import BaseButton from '../components/BaseButton.vue';
+import Badge from '../components/Badge.vue';
+import BaseBadgeButton from '../components/BaseBadgeButton.vue';
 export default {
-  components: {},
+  components: {BaseButton, Badge, BaseBadgeButton},
   data() {
     return {
       userData: {
@@ -269,6 +273,13 @@ export default {
       apiRegister.DeleteUser(userId).then((r) => {
         this.$router.go();
       });
+    },
+    GetTagInfo(tagname){
+     apiRegister.GetTagInfo(tagname).then((r) => {
+           swal.fire({
+            text: r
+          })
+      });;
     },
   },
   props: {
