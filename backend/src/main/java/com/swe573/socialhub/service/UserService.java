@@ -166,7 +166,7 @@ public class UserService {
         final var userToDelete = repository.findById(userId);
         if (userToDelete.isEmpty()) {
             throw new IllegalArgumentException("User does not exist.");
-        }else if(userToDelete.get().getId().equals(loggedInUser.getId())){
+        } else if (userToDelete.get().getId().equals(loggedInUser.getId())) {
             throw new IllegalArgumentException("You can not delete your own account.");
         }
 
@@ -207,6 +207,24 @@ public class UserService {
         if (userOption.isEmpty())
             throw new IllegalArgumentException("User doesn't exist.");
         return mapUserToDTO(userOption.get(), true);
+    }
+
+    public List<UserFollowModalDto> getFollowers(Long id) {
+        Optional<User> userToFind = repository.findById(id);
+        if (userToFind.isEmpty())
+            throw new IllegalArgumentException("User doesn't exist.");
+        var user = userToFind.get();
+        var list = user.getFollowedBy().stream().map(u -> new UserFollowModalDto(u.getFollowingUser().getId(), u.getFollowingUser().getUsername())).collect(Collectors.toList());
+        return list;
+    }
+
+    public List<UserFollowModalDto> getFollowings(Long id) {
+        Optional<User> userToFind = repository.findById(id);
+        if (userToFind.isEmpty())
+            throw new IllegalArgumentException("User doesn't exist.");
+        var user = userToFind.get();
+        var list = user.getFollowingUsers().stream().map(u -> new UserFollowModalDto(u.getFollowedUser().getId(), u.getFollowedUser().getUsername())).collect(Collectors.toList());
+        return list;
     }
 
     public List<UserDto> getAllUsers(TimestampBasedPagination pagination) {
@@ -391,7 +409,7 @@ public class UserService {
             }
             // dismiss all flags for user
             flagRepository.dismissFlags(FlagStatus.inactive, FlagType.user, dismissFlagUserId);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -403,7 +421,7 @@ public class UserService {
             List<Flag> userFlags = flagRepository.findAllByTypeAndStatus(FlagType.user, FlagStatus.active);
             List<UserDto> flaggedUsers = new ArrayList<>();
             List<Long> ids = new ArrayList<>();
-            for(Flag flag : userFlags) {
+            for (Flag flag : userFlags) {
                 Optional<User> user = repository.findById(flag.getFlaggedEntity());
                 if (user.isPresent()) {
                     if (ids.contains(user.get().getId())) {
@@ -413,7 +431,7 @@ public class UserService {
                     ids.add(user.get().getId());
                 }
             }
-            Collections.sort(flaggedUsers, (o1, o2) -> (int)o2.getFlagCount() - (int)o1.getFlagCount());
+            Collections.sort(flaggedUsers, (o1, o2) -> (int) o2.getFlagCount() - (int) o1.getFlagCount());
             return flaggedUsers;
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());

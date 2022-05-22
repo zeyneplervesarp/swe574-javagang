@@ -66,6 +66,25 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user/{id}/follower")
+    public List<UserFollowModalDto> getUserFollowers(@PathVariable Long id) {
+        try {
+            return service.getFollowers(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/user/{id}/following")
+    public List<UserFollowModalDto> getUserFollowings(@PathVariable Long id) {
+        try {
+            return service.getFollowings(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+
     @DeleteMapping("/user/delete/{userId}")
     public UserDto deleteUser(Principal principal, @PathVariable(value = "userId") long userId) {
         try {

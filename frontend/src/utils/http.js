@@ -5,8 +5,7 @@ import modal from '../utils/modal'
 
 
 const handleError = (e, message) => {
-    debugger;
-    if (e) {   
+   if (e) {   
         try {
             let msg = e.response.data.message;
             if (msg) {
@@ -89,7 +88,6 @@ export default {
                     resolve(r.data)
                 }
             }).catch(function(e)  {
-                debugger;
                 if (handleOnError === true) {
                     handleError(e,errorMessage)
                 }
@@ -122,7 +120,6 @@ export default {
         })
     },
     get(url, data, handleOnError, errorMessage, successMessage) {
-        console.log(url)
         return new Promise((resolve, reject) => {
             let queryString = ''
             if (data) {
@@ -145,7 +142,6 @@ export default {
                     resolve(r.data)
                 }
             }).catch(function(e) {
-                debugger;
                 if (handleOnError === true) {
                     handleError(e,errorMessage)
                 }
