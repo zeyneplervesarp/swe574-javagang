@@ -30,17 +30,16 @@
                     @click="ConfirmRequest"
                     type="info"
                     size="sm"
-                    class="mr-4"
                     >Send Request to Join</base-button
                   >
                   <base-button
                     disabled
-                    v-if="userData.hasServiceRequest"
+                    v-if="userData.hasServiceRequest && !userData.ownsService"
                     type="info"
                     size="sm"
-                    class="mr-4"
                     >Already requested to join</base-button
                   >
+
                   <base-button
                     disabled
                     v-if="
@@ -48,9 +47,44 @@
                     "
                     type="warning"
                     size="sm"
-                    class="mr-4"
                     >This service has passed</base-button
                   >
+
+                  <base-button
+                    size="sm"
+                    @click="ConfirmServiceOverAttendee"
+                    v-if="
+                      userData.attendsService &&
+                      !userData.ownsService &&
+                      serviceData.datePassed &&
+                      serviceData.status === 'APPROVED'
+                    "
+                    type="success"
+                    v-b-popover.hover.top="
+                      'Click to confirm the service is over'
+                    "
+                    title="Service Is Over?"
+                  >
+                    <i class="fa fa-check-circle-o"></i>
+                  </base-button>
+
+                  <base-button
+                    size="sm"
+                    @click="ConfirmServiceOverCreator"
+                    v-if="
+                      userData.ownsService &&
+                      serviceData.datePassed &&
+                      serviceData.status === 'ONGOING'
+                    "
+                    type="success"
+                    v-b-popover.hover.top="
+                      'Click to confirm the service is over'
+                    "
+                    title="Service Is Over?"
+                  >
+                    <i class="fa fa-check-circle-o"></i>
+                  </base-button>
+
                   <base-button
                     size="sm"
                     @click="Flag()"
@@ -69,12 +103,34 @@
                     @click="DismissFlags()"
                     v-if="userIsAdmin"
                     type="default"
-                    v-b-popover.hover.top="
-                      'Click to dismiss all flags'
-                    "
+                    v-b-popover.hover.top="'Click to dismiss all flags'"
                     title="Dismiss Flags"
                   >
                     <i class="fa fa-flag-checkered"></i>
+                  </base-button>
+                  <base-button
+                    size="sm"
+                    v-if="
+                      serviceData.status != 'CANCELLED' && userData.ownsService
+                    "
+                    v-b-popover.hover.top="'Click to edit this service.'"
+                    title="Edit This Service"
+                    @click="GoToServiceEdit()"
+                    type="info"
+                  >
+                    <i class="fa fa-pencil-square"></i>
+                  </base-button>
+                  <base-button
+                    size="sm"
+                    @click="CancelService()"
+                    v-if="
+                      serviceData.status != 'CANCELLED' && userData.ownsService
+                    "
+                    type="danger"
+                    v-b-popover.hover.top="'Click to cancel this service.'"
+                    title="Cancel the Service"
+                  >
+                    <i class="fa fa-trash"></i>
                   </base-button>
                 </div>
               </div>
@@ -148,42 +204,7 @@
                 </p>
               </div>
             </div>
-            <div v-if="userData.ownsService" class="mt-1 py-3 text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button @click="GoToServiceEdit()" type="warning"
-                    >Edit Service</base-button
-                  >
-                  <base-button
-                    v-if="
-                      serviceData.datePassed && serviceData.status === 'ONGOING'
-                    "
-                    @click="ConfirmServiceOverCreator"
-                    type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
-              </div>
-            </div>
 
-            <div
-              v-if="
-                userData.attendsService &&
-                serviceData.datePassed &&
-                serviceData.status === 'APPROVED'
-              "
-              class="mt-2 py-5 text-center"
-            >
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button
-                    @click="ConfirmServiceOverAttendee"
-                    type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
-              </div>
-            </div>
             <div class="mt-2 py-5 border-top text-center">
               <div class="row justify-content-center">
                 <div class="col-lg-9">
@@ -229,20 +250,6 @@
               <p>Cancelled service</p>
             </div>
           </div>
-          <div
-            v-if="serviceData.status != 'CANCELLED' && userData.ownsService"
-            class="mt-2 py-5 border-top text-center"
-          >
-            <base-button
-              block
-              type="primary"
-              class="mb-3"
-              @click="CancelService()"
-            >
-              Cancel Service
-            </base-button>
-          </div>
-          
         </card>
       </div>
     </section>
