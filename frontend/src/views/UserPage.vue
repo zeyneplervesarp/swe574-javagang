@@ -34,6 +34,21 @@
                     size="sm"
                     >Already Following</base-button
                   >
+
+                  <base-button
+                    size="sm"
+                    @click="Flag()"
+                    :disabled="flagButtonDisabled"
+                    v-if="!userIsAdmin && !isOwnProfile"
+                    type="warning"
+                    v-b-popover.hover.top="
+                      'Flag the user to notify admins of an inappropriate or illegal content.'
+                    "
+                    title="Flag this user"
+                  >
+                    <i class="fa fa-flag"></i>
+                  </base-button>
+
                   <base-button
                     size="sm"
                     @click="DismissFlags()"
@@ -143,15 +158,7 @@
                 </div>
               </div>
             </div>
-            <div
-              v-if="!userIsAdmin && !isOwnProfile"
-              class="mt-2 py-5 border-top text-center"
-            >
-              <p>{{ isOwnProfile }}</p>
-              <base-button block type="primary" class="mb-3" @click="Flag()">
-                Flag User
-              </base-button>
-            </div>
+            
           </div>
         </card>
       </div>
@@ -194,6 +201,7 @@ export default {
       isOwnProfile: false,
       alreadyFollowing: false,
       userIsAdmin: false,
+      flagButtonDisabled: false
     };
   },
   mounted() {
@@ -233,6 +241,7 @@ export default {
         swal.fire({
           text: "You successfully flagged the user.",
         });
+        this.flagButtonDisabled = true;
       });
     },
     FormatDouble(num) {
@@ -242,7 +251,6 @@ export default {
       var userId = this.$route.params.userId;
 
       apiRegister.DismissFlagsForUser(userId).then((r) => {
-     
         location.reload();
       });
     },
