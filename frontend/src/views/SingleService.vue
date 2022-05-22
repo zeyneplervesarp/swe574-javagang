@@ -230,25 +230,6 @@
               </div>
               <br />
             </div>
-            <div class="mt-2 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <p>{{ serviceData.description }}</p>
-                  <div>
-                   <div>
-                    <base-badge-button
-                      v-for="(tag, index) in serviceData.serviceTags"
-                      :key="index"
-                      v-bind:type="GetClass(index)"
-                      rounded
-                      @click="GetTagInfo(tag.name)"
-                      >{{tag.name }}
-                    </base-badge-button>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <!-- physical -->
             <div
@@ -276,15 +257,17 @@
             <div class="row justify-content-center">
               <div class="col-lg-9">
                 <p>{{ serviceData.description }}</p>
-
                 <div>
-                  <badge
-                    v-for="(tag, index) in serviceData.serviceTags"
-                    :key="index"
-                    v-bind:type="GetClass(index)"
-                    rounded
-                    >{{ tag.name }}</badge
-                  >
+                  <div>
+                    <base-badge-button
+                      v-for="(tag, index) in serviceData.serviceTags"
+                      :key="index"
+                      v-bind:type="GetClass(index)"
+                      rounded
+                      @click="GetTagInfo(tag.name)"
+                      >{{ tag.name }}
+                    </base-badge-button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -303,7 +286,7 @@ import StarRating from "vue-star-rating";
 import register from "../api/register";
 import { VBTooltip } from "bootstrap-vue/esm/directives/tooltip/tooltip";
 import { VBPopover } from "bootstrap-vue/esm/directives/popover/popover";
-import BaseBadgeButton from '../components/BaseBadgeButton.vue';
+import BaseBadgeButton from "../components/BaseBadgeButton.vue";
 
 export default {
   components: { BaseButton, StarRating, BaseBadgeButton },
@@ -500,9 +483,8 @@ export default {
                 .then((result) => {
                   /* Read more about isConfirmed, isDenied below */
                   if (result.isConfirmed) {
-                   window.location.href = "#/allServices";
-
-                  } 
+                    window.location.href = "#/allServices";
+                  }
                 });
             });
           }
