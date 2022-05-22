@@ -33,6 +33,10 @@ public class UserDto {
         return createdTimestamp;
     }
 
+    public UserDto() {
+
+    }
+
     public UserDto(Long id, String username, String email, String bio, Integer balance, List<NotificationDto> notifications, int balanceOnHold, String latitude, String longitude, String formattedAddress, List<String> followedBy, List<String> following, List<TagDto> tags, RatingSummaryDto ratingSummary, UserType userType, long flagCount, int reputationPoint, List<BadgeDto> badges, Date created) {
         this.createdTimestamp = created.toInstant().toEpochMilli();
         this.id = id;

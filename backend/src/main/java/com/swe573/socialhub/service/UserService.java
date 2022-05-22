@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.sasl.AuthenticationException;
 import java.security.Principal;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -99,7 +100,7 @@ public class UserService {
         userEntity.setLatitude(dto.getLatitude());
         userEntity.setFormattedAddress(dto.getFormattedAddress());
         userEntity.setUserType(UserType.USER);
-
+        userEntity.setCreated(new Date());
         //set tags
         var tags = dto.getUserTags();
         if (tags != null) {
