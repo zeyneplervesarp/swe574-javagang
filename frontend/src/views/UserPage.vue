@@ -20,25 +20,41 @@
               <div
                 class="col-lg-4 order-lg-3 text-lg-right align-self-lg-center"
               >
-                <div
-                  v-if="!isOwnProfile && !alreadyFollowing"
-                  class="card-profile-actions py-4 mt-lg-0"
-                >
+                <div class="card-profile-actions py-4 mt-lg-0">
                   <base-button
+                    v-if="!isOwnProfile && !alreadyFollowing"
                     v-on:click="FollowUser()"
                     type="info"
                     size="sm"
-                    class="mr-4"
                     >Follow</base-button
                   >
-                </div>
-                <div
-                  v-if="!isOwnProfile && alreadyFollowing"
-                  class="card-profile-actions py-4 mt-lg-0"
-                >
-                  <base-button type="success" size="sm" class="mr-4"
+                  <base-button
+                    v-if="!isOwnProfile && alreadyFollowing"
+                    type="success"
+                    size="sm"
                     >Already Following</base-button
                   >
+                  <base-button
+                    size="sm"
+                    @click="DismissFlags()"
+                    v-if="userIsAdmin"
+                    type="default"
+                    v-b-popover.hover.top="'Click to dismiss all flags'"
+                    title="Dismiss Flags"
+                  >
+                    <i class="fa fa-flag-checkered"></i>
+                  </base-button>
+
+                  <base-button
+                    size="sm"
+                    @click="DeleteUser(userData.id)"
+                    v-if="userIsAdmin && !isOwnProfile"
+                    type="danger"
+                    v-b-popover.hover.top="'Click to delete this user.'"
+                    title="Delete the User"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </base-button>
                 </div>
               </div>
               <div class="col-lg-4 order-lg-1">
@@ -128,38 +144,12 @@
               </div>
             </div>
             <div
-              v-if="userIsAdmin && !isOwnProfile"
-              class="mt-2 py-5 border-top text-center"
-            >
-              <base-button
-                block
-                type="primary"
-                class="mb-3"
-                @click="DismissFlags()"
-              >
-                Dismiss Flags
-              </base-button>
-            </div>
-            <div
               v-if="!userIsAdmin && !isOwnProfile"
               class="mt-2 py-5 border-top text-center"
             >
               <p>{{ isOwnProfile }}</p>
               <base-button block type="primary" class="mb-3" @click="Flag()">
                 Flag User
-              </base-button>
-            </div>
-            <div
-              v-if="userIsAdmin && !isOwnProfile"
-              class="mt-2 py-5 border-top text-center"
-            >
-              <base-button
-                block
-                type="warning"
-                @click="DeleteUser(userData.id)"
-                class="mb-3"
-              >
-                Delete User
               </base-button>
             </div>
           </div>
@@ -175,9 +165,15 @@ import BaseButton from "../components/BaseButton.vue";
 import Badge from "../components/Badge.vue";
 import BaseBadgeButton from "../components/BaseBadgeButton.vue";
 import StarRating from "vue-star-rating";
-
+import { VBTooltip } from "bootstrap-vue/esm/directives/tooltip/tooltip";
+import { VBPopover } from "bootstrap-vue/esm/directives/popover/popover";
 export default {
   components: { BaseButton, Badge, BaseBadgeButton, StarRating },
+
+  directives: {
+    BTooltip: VBTooltip,
+    BPopover: VBPopover,
+  },
   data() {
     return {
       userData: {
@@ -246,15 +242,15 @@ export default {
       var userId = this.$route.params.userId;
 
       apiRegister.DismissFlagsForUser(userId).then((r) => {
-        swal.fire({
-          text: "You dismissed all flags for this user.",
-        });
+     
+        location.reload();
       });
     },
     FollowUser() {
       var id = this.$route.params.userId;
       apiRegister.FollowUser(id).then((r) => {
         this.AlreadyFollowing();
+        location.reload();
       });
     },
     AlreadyFollowing() {
@@ -274,9 +270,30 @@ export default {
       }
     },
     DeleteUser(userId) {
-      apiRegister.DeleteUser(userId).then((r) => {
-        this.$router.go();
-      });
+      swal
+        .fire({
+          title: "Do you want to delete this user?",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            apiRegister.DeleteUser(userId).then((r) => {
+              swal
+                .fire({
+                  text: "You've deleted this user",
+                  showCancelButton: false,
+                  confirmButtonText: "Back to Services",
+                })
+                .then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                    window.location.href = "#/allServices";
+                  }
+                });
+            });
+          }
+        });
     },
     GetTagInfo(tagname) {
       apiRegister.GetTagInfo(tagname).then((r) => {
