@@ -170,7 +170,7 @@
               </h3>
               <div></div>
               <br />
-                <div>
+              <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
               <div
@@ -185,12 +185,20 @@
                   :read-only="ratingData.readOnly"
                 ></star-rating>
               </div>
-              <div v-if="serviceData.ratingSummary.raterCount > 0">
-                <p>
-                  Rated by {{ serviceData.ratingSummary.raterCount }} people.
-                  Average rating:
-                  {{ serviceData.ratingSummary.ratingAverage }} .
-                </p>
+              <div
+                v-if="serviceData.ratingSummary.raterCount > 0"
+                class="row justify-content-center"
+              >
+                Rated
+                <star-rating
+                  :star-size="20"
+                  :inline="true"
+                  :rating="serviceData.ratingSummary.ratingAverage"
+                  :round-start-rating="false"
+                  :show-rating="false"
+                  read-only
+                ></star-rating>
+                 by {{ serviceData.ratingSummary.raterCount }} people.
               </div>
               <div class="text-center" v-if="serviceData.imageUrl !== ''">
                 <base-button type="secondary">
@@ -202,8 +210,6 @@
                 <p>Location: {{ serviceData.location }}</p>
               </div>
               <br />
-
-            
             </div>
 
             <!-- physical -->
