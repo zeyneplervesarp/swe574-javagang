@@ -307,7 +307,7 @@ export default {
 
       setTimeout(() => {
         swal.fire({
-          title: "<strong>Who is following?</strong>",
+          title: "<strong>Who am I following?</strong>",
           icon: "question",
           html: htmlText,
           showCloseButton: true,
