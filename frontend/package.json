@@ -17,6 +17,7 @@
     "vue": "^2.6.6",
     "vue-backtotop": "^1.6.1",
     "vue-flatpickr-component": "^8.1.1",
+    "vue-google-charts": "^1.0.0",
     "vue-infinite-loading": "^2.4.5",
     "vue-lazyload": "^1.2.6",
     "vue-moment": "^4.1.0",
@@ -33,8 +34,8 @@
     "@vue/cli-plugin-pwa": "^3.4.0",
     "@vue/cli-service": "^3.4.0",
     "install": "^0.13.0",
-    "sass": "^1.50.1",
     "npm": "^8.3.0",
+    "sass": "^1.50.1",
     "sass-loader": "^7.1.0",
     "vue-template-compiler": "^2.6.6"
   }
