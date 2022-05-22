@@ -22,10 +22,19 @@
               >
                 <div class="card-profile-actions py-4 mt-lg-0">
                   <base-button
+                    disabled
+                    v-if="serviceData.status === 'CANCELLED'"
+                    type="danger"
+                    size="sm"
+                    >Cancelled Service</base-button
+                  >
+
+                  <base-button
                     v-if="
                       !userData.hasServiceRequest &&
                       !userData.ownsService &&
-                      !serviceData.showServiceButton
+                      !serviceData.showServiceButton &&
+                      !serviceData.datePassed
                     "
                     @click="ConfirmRequest"
                     type="info"
@@ -198,7 +207,7 @@
                   :show-rating="false"
                   read-only
                 ></star-rating>
-                 by {{ serviceData.ratingSummary.raterCount }} people.
+                by {{ serviceData.ratingSummary.raterCount }} people.
               </div>
               <div class="text-center" v-if="serviceData.imageUrl !== ''">
                 <base-button type="secondary">
@@ -234,12 +243,6 @@
               </base-button>
             </div>
           </div>
-          <div v-if="serviceData.status === 'CANCELLED'">
-            <div class="text-center">
-              <p>Cancelled service</p>
-            </div>
-          </div>
-
           <div class="py-4 border-top text-center">
             <div class="row justify-content-center">
               <div class="col-lg-9">
@@ -386,6 +389,7 @@ export default {
       );
     },
     SendRequest() {
+      console.log("SendRequest triggered");
       var serviceId = this.$route.params.service_id;
 
       apiRegister.SendUserServiceApproval(serviceId).then((r) => {
@@ -403,14 +407,13 @@ export default {
     },
     DismissFlags() {
       var serviceId = this.$route.params.service_id;
-
+      console.log("DismissFlags");
       apiRegister.DismissFlagsForService(serviceId).then((r) => {
         swal.fire({
           text: "You've dismissed all flags for this service.",
         });
-        location.reload();
+        this.serviceData.flagCount = 0;
       });
-      location.reload();
     },
     ConfirmServiceOverCreator() {
       modal.confirm(
