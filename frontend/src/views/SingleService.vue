@@ -170,18 +170,7 @@
               </h3>
               <div></div>
               <br />
-              <div class="text-center" v-if="serviceData.imageUrl !== ''">
-                <base-button type="secondary">
-                  <img v-bind:src="serviceData.imageUrl" />
-                </base-button>
-              </div>
-
-              <div class="text-center">
-                <p>Location: {{ serviceData.location }}</p>
-              </div>
-              <br />
-
-              <div>
+                <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
               <div
@@ -203,29 +192,23 @@
                   {{ serviceData.ratingSummary.ratingAverage }} .
                 </p>
               </div>
-            </div>
-
-            <div class="mt-2 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <p>{{ serviceData.description }}</p>
-
-                  <div>
-                    <badge
-                      v-for="(tag, index) in serviceData.serviceTags"
-                      :key="index"
-                      v-bind:type="GetClass(index)"
-                      rounded
-                      >{{ tag.name }}</badge
-                    >
-                  </div>
-                </div>
+              <div class="text-center" v-if="serviceData.imageUrl !== ''">
+                <base-button type="secondary">
+                  <img v-bind:src="serviceData.imageUrl" />
+                </base-button>
               </div>
+
+              <div class="text-center">
+                <p>Location: {{ serviceData.location }}</p>
+              </div>
+              <br />
+
+            
             </div>
 
             <!-- physical -->
             <div
-              style="margin-bottom: 100px"
+              style="margin-bottom: 30px"
               class="text-center"
               v-if="serviceData.locationType === 'Physical'"
             >
@@ -248,6 +231,24 @@
           <div v-if="serviceData.status === 'CANCELLED'">
             <div class="text-center">
               <p>Cancelled service</p>
+            </div>
+          </div>
+
+          <div class="py-4 border-top text-center">
+            <div class="row justify-content-center">
+              <div class="col-lg-9">
+                <p>{{ serviceData.description }}</p>
+
+                <div>
+                  <badge
+                    v-for="(tag, index) in serviceData.serviceTags"
+                    :key="index"
+                    v-bind:type="GetClass(index)"
+                    rounded
+                    >{{ tag.name }}</badge
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </card>
