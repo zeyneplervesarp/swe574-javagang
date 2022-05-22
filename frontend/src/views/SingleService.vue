@@ -22,25 +22,33 @@
               >
                 <div class="card-profile-actions py-4 mt-lg-0">
                   <base-button
+                    disabled
+                    v-if="serviceData.status === 'CANCELLED'"
+                    type="danger"
+                    size="sm"
+                    >Cancelled Service</base-button
+                  >
+
+                  <base-button
                     v-if="
                       !userData.hasServiceRequest &&
                       !userData.ownsService &&
-                      !serviceData.showServiceButton
+                      !serviceData.showServiceButton &&
+                      !serviceData.datePassed
                     "
                     @click="ConfirmRequest"
                     type="info"
                     size="sm"
-                    class="mr-4"
-                    >Send Request to Join</base-button
+                    >Send Request</base-button
                   >
                   <base-button
                     disabled
-                    v-if="userData.hasServiceRequest"
+                    v-if="userData.hasServiceRequest && !userData.ownsService"
                     type="info"
                     size="sm"
-                    class="mr-4"
-                    >Already requested to join</base-button
+                    >Already requested</base-button
                   >
+
                   <base-button
                     disabled
                     v-if="
@@ -48,12 +56,101 @@
                     "
                     type="warning"
                     size="sm"
-                    class="mr-4"
                     >This service has passed</base-button
                   >
-                  <!-- <base-button type="default" size="sm" class="float-right"
-                    >Message</base-button
-                  > -->
+
+                  <base-button
+                    size="sm"
+                    @click="ConfirmServiceOverAttendee"
+                    v-if="
+                      userData.attendsService &&
+                      !userData.ownsService &&
+                      serviceData.datePassed &&
+                      serviceData.status === 'APPROVED'
+                    "
+                    type="success"
+                    v-b-popover.hover.top="
+                      'Click to confirm the service is over'
+                    "
+                    title="Service Is Over?"
+                  >
+                    <i class="fa fa-check-circle-o"></i>
+                  </base-button>
+
+                  <base-button
+                    size="sm"
+                    @click="ConfirmServiceOverCreator"
+                    v-if="
+                      userData.ownsService &&
+                      serviceData.datePassed &&
+                      serviceData.status === 'ONGOING'
+                    "
+                    type="success"
+                    v-b-popover.hover.top="
+                      'Click to confirm the service is over'
+                    "
+                    title="Service Is Over?"
+                  >
+                    <i class="fa fa-check-circle-o"></i>
+                  </base-button>
+
+                  <base-button
+                    size="sm"
+                    @click="Flag()"
+                    v-if="!userData.ownsService && !userIsAdmin"
+                    type="warning"
+                    v-b-popover.hover.top="
+                      'Flag the service to notify admins of an inappropriate or illegal content.'
+                    "
+                    title="Flag this service"
+                  >
+                    <i class="fa fa-flag"></i>
+                  </base-button>
+
+                  <base-button
+                    size="sm"
+                    @click="DismissFlags()"
+                    v-if="userIsAdmin"
+                    type="default"
+                    v-b-popover.hover.top="'Click to dismiss all flags'"
+                    title="Dismiss Flags"
+                  >
+                    <i class="fa fa-flag-checkered"></i>
+                  </base-button>
+                  <base-button
+                    size="sm"
+                    v-if="
+                      serviceData.status != 'CANCELLED' && userData.ownsService
+                    "
+                    v-b-popover.hover.top="'Click to edit this service.'"
+                    title="Edit This Service"
+                    @click="GoToServiceEdit()"
+                    type="info"
+                  >
+                    <i class="fa fa-pencil-square"></i>
+                  </base-button>
+                  <base-button
+                    size="sm"
+                    @click="CancelService()"
+                    v-if="
+                      serviceData.status != 'CANCELLED' && userData.ownsService
+                    "
+                    type="danger"
+                    v-b-popover.hover.top="'Click to cancel this service.'"
+                    title="Cancel the Service"
+                  >
+                    <i class="fa fa-ban"></i>
+                  </base-button>
+                  <base-button
+                    size="sm"
+                    @click="DeleteService()"
+                    v-if="userIsAdmin"
+                    type="danger"
+                    v-b-popover.hover.top="'Click to delete this service.'"
+                    title="Delete the Service"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </base-button>
                 </div>
               </div>
               <div class="col-lg-4 order-lg-1">
@@ -92,20 +189,6 @@
               </h3>
               <div></div>
               <br />
-              <div class="text-center" v-if="serviceData.imageUrl !== ''">
-                <base-button
-                  type="secondary"
-                >
-                  <img v-bind:src="serviceData.imageUrl" />
-                </base-button>
-              </div>
-              
-
-              <div class="text-center">
-                <p>Location: {{ serviceData.location }}</p>
-              </div>
-              <br />
-
               <div>
                 <i class="ni ni-time-alarm"></i>: {{ serviceData.timeString }}
               </div>
@@ -121,73 +204,36 @@
                   :read-only="ratingData.readOnly"
                 ></star-rating>
               </div>
-              <div v-if="serviceData.ratingSummary.raterCount > 0">
-                <p>
-                  Rated by {{ serviceData.ratingSummary.raterCount }} people.
-                  Average rating:
-                  {{ serviceData.ratingSummary.ratingAverage }} .
-                </p>
+              <div
+                v-if="serviceData.ratingSummary.raterCount > 0"
+                class="row justify-content-center"
+              >
+                Rated
+                <star-rating
+                  :star-size="20"
+                  :inline="true"
+                  :rating="serviceData.ratingSummary.ratingAverage"
+                  :round-start-rating="false"
+                  :show-rating="false"
+                  read-only
+                ></star-rating>
+                by {{ serviceData.ratingSummary.raterCount }} people.
               </div>
-            </div>
-            <div v-if="userData.ownsService" class="mt-1 py-3 text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button @click="GoToServiceEdit()" type="warning"
-                    >Edit Service</base-button
-                  >
-                  <base-button
-                    v-if="
-                      serviceData.datePassed && serviceData.status === 'ONGOING'
-                    "
-                    @click="ConfirmServiceOverCreator"
-                    type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
+              <div class="text-center" v-if="serviceData.imageUrl !== ''">
+                <base-button type="secondary">
+                  <img v-bind:src="serviceData.imageUrl" />
+                </base-button>
               </div>
-            </div>
 
-            <div
-              v-if="
-                userData.attendsService &&
-                serviceData.datePassed &&
-                serviceData.status === 'APPROVED'
-              "
-              class="mt-2 py-5 text-center"
-            >
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <base-button
-                    @click="ConfirmServiceOverAttendee"
-                    type="success"
-                    >Service Is Over?</base-button
-                  >
-                </div>
+              <div class="text-center">
+                <p>Location: {{ serviceData.location }}</p>
               </div>
-            </div>
-            <div class="mt-2 py-5 border-top text-center">
-              <div class="row justify-content-center">
-                <div class="col-lg-9">
-                  <p>{{ serviceData.description }}</p>
-                  <div>
-                   <div>
-                    <base-badge-button
-                      v-for="(tag, index) in serviceData.serviceTags"
-                      :key="index"
-                      v-bind:type="GetClass(index)"
-                      rounded
-                      @click="GetTagInfo(tag.name)"
-                      >{{tag.name }}
-                    </base-badge-button>
-                  </div>
-                  </div>
-                </div>
-              </div>
+              <br />
             </div>
 
             <!-- physical -->
             <div
-              style="margin-bottom: 100px"
+              style="margin-bottom: 30px"
               class="text-center"
               v-if="serviceData.locationType === 'Physical'"
             >
@@ -207,41 +253,24 @@
               </base-button>
             </div>
           </div>
-          <div v-if="serviceData.status === 'CANCELLED'">
-            <div class="text-center">
-              <p>Cancelled service</p>
+          <div class="py-4 border-top text-center">
+            <div class="row justify-content-center">
+              <div class="col-lg-9">
+                <p>{{ serviceData.description }}</p>
+                <div>
+                  <div>
+                    <base-badge-button
+                      v-for="(tag, index) in serviceData.serviceTags"
+                      :key="index"
+                      v-bind:type="GetClass(index)"
+                      rounded
+                      @click="GetTagInfo(tag.name)"
+                      >{{ tag.name }}
+                    </base-badge-button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div
-            v-if="serviceData.status != 'CANCELLED' && userData.ownsService"
-            class="mt-2 py-5 border-top text-center"
-          >
-            <base-button
-              block
-              type="primary"
-              class="mb-3"
-              @click="CancelService()"
-            >
-              Cancel Service
-            </base-button>
-          </div>
-          <div
-            v-if="!userData.ownsService && !userIsAdmin"
-            class="mt-2 py-5 border-top text-center"
-          >
-            <base-button block type="primary" class="mb-3" @click="Flag()">
-              Flag Service
-            </base-button>
-          </div>
-          <div v-if="userIsAdmin" class="mt-2 py-5 border-top text-center">
-            <base-button
-              block
-              type="primary"
-              class="mb-3"
-              @click="DismissFlags()"
-            >
-              Dismiss Flags
-            </base-button>
           </div>
         </card>
       </div>
@@ -255,10 +284,16 @@ import modal from "../utils/modal";
 import swal from "sweetalert2";
 import StarRating from "vue-star-rating";
 import register from "../api/register";
-import BaseBadgeButton from '../components/BaseBadgeButton.vue';
+import { VBTooltip } from "bootstrap-vue/esm/directives/tooltip/tooltip";
+import { VBPopover } from "bootstrap-vue/esm/directives/popover/popover";
+import BaseBadgeButton from "../components/BaseBadgeButton.vue";
 
 export default {
   components: { BaseButton, StarRating, BaseBadgeButton },
+  directives: {
+    BTooltip: VBTooltip,
+    BPopover: VBPopover,
+  },
   data() {
     return {
       serviceData: {
@@ -367,6 +402,7 @@ export default {
       );
     },
     SendRequest() {
+      console.log("SendRequest triggered");
       var serviceId = this.$route.params.service_id;
 
       apiRegister.SendUserServiceApproval(serviceId).then((r) => {
@@ -384,14 +420,13 @@ export default {
     },
     DismissFlags() {
       var serviceId = this.$route.params.service_id;
-
+      console.log("DismissFlags");
       apiRegister.DismissFlagsForService(serviceId).then((r) => {
         swal.fire({
           text: "You've dismissed all flags for this service.",
         });
-        location.reload();
+        this.serviceData.flagCount = 0;
       });
-      location.reload();
     },
     ConfirmServiceOverCreator() {
       modal.confirm(
@@ -427,6 +462,33 @@ export default {
           location.reload();
         });
       }
+    },
+    DeleteService() {
+      swal
+        .fire({
+          title: "Do you want to delete this service?",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            var serviceId = this.$route.params.service_id;
+            apiRegister.DeleteService(serviceId).then((r) => {
+              swal
+                .fire({
+                  text: "You've deleted this service",
+                  showCancelButton: false,
+                  confirmButtonText: "Back to Services",
+                })
+                .then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                    window.location.href = "#/allServices";
+                  }
+                });
+            });
+          }
+        });
     },
     SendServiceOverApprovalForCreator() {
       var serviceId = this.$route.params.service_id;
@@ -483,13 +545,6 @@ export default {
       var id = this.$route.params.service_id;
       apiRegister.RateService(id, rating).then((r) => {
         this.ratingData.readOnly = true;
-        // swal.fire({
-        //   position: "top-end",
-        //   icon: "success",
-        //   title: "Your rating has been saved",
-        //   showConfirmButton: false,
-        //   timer: 1500,
-        // });
       });
     },
     GoToServiceEdit() {
