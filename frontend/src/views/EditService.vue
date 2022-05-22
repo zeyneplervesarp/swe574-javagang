@@ -66,7 +66,7 @@
                   <input
                     type="number"
                     class="form-control"
-                    v-model="serviceData.minutes"
+                    v-model="serviceData.hours"
                     placeholder="Credits"
                   />
                   <br />
@@ -155,7 +155,7 @@ export default {
         locationType: "",
         time: "",
         header: "",
-        minutes: "",
+        hours: "",
         description: "",
         quota: "",
         createdUserIdId: "",
@@ -187,7 +187,7 @@ export default {
         this.serviceData.time = r.time;
         this.serviceData.timeString = r.timeString;
         this.serviceData.header = r.header;
-        this.serviceData.minutes = r.minutes;
+        this.serviceData.hours = r.hours;
         this.serviceData.description = r.description;
         this.serviceData.quota = r.quota;
         this.serviceData.createdUserIdId = r.createdUserIdId;

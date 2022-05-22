@@ -66,7 +66,7 @@
                   <input
                     type="number"
                     class="form-control"
-                    v-model="serviceInputs.minutes"
+                    v-model="serviceInputs.hours"
                     placeholder="Credits"
                   />
                   <br />
@@ -187,10 +187,10 @@ export default {
         location: "",
         time: "",
         header: "",
-        minutes: "",
+        hours: "",
         description: "",
         quota: "",
-        createdUserIdId: "",
+        createdUserId: "",
         latitude: "",
         longitude: "",
         serviceTags: [],

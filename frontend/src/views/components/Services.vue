@@ -80,7 +80,7 @@
               </p>
               <div>
                 <badge v-bind:type="GetClass(index)" rounded
-                  >{{ service.minutes }} credits</badge
+                  >{{ service.hours }} credits</badge
                 >
                 <badge v-bind:type="GetClass(index)" rounded>{{
                   service.distanceToUserString
