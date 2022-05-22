@@ -100,7 +100,7 @@ public class UserService {
         userEntity.setLatitude(dto.getLatitude());
         userEntity.setFormattedAddress(dto.getFormattedAddress());
         userEntity.setUserType(UserType.USER);
-        userEntity.setCreated(new Date());
+        userEntity.setCreated(new Timestamp(System.currentTimeMillis()));
         //set tags
         var tags = dto.getUserTags();
         if (tags != null) {
