@@ -51,9 +51,31 @@
                     class="mr-4"
                     >This service has passed</base-button
                   >
-                  <!-- <base-button type="default" size="sm" class="float-right"
-                    >Message</base-button
-                  > -->
+                  <base-button
+                    size="sm"
+                    @click="Flag()"
+                    v-if="!userData.ownsService && !userIsAdmin"
+                    type="warning"
+                    v-b-popover.hover.top="
+                      'Flag the service to notify admins of an inappropriate or illegal content.'
+                    "
+                    title="Flag this service"
+                  >
+                    <i class="fa fa-flag"></i>
+                  </base-button>
+
+                  <base-button
+                    size="sm"
+                    @click="DismissFlags()"
+                    v-if="userIsAdmin"
+                    type="default"
+                    v-b-popover.hover.top="
+                      'Click to dismiss all flags'
+                    "
+                    title="Dismiss Flags"
+                  >
+                    <i class="fa fa-flag-checkered"></i>
+                  </base-button>
                 </div>
               </div>
               <div class="col-lg-4 order-lg-1">
@@ -93,13 +115,10 @@
               <div></div>
               <br />
               <div class="text-center" v-if="serviceData.imageUrl !== ''">
-                <base-button
-                  type="secondary"
-                >
+                <base-button type="secondary">
                   <img v-bind:src="serviceData.imageUrl" />
                 </base-button>
               </div>
-              
 
               <div class="text-center">
                 <p>Location: {{ serviceData.location }}</p>
@@ -223,24 +242,7 @@
               Cancel Service
             </base-button>
           </div>
-          <div
-            v-if="!userData.ownsService && !userIsAdmin"
-            class="mt-2 py-5 border-top text-center"
-          >
-            <base-button block type="primary" class="mb-3" @click="Flag()">
-              Flag Service
-            </base-button>
-          </div>
-          <div v-if="userIsAdmin" class="mt-2 py-5 border-top text-center">
-            <base-button
-              block
-              type="primary"
-              class="mb-3"
-              @click="DismissFlags()"
-            >
-              Dismiss Flags
-            </base-button>
-          </div>
+          
         </card>
       </div>
     </section>
@@ -253,9 +255,15 @@ import modal from "../utils/modal";
 import swal from "sweetalert2";
 import StarRating from "vue-star-rating";
 import register from "../api/register";
+import { VBTooltip } from "bootstrap-vue/esm/directives/tooltip/tooltip";
+import { VBPopover } from "bootstrap-vue/esm/directives/popover/popover";
 
 export default {
   components: { BaseButton, StarRating },
+  directives: {
+    BTooltip: VBTooltip,
+    BPopover: VBPopover,
+  },
   data() {
     return {
       serviceData: {
