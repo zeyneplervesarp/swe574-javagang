@@ -39,14 +39,14 @@
                     @click="ConfirmRequest"
                     type="info"
                     size="sm"
-                    >Send Request to Join</base-button
+                    >Send Request</base-button
                   >
                   <base-button
                     disabled
                     v-if="userData.hasServiceRequest && !userData.ownsService"
                     type="info"
                     size="sm"
-                    >Already requested to join</base-button
+                    >Already requested</base-button
                   >
 
                   <base-button
@@ -138,6 +138,16 @@
                     type="danger"
                     v-b-popover.hover.top="'Click to cancel this service.'"
                     title="Cancel the Service"
+                  >
+                    <i class="fa fa-ban"></i>
+                  </base-button>
+                  <base-button
+                    size="sm"
+                    @click="DeleteService()"
+                    v-if="userIsAdmin"
+                    type="danger"
+                    v-b-popover.hover.top="'Click to delete this service.'"
+                    title="Delete the Service"
                   >
                     <i class="fa fa-trash"></i>
                   </base-button>
@@ -450,6 +460,34 @@ export default {
         });
       }
     },
+    DeleteService() {
+      swal
+        .fire({
+          title: "Do you want to delete this service?",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            var serviceId = this.$route.params.service_id;
+            apiRegister.DeleteService(serviceId).then((r) => {
+              swal
+                .fire({
+                  text: "You've deleted this service",
+                  showCancelButton: false,
+                  confirmButtonText: "Back to Services",
+                })
+                .then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                   window.location.href = "#/allServices";
+
+                  } 
+                });
+            });
+          }
+        });
+    },
     SendServiceOverApprovalForCreator() {
       var serviceId = this.$route.params.service_id;
       apiRegister.SendServiceOverApprovalForCreator(serviceId).then((r) => {
@@ -505,13 +543,6 @@ export default {
       var id = this.$route.params.service_id;
       apiRegister.RateService(id, rating).then((r) => {
         this.ratingData.readOnly = true;
-        // swal.fire({
-        //   position: "top-end",
-        //   icon: "success",
-        //   title: "Your rating has been saved",
-        //   showConfirmButton: false,
-        //   timer: 1500,
-        // });
       });
     },
     GoToServiceEdit() {
