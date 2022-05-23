@@ -263,7 +263,7 @@ public class ServiceService {
         }
     }
 
-    private static final int MAX_CREDIT_LIMIT = 20;
+    private static final int MAX_CREDIT_LIMIT = 30;
 
     @Transactional
     public Long upsert(Principal principal, ServiceDto dto) {
@@ -316,7 +316,7 @@ public class ServiceService {
             if (!entityExists) {
                 //check pending credits and balance if the sum is above 20 => throw an error
                 var currentUserBalance = userService.getBalanceToBe(loggedInUser);
-                var balanceToBe = currentUserBalance + dto.getMinutes();
+                var balanceToBe = currentUserBalance + dto.getHours();
                 if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
             }
@@ -470,9 +470,9 @@ public class ServiceService {
 
     private Service mapToEntity(ServiceDto dto) {
         if(dto.getLocationType().equals(LocationType.Online))
-            return Service.createOnline(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null,  dto.getImageUrl(),null);
+            return Service.createOnline(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getHours(), dto.getQuota(), 0, null,  dto.getImageUrl(),null);
         else
-            return Service.createPhysical(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getMinutes(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null, dto.getImageUrl());
+            return Service.createPhysical(null, dto.getHeader(), dto.getDescription(), dto.getLocation(), dto.getTime(), dto.getHours(), dto.getQuota(), 0, null, dto.getLatitude(), dto.getLongitude(), null, dto.getImageUrl());
     }
 
     private double getDistance(double lat1, double lng1, String lat2, String lng2) {

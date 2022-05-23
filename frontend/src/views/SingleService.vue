@@ -168,7 +168,7 @@
                     <span class="description">Quota</span>
                   </div>
                   <div>
-                    <span class="heading">{{ serviceData.minutes }}</span>
+                    <span class="heading">{{ serviceData.hours }}</span>
                     <span class="description">Credits</span>
                   </div>
                   <div v-if="userIsAdmin">
@@ -302,7 +302,7 @@ export default {
         time: "",
         timeString: "",
         header: "",
-        minutes: "",
+        hours: "",
         description: "",
         quota: "",
         attendingUserCount: "",
@@ -358,7 +358,7 @@ export default {
         this.serviceData.time = r.time;
         this.serviceData.timeString = r.timeString;
         this.serviceData.header = r.header;
-        this.serviceData.minutes = r.minutes;
+        this.serviceData.hours = r.hours;
         this.serviceData.description = r.description;
         this.serviceData.quota = r.quota;
         this.serviceData.createdUserIdId = r.createdUserIdId;
