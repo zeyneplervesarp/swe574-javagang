@@ -80,18 +80,15 @@
               </p>
               <div>
                 <badge v-bind:type="GetClass(index)" rounded
-                  >{{ service.hours }} credits </badge
-                >
+                  >{{ service.hours }} credits
+                </badge>
                 <badge
                   v-if="service.distanceToUserString != ''"
                   v-bind:type="GetClass(index)"
                   rounded
                   >{{ service.distanceToUserString }}</badge
                 >
-                <badge
-                  v-else
-                  v-bind:type="GetClass(index)"
-                  rounded
+                <badge v-else v-bind:type="GetClass(index)" rounded
                   >online</badge
                 >
               </div>
@@ -116,6 +113,15 @@
             </card>
           </div>
         </div>
+        <div class="row justify-content-center">
+          <base-button
+            @click="LoadMore()"
+            v-bind:type="GetClass(0)"
+            class="mt-4"
+          >
+            Load more services
+          </base-button>
+        </div>
       </div>
     </div>
   </div>
@@ -134,6 +140,7 @@ export default {
       nestedServiceArray: [],
       getOngoingOnly: false,
       isLoggedIn: false,
+      nextUrl: "",
     };
   },
   mounted() {
@@ -158,6 +165,7 @@ export default {
           .GetAllServices(this.getOngoingOnly, this.filter)
           .then((response) => {
             this.serviceResult = response.items;
+            this.nextUrl = response.nextPage;
             this.nestedServiceArray = this.SplitList();
           });
       }
@@ -208,11 +216,19 @@ export default {
     },
     SortBy(sortBy) {
       apiRegister
-        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy)
+        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy,18)
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
         });
+    },
+    LoadMore() {
+      apiRegister.GetUrl(this.nextUrl).then((response) => {
+        var merged = [...this.serviceResult, ...response.items];
+        this.serviceResult = merged;
+        this.nextUrl = response.nextPage;
+        this.nestedServiceArray = this.SplitList();
+      });
     },
   },
   props: {

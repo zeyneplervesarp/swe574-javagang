@@ -131,7 +131,7 @@ export default {
       }
       console.log("will call url", this.next);
       apiRegister
-        .GetAllServicesSorted(false, "all", null, this.next)
+        .GetAllServicesSorted(false, "all", null, this.next,20)
         .then((r) => {
           if (r.items.length) {
             setTimeout(() => {
