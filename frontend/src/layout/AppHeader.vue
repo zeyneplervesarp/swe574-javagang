@@ -278,6 +278,8 @@ export default {
       }
       var url = "#/search/" + this.searchQuery;
       window.location.href = url;
+      location.reload();
+      
     },
   },
 };
