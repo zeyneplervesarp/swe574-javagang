@@ -29,10 +29,11 @@ export default {
         return http.get(process.env.VUE_APP_API + 'service/userService')
     },
     GetAllServices(getOngoingOnly, filter) {
-        return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter)
+        return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter +  "?size=18" )
     },
-    GetAllServicesSorted(getOngoingOnly, filter, sortBy, url) {
-        const urlToCall = url ? process.env.VUE_APP_API + url : process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?sortBy=" + sortBy;
+    GetAllServicesSorted(getOngoingOnly, filter, sortBy, url, size) {
+        
+        const urlToCall = url ? process.env.VUE_APP_API + url : process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?size=" + size + "&sortBy=" + sortBy ;
         console.log("predefined url: ", url)
         console.log("calling url", urlToCall);
         if (!url) {
@@ -165,5 +166,10 @@ export default {
     },
     GetFollowingsByUserId(id) {
         return http.get(process.env.VUE_APP_API + "user/" + id + "/following", null, false);
+    },
+    GetUrl(url) {
+        console.log("url: ", process.env.VUE_APP_API +url)
+
+        return http.get(process.env.VUE_APP_API +url, null, false);
     }
 }
