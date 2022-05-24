@@ -1,61 +1,12 @@
 <template>
   <div class="container">
     <div class="row justify-content-center">
-      <div v-if="this.filter == 'all'" class="row pull-left">
-        <base-dropdown>
-          <base-button
-            slot="title"
-            type="warning"
-            class="dropdown-toggle float-right"
-          >
-            Sort By
-          </base-button>
-          <a class="dropdown-item" href="#" v-on:click="SortBy('distanceAsc')"
-            >Distance
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('serviceDateAsc')"
-            >Service Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('serviceDateDesc')"
-            >Service Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('createdDateAsc')"
-            >Created Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-asc mr-2"></i> </span
-          ></a>
-          <a
-            class="dropdown-item"
-            href="#"
-            v-on:click="SortBy('createdDateDesc')"
-            >Created Date
-            <span class="btn-inner--icon">
-              <i class="fa fa- fa-sort-amount-desc mr-2"></i> </span
-          ></a>
-        </base-dropdown>
-      </div>
-
-      <div class="col-lg-12 pt-100">
-        <div v-if="this.filter == 'featured'">
-          <p class="lead text-white">
-            This week's featured services!
-          </p>
-        </div>
+     <div class="col-lg-12 pt-100">
+       <p class="lead text-white">
+          Recommended services tailored for you!
+       </p>
+     </div>
+      <div class="col-lg-12 pt-50">
         <div
           v-for="(serviceArray, index) in nestedServiceArray"
           :key="index"
@@ -64,8 +15,7 @@
           <div
             v-for="(service, index) in serviceArray"
             :key="index"
-            class="col-lg-4"
-          >
+            class="col-lg-4">
             <card class="border-0" hover shadow body-classes="py-5">
               <icon
                 v-bind:type="GetClass(index)"
@@ -101,27 +51,10 @@
               >
                 Learn more
               </base-button>
-              <base-button
-                tag="a"
-                v-if="!isLoggedIn"
-                :href="'#/register/'"
-                v-bind:type="GetClass(index)"
-                class="mt-4"
-              >
-                Learn More
-              </base-button>
             </card>
           </div>
         </div>
-        <div class="row justify-content-center">
-          <base-button
-            @click="LoadMore()"
-            v-bind:type="GetClass(0)"
-            class="mt-4"
-          >
-            Load more services
-          </base-button>
-        </div>
+        
       </div>
     </div>
   </div>
@@ -144,36 +77,28 @@ export default {
     };
   },
   mounted() {
-    this.GetServices();
+     console.log("AAAAAAAA");
     let token = JSON.parse(localStorage.getItem("token"));
 
     if (token) {
       this.isLoggedIn = true;
+      this.GetRecommendedServices();
     } else {
       this.isLoggedIn = false;
     }
   },
   methods: {
-    GetServices() {
-      if (this.filter == "featured") {
-        apiRegister.GetFeaturedServices().then((response) => {
-          this.serviceResult = response;
+    GetRecommendedServices() {
+        apiRegister
+        .GetAllServicesSorted(false, "all", "distanceAsc",null,3)
+        .then((response) => {
+          this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
         });
-      } else {
-        apiRegister
-          .GetAllServices(this.getOngoingOnly, this.filter)
-          .then((response) => {
-            this.serviceResult = response.items;
-            this.nextUrl = response.nextPage;
-            this.nestedServiceArray = this.SplitList();
-          });
-      }
     },
     SplitList() {
       var array = this.serviceResult;
       var listOfArrays = [];
-
       var i,
         j,
         temporary,
@@ -213,14 +138,6 @@ export default {
       } else {
         return "text-warning text-uppercase";
       }
-    },
-    SortBy(sortBy) {
-      apiRegister
-        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy,18)
-        .then((response) => {
-          this.serviceResult = response.items;
-          this.nestedServiceArray = this.SplitList();
-        });
     },
     LoadMore() {
       apiRegister.GetUrl(this.nextUrl).then((response) => {
