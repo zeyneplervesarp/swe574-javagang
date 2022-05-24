@@ -118,6 +118,7 @@
             @click="LoadMore()"
             v-bind:type="GetClass(0)"
             class="mt-4"
+            v-if="this.filter == 'all'"
           >
             Load more services
           </base-button>
