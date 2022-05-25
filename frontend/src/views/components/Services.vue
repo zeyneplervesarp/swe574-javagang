@@ -75,6 +75,7 @@
               >
               </icon>
               <h6 v-bind:class="GetTextClass(index)">{{ service.header }}</h6>
+              <p class="description mt-3">{{ GetFormattedDate(service.time)}}</p>
               <p class="description mt-3">
                 {{ service.description }}
               </p>
@@ -130,6 +131,7 @@
 <script>
 import Hero from "./Hero";
 import apiRegister from "@/api/register";
+import moment from 'moment';
 import BaseDropdown from "@/components/BaseDropdown";
 
 export default {
@@ -154,6 +156,9 @@ export default {
     }
   },
   methods: {
+    GetFormattedDate(date) {
+      return moment(date).format("YYYY-MM-DD h:mm")
+    },
     GetServices() {
       if (this.filter == "featured") {
         apiRegister.GetFeaturedServices().then((response) => {
