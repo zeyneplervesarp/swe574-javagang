@@ -250,4 +250,13 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    @GetMapping("/dashboard/all")
+    public List<SimpleServiceDto> getAllForAdminDashboard(Principal principal) {
+        try {
+            return serviceService.getAllForAdminDashboard(principal);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
 }

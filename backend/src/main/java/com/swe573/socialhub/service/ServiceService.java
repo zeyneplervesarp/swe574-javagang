@@ -638,4 +638,14 @@ public class ServiceService {
         }
         return serviceToCancelDto;
     }
+
+    public List<SimpleServiceDto> getAllForAdminDashboard(Principal principal) {
+        final var loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        if (!loggedInUser.getUserType().equals(UserType.ADMIN)) {
+            throw new IllegalArgumentException("You need to be admin to perform this action.");
+        }
+        var services = serviceRepository.findAll().stream().filter(x-> x.getLocationType() == LocationType.Physical).map(x-> new SimpleServiceDto(x.getId(),x.getHeader(), x.getLocationType(), x.getLocation(), x.getLatitude(), x.getLongitude()
+        )).collect(Collectors.toList());
+        return services;
+    }
 }

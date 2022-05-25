@@ -171,5 +171,9 @@ export default {
         console.log("url: ", process.env.VUE_APP_API +url)
 
         return http.get(process.env.VUE_APP_API +url, null, false);
+    },
+    GetServiceDashboard(){
+        return http.get(process.env.VUE_APP_API + "service/dashboard/all", null, true);
+
     }
 }
