@@ -165,9 +165,6 @@ export default {
     IsDateBeforeToday(date) {
       var today = new Date();
       var serviceDate = new Date(date);
-      console.log(serviceDate);
-      console.log(today);
-
       return today > serviceDate;
     },
     GetFormattedDate(date) {
