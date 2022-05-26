@@ -147,7 +147,7 @@ export default {
     return {
       serviceResult: [],
       nestedServiceArray: [],
-      getOngoingOnly: false,
+      getOngoingOnly: true,
       isLoggedIn: false,
       nextUrl: "",
     };
