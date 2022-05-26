@@ -33,17 +33,17 @@
                   <div class="container ct-example-row">
                     <div
                       class="row"
-                      v-for="(notification, index) in unreadNotifications"
+                      v-for="(notification1, index) in unreadNotifications"
                       :key="index"
                     >
                       <div class="col mt-2 text-center">
                         <span>
                           <base-button 
-                          @click="GoToUrl(notification.messageBody)" 
+                          @click="GoToUrl(notification1.messageBody)" 
                           block 
                           type="secondary"
                           style="text-align: left;  text-transform: lowercase; background-color: #A16FD0"
-                          >{{getFormattedDate(notification.sentDate)}} | {{notification.message}}</base-button>
+                          >{{getFormattedDate(notification1.sentDate)}} | {{notification1.message}}</base-button>
                         </span>
                       </div>
                       <div class="w-100"></div>
@@ -88,10 +88,18 @@ export default {
       unreadNotifications: [],
       readNotifications: [],
       unreadCount: 0,
+      firstUpdate: true,
     };
   },
   mounted() {
     this.GetNotifications();
+  },
+  updated(){
+    if(firstUpdate==true){
+      this.firstUpdate = false;
+    }else{
+      this.GetNotifications();
+    }
   },
   methods: {
     GetNotifications() {

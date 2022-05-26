@@ -76,11 +76,16 @@
                   >
                   </icon> -->
                   <h6 class="text-success text-uppercase">
-                    {{ approvalItem.service.header }}
+                    <a :href="'#/service/' + approvalItem.service.id">
+                        {{ approvalItem.service.header }}
+                    </a>
                   </h6>
-                  <p class="description mt-3" :href="'#/profile/' + approvalItem.user.id"
- >
-                    Requested by: {{ approvalItem.user.username }}
+                  <p class="description mt-3" :href="'#/profile/' + approvalItem.user.id">
+                    Requested by: 
+                     <span class="font-weight-light">
+                  <a :href="'#/profile/' + approvalItem.user.id">
+                    by {{ approvalItem.user.username }}</a
+                  ></span>
                   </p>
                   <div class="row text-center">
                     <base-button
