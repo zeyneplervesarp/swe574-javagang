@@ -45,7 +45,14 @@
                         <td>{{ service.header }}</td>
                         <td>{{ service.description }}
                         <td>{{ service.createdUserName }}</td>
-                        <td>{{ FormatDouble(service.ratingSummary.ratingAverage) }} / 5</td>
+                        <td>
+                          <span v-if="service.ratingSummary.ratingAverage == 0">
+                            no rating
+                          </span>
+                          <span v-else>
+                            {{ FormatDouble(service.ratingSummary.ratingAverage) }} / 5
+                          </span>
+                        </td>
                         <td>{{ service.flagCount }}</td>
                         <td>
                           <base-button
