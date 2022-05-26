@@ -148,6 +148,13 @@ class LoadDatabase {
         return new Date(randomLongBetween(minMillis, maxMillis));
     }
 
+    private Date addDays(Date toDate, int times) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(toDate);
+        cal.add(Calendar.HOUR, times * 24);
+        return cal.getTime();
+    }
+
     private long randomLongBetween(long min, long max) {
         return ThreadLocalRandom.current().nextLong(min, max);
     }
@@ -321,7 +328,7 @@ class LoadDatabase {
                 title,
                 subtitle,
                 faker.address().fullAddress(),
-                fromDate(randomDate(user.getCreated(), new Date())),
+                fromDate(randomDate(user.getCreated(), addDays(new Date(), 60))),
                 (int) randomLongBetween(1, 4),
                 (int) randomLongBetween(1, 10),
                 0,
@@ -337,7 +344,7 @@ class LoadDatabase {
                 title,
                 subtitle,
                 "zoom.us/" + faker.random().hex(),
-                fromDate(randomDate(user.getCreated(), new Date())),
+                fromDate(randomDate(user.getCreated(), addDays(new Date(), 60))),
                 (int) randomLongBetween(1, 4),
                 (int) randomLongBetween(1, 10),
                 0,
