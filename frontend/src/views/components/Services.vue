@@ -217,10 +217,11 @@ export default {
     },
     SortBy(sortBy) {
       apiRegister
-        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy,18)
+        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy, false, 18)
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
+          this.nextUrl = response.nextPage;
         });
     },
     LoadMore() {

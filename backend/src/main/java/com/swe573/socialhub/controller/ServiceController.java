@@ -73,7 +73,7 @@ public class ServiceController {
                     lt = lt != null ? lt : String.valueOf(TimestampBasedPagination.DEFAULT_LT.toInstant().toEpochMilli());
                     tsPagination = ControllerUtils.parseTimestampPagination(Long.valueOf(gt), Long.valueOf(lt), size, "asc");
                     items = serviceService.findPaginatedOngoing(principal, getOngoingOnly, filter, tsPagination, sortBy);
-                    return new PaginatedListResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())) );
+                    return new PaginatedListResponse<>(items, urlPrefix,sortBySuffix, tsPagination, item -> Date.from(Instant.ofEpochMilli(item.getCreatedTimestamp())));
             }
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request.");
