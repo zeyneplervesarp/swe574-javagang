@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
      <div class="col-lg-12 pt-100">
        <p class="lead text-white">
-          Recommended services tailored for you!
+          Recommended services near you!
        </p>
      </div>
       <div class="col-lg-12 pt-50">

@@ -50,7 +50,7 @@
         </base-dropdown>
       </div>
 
-      <div class="col-lg-12 pt-100">
+      <div class="col-lg-12 pt-100" v-if="nestedServiceArray.length>0">
         <div v-if="this.filter == 'featured'">
           <p class="lead text-white">
             This week's featured services!
