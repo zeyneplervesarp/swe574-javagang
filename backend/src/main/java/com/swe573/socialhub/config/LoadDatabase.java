@@ -77,7 +77,7 @@ class LoadDatabase {
             final var started = Instant.now();
             System.out.println("Initial db loading started.");
 
-            final var userCount = 10;
+            final var userCount = 100;
 
             final var tags = createTags(tagRepository);
             final var faker = new Faker();
@@ -146,6 +146,13 @@ class LoadDatabase {
         final var maxMillis = max.toInstant().toEpochMilli();
         if (maxMillis == minMillis) return min;
         return new Date(randomLongBetween(minMillis, maxMillis));
+    }
+
+    private Date addDays(Date toDate, int times) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(toDate);
+        cal.add(Calendar.HOUR, times * 24);
+        return cal.getTime();
     }
 
     private long randomLongBetween(long min, long max) {
@@ -321,7 +328,7 @@ class LoadDatabase {
                 title,
                 subtitle,
                 faker.address().fullAddress(),
-                fromDate(randomDate(user.getCreated(), new Date())),
+                fromDate(randomDate(user.getCreated(), addDays(new Date(), 60))),
                 (int) randomLongBetween(1, 4),
                 (int) randomLongBetween(1, 10),
                 0,
@@ -337,7 +344,7 @@ class LoadDatabase {
                 title,
                 subtitle,
                 "zoom.us/" + faker.random().hex(),
-                fromDate(randomDate(user.getCreated(), new Date())),
+                fromDate(randomDate(user.getCreated(), addDays(new Date(), 60))),
                 (int) randomLongBetween(1, 4),
                 (int) randomLongBetween(1, 10),
                 0,
@@ -363,6 +370,13 @@ class LoadDatabase {
                 .parallel()
                 .flatMap(user -> IntStream.range(0, generateServiceCount(user)).mapToObj(i -> generateService(user, faker, tags)))
                 .collect(Collectors.toUnmodifiableList());
+
+        services
+                .stream()
+                .filter(s -> s.getTime().isAfter(LocalDateTime.now()))
+                .limit(3)
+                .forEach(s -> s.setFeatured(true));
+
         return repository.saveAll(services);
     }
 
@@ -379,18 +393,44 @@ class LoadDatabase {
 
         return userFollowingRepository.saveAll(
                 users.stream()
-                        .flatMap(user -> IntStream.range(0, makeFollowerCount(user)).mapToObj(i -> {
-                            var nextUser = userQueue.poll();
-                            if (nextUser == null || nextUser.getId().equals(user.getId())) {
-                                userQueue.addAll(copy);
-                                nextUser = userQueue.poll();
+                        .flatMap(user -> {
+                            final var followerCount = makeFollowerCount(user);
+                            final var followerList = new ArrayList<UserFollowing>();
+                            final var followerIdSet = new HashSet<Long>();
+                            Long firstUserId = null;
+
+                            while (followerList.size() < followerCount) {
+                                var nextUser = userQueue.poll();
+
+                                if (nextUser == null) {
+                                    userQueue.addAll(copy);
+                                    nextUser = userQueue.poll();
+                                }
+
+                                assert nextUser != null;
+
+                                if (firstUserId != null && firstUserId.equals(nextUser.getId())) {
+                                    // cycle detected, break
+                                    break;
+                                }
+
+                                if (firstUserId == null) {
+                                    firstUserId = nextUser.getId();
+                                }
+
+                                if (nextUser.getId().equals(user.getId()) || followerIdSet.contains(nextUser.getId()))
+                                    continue; // invalid user, continue
+
+                                var follow = new UserFollowing();
+                                follow.setFollowedUser(user);
+                                follow.setFollowingUser(nextUser);
+                                followerIdSet.add(nextUser.getId());
+                                followerList.add(follow);
                             }
 
-                            var follow = new UserFollowing();
-                            follow.setFollowedUser(user);
-                            follow.setFollowingUser(nextUser);
-                            return follow;
-                        })).collect(Collectors.toUnmodifiableList())
+                            return followerList.stream();
+                        })
+                        .collect(Collectors.toUnmodifiableList())
         ) ;
     }
 
