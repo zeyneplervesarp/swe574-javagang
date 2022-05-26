@@ -77,7 +77,7 @@ class LoadDatabase {
             final var started = Instant.now();
             System.out.println("Initial db loading started.");
 
-            final var userCount = 10;
+            final var userCount = 100;
 
             final var tags = createTags(tagRepository);
             final var faker = new Faker();
@@ -393,18 +393,44 @@ class LoadDatabase {
 
         return userFollowingRepository.saveAll(
                 users.stream()
-                        .flatMap(user -> IntStream.range(0, makeFollowerCount(user)).mapToObj(i -> {
-                            var nextUser = userQueue.poll();
-                            if (nextUser == null || nextUser.getId().equals(user.getId())) {
-                                userQueue.addAll(copy);
-                                nextUser = userQueue.poll();
+                        .flatMap(user -> {
+                            final var followerCount = makeFollowerCount(user);
+                            final var followerList = new ArrayList<UserFollowing>();
+                            final var followerIdSet = new HashSet<Long>();
+                            Long firstUserId = null;
+
+                            while (followerList.size() < followerCount) {
+                                var nextUser = userQueue.poll();
+
+                                if (nextUser == null) {
+                                    userQueue.addAll(copy);
+                                    nextUser = userQueue.poll();
+                                }
+
+                                assert nextUser != null;
+
+                                if (firstUserId != null && firstUserId.equals(nextUser.getId())) {
+                                    // cycle detected, break
+                                    break;
+                                }
+
+                                if (firstUserId == null) {
+                                    firstUserId = nextUser.getId();
+                                }
+
+                                if (nextUser.getId().equals(user.getId()) || followerIdSet.contains(nextUser.getId()))
+                                    continue; // invalid user, continue
+
+                                var follow = new UserFollowing();
+                                follow.setFollowedUser(user);
+                                follow.setFollowingUser(nextUser);
+                                followerIdSet.add(nextUser.getId());
+                                followerList.add(follow);
                             }
 
-                            var follow = new UserFollowing();
-                            follow.setFollowedUser(user);
-                            follow.setFollowingUser(nextUser);
-                            return follow;
-                        })).collect(Collectors.toUnmodifiableList())
+                            return followerList.stream();
+                        })
+                        .collect(Collectors.toUnmodifiableList())
         ) ;
     }
 
