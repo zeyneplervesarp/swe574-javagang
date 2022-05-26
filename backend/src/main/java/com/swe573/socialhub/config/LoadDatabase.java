@@ -370,6 +370,13 @@ class LoadDatabase {
                 .parallel()
                 .flatMap(user -> IntStream.range(0, generateServiceCount(user)).mapToObj(i -> generateService(user, faker, tags)))
                 .collect(Collectors.toUnmodifiableList());
+
+        services
+                .stream()
+                .filter(s -> s.getTime().isAfter(LocalDateTime.now()))
+                .limit(3)
+                .forEach(s -> s.setFeatured(true));
+
         return repository.saveAll(services);
     }
 
