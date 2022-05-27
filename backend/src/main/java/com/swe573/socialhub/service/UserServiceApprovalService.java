@@ -91,7 +91,7 @@ public class UserServiceApprovalService {
             final UserServiceApproval approval = repository.save(entity);
             var dto = getApprovalDto(approval);
             notificationService.sendNotification("Hooray! There is a new request for " + service.getHeader() + " by " + loggedInUser.getUsername(),
-                    "/service/" + entity.getId(), service.getCreatedUser());
+                    "/service/" + service.getId(), service.getCreatedUser());
             return dto;
         } catch (Exception e) {
             throw new IllegalArgumentException("There was an error trying to send the request");
