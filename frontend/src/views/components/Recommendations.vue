@@ -89,7 +89,7 @@ export default {
   methods: {
     GetRecommendedServices() {
         apiRegister
-        .GetRecommendedServices("getRecommendedServices")
+        .GetRecommendedServices()
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
