@@ -448,7 +448,9 @@ class LoadDatabase {
 
     private List<Service> setCreatedForServices(List<Service> services, ServiceRepository repository) {
         final var list = services.parallelStream().peek(svc -> {
-            svc.setCreated(randomDate(svc.getCreatedUser().getCreated(), minDate(fromLocalDateTime(svc.getTime()), new Date())));
+            final var minDate = svc.getCreatedUser().getCreated();
+            final var maxDate = minDate(fromLocalDateTime(svc.getTime()), new Date());
+            svc.setCreated(randomDate(minDate, maxDate));
         }).collect(Collectors.toUnmodifiableList());
         return repository.saveAll(list);
     }
@@ -458,13 +460,6 @@ class LoadDatabase {
             return d2;
         }
         return d1;
-    }
-
-    private static Date maxDate(Date d1, Date d2) {
-        if (d1.toInstant().toEpochMilli() > d2.toInstant().toEpochMilli()) {
-            return d1;
-        }
-        return d2;
     }
 
     private static final double USER_SERVICE_REJECTION_RATE = 0.1;
