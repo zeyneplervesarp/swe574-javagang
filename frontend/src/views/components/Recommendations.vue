@@ -89,7 +89,7 @@ export default {
   methods: {
     GetRecommendedServices() {
         apiRegister
-        .GetAllServicesSorted(true, "all", "distanceAsc",null,3)
+        .GetRecommendedServices("getRecommendedServices")
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
