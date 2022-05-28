@@ -173,6 +173,45 @@
               <br />
               <div></div>
             </div>
+            <div v-if="services != null" class="text-center mt-5">
+              <h3>socialHub on map</h3>
+              <div></div>
+              <br />
+              <div class="text-center">
+                <div class="justify-content-center">
+                  <base-button type="secondary">
+                    <GmapMap
+                      :center="map_center"
+                      :zoom="2"
+                      map-type-id="terrain"
+                      style="width: 800px; height: 400px"
+                    >
+                      <gmap-info-window
+                        :options="{
+                          maxWidth: 300,
+                          pixelOffset: { width: 0, height: -35 },
+                        }"
+                        :position="infoWindow.position"
+                        :opened="infoWindow.open"
+                        @closeclick="infoWindow.open = false"
+                      >
+                        <div v-html="infoWindow.template"></div>
+                      </gmap-info-window>
+                      <GmapMarker
+                        v-for="(service, index) in services"
+                        :key="index"
+                        :position="GetPosition(service)"
+                        :clickable="true"
+                        :draggable="false"
+                        @click="openInfoWindowTemplate(service)"
+                      />
+                    </GmapMap>
+                  </base-button>
+                </div>
+              </div>
+              <br />
+              <div></div>
+            </div>
           </div>
         </card>
       </div>
@@ -205,11 +244,19 @@ export default {
         },
         height: 600,
       },
+      services: null,
+      map_center: { lat: 10, lng: 10 },
+      infoWindow: {
+        position: { lat: 0, lng: 0 },
+        open: false,
+        template: "",
+      },
     };
   },
   mounted() {
     this.GetAllStats();
     this.GetDailyStats();
+    this.GetMapData();
   },
   computed: {},
   methods: {
@@ -275,6 +322,29 @@ export default {
         );
         this.MakeDataForItemKeys(this.itemKeys, this.itemKeysPretty);
       });
+    },
+    GetMapData() {
+      apiRegister.GetServiceDashboard().then((response) => {
+        this.services = response;
+      });
+    },
+    GetPosition(marker) {
+      return {
+        lat: parseFloat(marker.latitude),
+        lng: parseFloat(marker.longitude),
+      };
+    },
+    ChangeCenter(service) {
+      this.map_center.lat = service.latitude;
+      this.map_center.lng = service.longitude;
+    },
+    openInfoWindowTemplate(service) {
+      this.map_center.lat = service.latitude;
+      this.map_center.lng = service.longitude;
+      this.infoWindow.position.lat = service.latitude;
+      this.infoWindow.position.lng = service.longitude;
+      this.infoWindow.template = `<br><b>${service.header}</b><br>${service.location}<br><a target="_blank" href="#/service/`+service.id+`">View Service</a><br>`;
+      this.infoWindow.open = true;
     },
   },
 };

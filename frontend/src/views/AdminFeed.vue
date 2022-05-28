@@ -106,7 +106,9 @@
                               block
                               type="default"
                               style="text-align: left;  text-transform: lowercase; background-color: #7559C0"
-                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              ><span style=" white-space:normal; overflow-wrap: normal;">
+                                {{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              </span>
                               <badge class="float-right" pill type="#7559C0">{{
                                 result.verb
                               }}</badge>
@@ -119,7 +121,9 @@
                               block
                               type="default"
                               style="text-align: left;  text-transform: lowercase;  background-color: #16A085"
-                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              ><span style=" white-space:normal; overflow-wrap: normal;">
+                                {{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              </span>
                               <badge class="float-right" pill type="#16A085">{{
                                 result.verb
                               }}</badge>
@@ -132,7 +136,9 @@
                               block
                               type="info"
                               style="text-align: left;  text-transform: lowercase; background-color: #4553FE"
-                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              ><span style=" white-space:normal; overflow-wrap: normal;">
+                                {{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              </span>
                               <badge class="float-right" pill type="#4553FE">{{
                                 result.verb
                               }}</badge>
@@ -147,7 +153,10 @@
                               block
                               type="default"
                               style="text-align: left;  text-transform: lowercase; background-color: #8E44AD"
-                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              >
+                              <span style=" white-space:normal; overflow-wrap: normal;">
+                                {{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              </span>
                               <badge class="float-right" pill type="#8E44AD">{{
                                 result.verb
                               }}</badge>
@@ -163,7 +172,10 @@
                               block
                               type="secondary"
                               style="text-align: left;  text-transform: lowercase; background-color: #99A3A4"
-                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              >
+                              <span style=" white-space:normal; overflow-wrap: normal;">
+                                {{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              </span>
                               <badge class="float-right" pill type="#99A3A4">{{
                                 result.verb
                               }}</badge>
@@ -175,8 +187,9 @@
                               block
                               type="danger"
                               style="text-align: left;  text-transform: lowercase; background-color: #F7985E"
-                              >{{ GetFormattedDate(result.published) }} || {{ result.summary }}
-
+                              ><span style=" white-space:normal; overflow-wrap: normal;">
+                                {{ GetFormattedDate(result.published) }} || {{ result.summary }}
+                              </span>
                               <badge class="float-right" pill type="danger">{{
                                 result.verb
                               }}</badge>

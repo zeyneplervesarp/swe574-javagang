@@ -35,7 +35,7 @@
                       <tr>
                         <th scope="col" style="width: 15%">Username</th>
                         <th scope="col" style="width: 30%">E-mail</th>
-                        <th scope="col" style="width: 40%">Description</th>
+                        <th scope="col" style="width: 40%">Bio</th>
                         <th scope="col" style="width: 10%">View</th>
                       </tr>
                     </thead>

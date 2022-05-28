@@ -28,7 +28,6 @@
                     size="sm"
                     >Cancelled Service</base-button
                   >
-
                   <base-button
                     v-if="
                       !userData.hasServiceRequest &&
@@ -153,7 +152,9 @@
                   </base-button>
                 </div>
               </div>
+              
               <div class="col-lg-4 order-lg-1">
+              
                 <div class="card-profile-stats d-flex justify-content-center">
                   <div @click="OpenParticipantModal()">
                     <a href="#"
@@ -178,6 +179,12 @@
                 </div>
               </div>
             </div>
+            <base-button
+                    disabled
+                    block type="danger" class="mb-3"
+                    v-if="IsDateBeforeToday(serviceData.time)"
+                    >Past Service
+              </base-button>
             <div class="text-center mt-5">
               <h3>
                 {{ serviceData.header }}
@@ -342,6 +349,11 @@ export default {
   },
   computed: {},
   methods: {
+    IsDateBeforeToday(date) {
+      var today = new Date();
+      var serviceDate = new Date(date);
+      return today > serviceDate;
+    },
     IsCancellationDatePassed() {
       var date = new Date();
       if (this.serviceData.locationType === "Physical") {

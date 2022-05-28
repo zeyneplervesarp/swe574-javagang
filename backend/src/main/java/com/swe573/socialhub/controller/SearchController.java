@@ -28,4 +28,13 @@ public class SearchController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    @GetMapping("/searchwithlocation")
+    public List<SearchMatchDto> searchWithPerimeter(@RequestParam("lat") String lat, @RequestParam("lon") String lon, @RequestParam("query") String queryString, @RequestParam("limit") Integer limit, Principal principal) {
+        try {
+            return service.searchWithLocationPerimeter(queryString, lat, lon, limit, principal);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
 }

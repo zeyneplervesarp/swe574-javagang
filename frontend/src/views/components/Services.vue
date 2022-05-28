@@ -75,8 +75,15 @@
               >
               </icon>
               <h6 v-bind:class="GetTextClass(index)">{{ service.header }}</h6>
+              <div>
+                <span class="description mt-3">{{ GetFormattedDate(service.time)}}      </span>
+                
+                <badge v-if="IsDateBeforeToday(service.time)"   v-bind:type="danger" rounded>
+                PAST SERVICE
+                </badge>
+              </div>
               <p class="description mt-3">
-                {{ service.description }}
+                  {{ service.description }}
               </p>
               <div>
                 <badge v-bind:type="GetClass(index)" rounded
@@ -118,6 +125,7 @@
             @click="LoadMore()"
             v-bind:type="GetClass(0)"
             class="mt-4"
+            v-if="this.filter == 'all'"
           >
             Load more services
           </base-button>
@@ -130,6 +138,7 @@
 <script>
 import Hero from "./Hero";
 import apiRegister from "@/api/register";
+import moment from 'moment';
 import BaseDropdown from "@/components/BaseDropdown";
 
 export default {
@@ -138,7 +147,7 @@ export default {
     return {
       serviceResult: [],
       nestedServiceArray: [],
-      getOngoingOnly: false,
+      getOngoingOnly: true,
       isLoggedIn: false,
       nextUrl: "",
     };
@@ -154,6 +163,14 @@ export default {
     }
   },
   methods: {
+    IsDateBeforeToday(date) {
+      var today = new Date();
+      var serviceDate = new Date(date);
+      return today > serviceDate;
+    },
+    GetFormattedDate(date) {
+      return moment(date).format("YYYY-MM-DD h:mm")
+    },
     GetServices() {
       if (this.filter == "featured") {
         apiRegister.GetFeaturedServices().then((response) => {
@@ -216,10 +233,11 @@ export default {
     },
     SortBy(sortBy) {
       apiRegister
-        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy,18)
+        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy, false, 18)
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
+          this.nextUrl = response.nextPage;
         });
     },
     LoadMore() {

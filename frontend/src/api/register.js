@@ -131,6 +131,9 @@ export default {
     Search(searchQuery) {
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50', null, true, "Search could not be completed")
     },
+    SearchWithLocationPerimeter(searchQuery, lat, lon){
+        return http.get(process.env.VUE_APP_API + 'searchwithlocation?lat='+lat+'&lon='+lon+'&query=' + searchQuery + '&limit=50', null, true, "Search could not be completed")
+    },
     DeleteUser(userId) {
         return http.delete(process.env.VUE_APP_API + "user/delete/" + userId, null, true)
     },
@@ -171,5 +174,9 @@ export default {
         console.log("url: ", process.env.VUE_APP_API +url)
 
         return http.get(process.env.VUE_APP_API +url, null, false);
+    },
+    GetServiceDashboard(){
+        return http.get(process.env.VUE_APP_API + "service/dashboard/all", null, true);
+
     }
 }

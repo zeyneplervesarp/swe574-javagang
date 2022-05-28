@@ -65,10 +65,10 @@
                     @click="DeleteUser(userData.id)"
                     v-if="userIsAdmin && !isOwnProfile"
                     type="danger"
-                    v-b-popover.hover.top="'Click to delete this user.'"
-                    title="Delete the User"
+                    v-b-popover.hover.top="'Click to ban this user.'"
+                    title="Ban the User"
                   >
-                    <i class="fa fa-trash"></i>
+                    <i class="fa fa-ban"></i>
                   </base-button>
                 </div>
               </div>
@@ -280,7 +280,7 @@ export default {
     DeleteUser(userId) {
       swal
         .fire({
-          title: "Do you want to delete this user?",
+          title: "Do you want to ban this user?",
           showCancelButton: true,
           confirmButtonText: "Yes",
         })
@@ -289,7 +289,7 @@ export default {
             apiRegister.DeleteUser(userId).then((r) => {
               swal
                 .fire({
-                  text: "You've deleted this user",
+                  text: "You've banned this user",
                   showCancelButton: false,
                   confirmButtonText: "Back to Services",
                 })

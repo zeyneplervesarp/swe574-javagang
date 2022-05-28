@@ -37,6 +37,8 @@ public class SearchService {
     }
 
     public List<SearchMatchDto> search(String stringToMatch, int limit, Principal principal) {
+        System.out.println("search entered");
+
         final var loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
         validate(limit);
 
@@ -89,6 +91,68 @@ public class SearchService {
                 .limit(limit)
                 .collect(Collectors.toUnmodifiableList());
     }
+
+
+    public List<SearchMatchDto> searchWithLocationPerimeter(String stringToMatch, String lat, String lon, int limit, Principal principal) {
+       System.out.println("searchWithLocationPerimeter entered");
+
+        var loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        validate(limit);
+
+        loggedInUser.setLatitude(lat);
+        loggedInUser.setLongitude(lon);
+
+        if (stringToMatch.isEmpty() || stringToMatch.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        final var searchOperations = prepareSearchOperations(stringToMatch);
+
+        final var svcResults = searchOperations.serviceOps
+                .stream()
+                .flatMap(f -> f.apply(limit).stream())
+                .collect(Collectors.toUnmodifiableList());
+
+        final var userResults = searchOperations.userOps
+                .stream()
+                .flatMap(f -> f.apply(limit).stream())
+                .collect(Collectors.toUnmodifiableList());
+
+        final var userScores = prioritizationService.assignScoresToUsers(userResults, loggedInUser);
+        final var svcScores = prioritizationService.assignScoresToServices(svcResults, loggedInUser);
+
+        final var searchResults = new LinkedHashSet<SearchMatchDto>();
+
+        svcResults.forEach(svc -> {
+            searchResults.add(mapToDto(svc, svcScores.getOrDefault(svc.getId(), 0.0)));
+        });
+
+        userResults.forEach(user -> {
+            searchResults.add(mapToDto(user, userScores.getOrDefault(user.getId(), 0.0)));
+        });
+
+        if (searchResults.size() < limit) {
+            searchOperations.tagOps
+                    .stream()
+                    .flatMap(f -> f.apply(limit).stream())
+                    .map(this::mapToDto)
+                    .forEach(searchResults::add);
+
+            searchOperations.eventOps
+                    .stream()
+                    .flatMap(f -> f.apply(limit).stream())
+                    .map(this::mapToDto)
+                    .forEach(searchResults::add);
+        }
+
+        return searchResults
+                .stream()
+                .sorted(Comparator.comparing(SearchMatchDto::getScore).reversed())
+                .limit(limit)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+
 
     private void validate(int limit) {
         if (limit > SEARCH_LIMIT) {
