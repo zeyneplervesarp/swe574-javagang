@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row justify-content-center">
+    <div class="row justify-content-center" v-if="nestedServiceArray.length > 0">
      <div class="col-lg-12 pt-100">
        <p class="lead text-white">
           Recommended services near you!
@@ -77,7 +77,6 @@ export default {
     };
   },
   mounted() {
-     console.log("AAAAAAAA");
     let token = JSON.parse(localStorage.getItem("token"));
 
     if (token) {
@@ -90,7 +89,7 @@ export default {
   methods: {
     GetRecommendedServices() {
         apiRegister
-        .GetAllServicesSorted(false, "all", "distanceAsc",null,3)
+        .GetAllServicesSorted(true, "all", "distanceAsc",null,3)
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
