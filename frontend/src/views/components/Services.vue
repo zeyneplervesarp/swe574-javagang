@@ -50,11 +50,9 @@
         </base-dropdown>
       </div>
 
-      <div class="col-lg-12 pt-100" v-if="nestedServiceArray.length>0">
+      <div class="col-lg-12 pt-100" v-if="nestedServiceArray.length > 0">
         <div v-if="this.filter == 'featured'">
-          <p class="lead text-white">
-            This week's featured services!
-          </p>
+          <p class="lead text-white">This week's featured services!</p>
         </div>
         <div
           v-for="(serviceArray, index) in nestedServiceArray"
@@ -76,14 +74,20 @@
               </icon>
               <h6 v-bind:class="GetTextClass(index)">{{ service.header }}</h6>
               <div>
-                <span class="description mt-3">{{ GetFormattedDate(service.time)}}      </span>
-                
-                <badge v-if="IsDateBeforeToday(service.time)"   v-bind:type="danger" rounded>
-                PAST SERVICE
+                <span class="description mt-3"
+                  >{{ GetFormattedDate(service.time) }}
+                </span>
+
+                <badge
+                  v-if="IsDateBeforeToday(service.time)"
+                  v-bind:type="danger"
+                  rounded
+                >
+                  PAST SERVICE
                 </badge>
               </div>
               <p class="description mt-3">
-                  {{ service.description }}
+                {{ service.description }}
               </p>
               <div>
                 <badge v-bind:type="GetClass(index)" rounded
@@ -125,7 +129,7 @@
             @click="LoadMore()"
             v-bind:type="GetClass(0)"
             class="mt-4"
-            v-if="this.filter == 'all'"
+            v-if="this.filter == 'all' || this.filter == 'recommended'"
           >
             Load more services
           </base-button>
@@ -138,7 +142,7 @@
 <script>
 import Hero from "./Hero";
 import apiRegister from "@/api/register";
-import moment from 'moment';
+import moment from "moment";
 import BaseDropdown from "@/components/BaseDropdown";
 
 export default {
@@ -169,13 +173,19 @@ export default {
       return today > serviceDate;
     },
     GetFormattedDate(date) {
-      return moment(date).format("YYYY-MM-DD h:mm")
+      return moment(date).format("YYYY-MM-DD h:mm");
     },
     GetServices() {
       if (this.filter == "featured") {
         apiRegister.GetFeaturedServices().then((response) => {
           this.serviceResult = response;
           this.nestedServiceArray = this.SplitList();
+        });
+      } else if (this.filter == "recommended") {
+        apiRegister.GetRecommendedServices().then((response) => {
+          this.serviceResult = response.items;
+          this.nestedServiceArray = this.SplitList();
+          this.nextUrl = response.nextPage;
         });
       } else {
         apiRegister
@@ -233,7 +243,13 @@ export default {
     },
     SortBy(sortBy) {
       apiRegister
-        .GetAllServicesSorted(this.getOngoingOnly, this.filter, sortBy, false, 18)
+        .GetAllServicesSorted(
+          this.getOngoingOnly,
+          this.filter,
+          sortBy,
+          false,
+          18
+        )
         .then((response) => {
           this.serviceResult = response.items;
           this.nestedServiceArray = this.SplitList();
