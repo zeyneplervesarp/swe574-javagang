@@ -97,7 +97,7 @@ public class ServiceServiceUnitTests {
     @Test
     public void Service_ShouldThrowError_IfCreditAboveThreshold() {
         var testUser = new User();
-        testUser.setBalance(18);
+        testUser.setBalance(28);
         testUser.setId(1L);
         testUser.setUsername("test user");
 

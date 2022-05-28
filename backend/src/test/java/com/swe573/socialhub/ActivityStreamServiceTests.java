@@ -1,5 +1,6 @@
 package com.swe573.socialhub;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.ibm.common.activitystreams.ASObject;
 import com.ibm.common.activitystreams.Activity;
 import com.swe573.socialhub.domain.*;
@@ -119,8 +120,8 @@ public class ActivityStreamServiceTests {
                 .map(a -> getObject(a).objectTypeString())
                 .collect(Collectors.toList());
         Assertions.assertEquals(2, objectValueTypes.size());
-        Assertions.assertEquals(objectValueTypes.get(0), "login-attempt");
-        Assertions.assertEquals(objectValueTypes.get(1), "user");
+        Assertions.assertEquals(1, (int) objectValueTypes.stream().filter(o -> o.equals("login-attempt")).count());
+        Assertions.assertEquals(1, (int) objectValueTypes.stream().filter(o -> o.equals("user")).count());
     }
 
     @Test

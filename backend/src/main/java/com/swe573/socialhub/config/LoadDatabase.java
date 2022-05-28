@@ -448,11 +448,18 @@ class LoadDatabase {
 
     private List<Service> setCreatedForServices(List<Service> services, ServiceRepository repository) {
         final var list = services.parallelStream().peek(svc -> {
-            final var minDate = new Date(Math.max(svc.getCreatedUser().getCreated().toInstant().toEpochMilli(), fromLocalDateTime(svc.getTime().minusMonths(1)).toInstant().toEpochMilli()));
-            final var maxDate = fromLocalDateTime(svc.getTime());
+            final var minDate = svc.getCreatedUser().getCreated();
+            final var maxDate = minDate(fromLocalDateTime(svc.getTime()), new Date());
             svc.setCreated(randomDate(minDate, maxDate));
         }).collect(Collectors.toUnmodifiableList());
         return repository.saveAll(list);
+    }
+
+    private static Date minDate(Date d1, Date d2) {
+        if (d1.toInstant().toEpochMilli() > d2.toInstant().toEpochMilli()) {
+            return d2;
+        }
+        return d1;
     }
 
     private static final double USER_SERVICE_REJECTION_RATE = 0.1;
@@ -544,7 +551,7 @@ class LoadDatabase {
 
             final var svcCreated = usa.getService().getCreated();
             final var svcTime = fromLocalDateTime(usa.getService().getTime());
-            usa.setCreated(randomDate(svcCreated, svcTime));
+            usa.setCreated(randomDate(svcCreated, minDate(svcTime, new Date())));
             final var outcomeDate = randomDate(usa.getCreated(), svcTime);
             final var outcome = ((double) randomLongBetween(0, 100) / 100) > USER_SERVICE_REJECTION_RATE;
             if (outcome && svcQuotaMap.get(usa.getService().getId()) > 0) {
