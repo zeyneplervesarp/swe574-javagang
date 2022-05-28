@@ -31,6 +31,9 @@ export default {
     GetAllServices(getOngoingOnly, filter) {
         return http.get(process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter +  "?size=18" )
     },
+    GetRecommendedServices() {
+        return http.get(process.env.VUE_APP_API + "getRecommendedServices", null, true, "Couldn't fetch recommended services");
+    },
     GetAllServicesSorted(getOngoingOnly, filter, sortBy, url, size) {
         
         const urlToCall = url ? process.env.VUE_APP_API + url : process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?size=" + size + "&sortBy=" + sortBy ;

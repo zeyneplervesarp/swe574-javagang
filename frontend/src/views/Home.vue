@@ -16,9 +16,8 @@
           <span></span>
         </div>
         <div class="container shape-container d-flex">
-          <div class="col px-0">
-            <div class="row">
-              <div class="col-lg-6">
+          <div class="row">
+              <div class="col-md-4">
                 <h1 class="display-3 text-white">
                   Welcome!
                   <span>Everything is fine.</span>
@@ -45,19 +44,26 @@
                   </router-link>
                 </div>
               </div>
+               <div class="col-md-8" v-if="userLoggedIn">
+                 <section class="section section-lg pt-lg-0 mt--200">
+                    <recommendations></recommendations>
+                </section>
+               </div>
+               <div class="col-md-8" v-if="!userLoggedIn">
+                <section class="section section-lg pt-lg-0 mt--300">
+                   <services  :filter="'featured'"></services>
+                 </section>
+               </div>
             </div>
-          </div>
+         
         </div>
       </section>
       <!-- 1st Hero Variation -->
     </div>
-    <section class="section section-lg pt-lg-0 mt--200">
+    
+    <section class="section section-lg pt-lg-0 mt--300"  v-if="userLoggedIn">
       <services  :filter="'featured'"></services>
     </section>
-    <!--<section class="section section-lg pt-lg-0 mt--200">
-    
-      <services  :filter="'first3'"></services>
-    </section>-->
     
     <section class="section section-lg pt-0">
       <div class="container">
@@ -93,6 +99,7 @@
 
 <script>
 import Hero from "./components/Hero";
+import Recommendations from './components/Recommendations.vue';
 import Services from "./components/Services.vue";
 
 export default {
@@ -100,6 +107,7 @@ export default {
   components: {
     Hero,
     Services,
+    Recommendations,
   },
   data() {
     return {

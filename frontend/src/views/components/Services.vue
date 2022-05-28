@@ -50,11 +50,11 @@
         </base-dropdown>
       </div>
 
-      <div class="col-lg-12 pt-100">
+      <div class="col-lg-12 pt-100" v-if="nestedServiceArray.length>0">
         <div v-if="this.filter == 'featured'">
-          <h1 class="lead text-white bg-danger">
+          <p class="lead text-white">
             This week's featured services!
-          </h1>
+          </p>
         </div>
         <div
           v-for="(serviceArray, index) in nestedServiceArray"
@@ -115,7 +115,7 @@
                 v-bind:type="GetClass(index)"
                 class="mt-4"
               >
-                Register to Learn More
+                Learn More
               </base-button>
             </card>
           </div>

@@ -440,7 +440,7 @@ public class ServiceService {
         return dto;
     }
 
-    private ServiceDto mapToDto(Service service, Optional<User> loggedInUser) {
+    public ServiceDto mapToDto(Service service, Optional<User> loggedInUser) {
         var list = new ArrayList<TagDto>();
         if (service.getServiceTags() != null) {
             for (Tag tag : service.getServiceTags()) {
