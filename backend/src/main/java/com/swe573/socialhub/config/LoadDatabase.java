@@ -361,7 +361,7 @@ class LoadDatabase {
                 .toLocalDateTime();
     }
 
-    private static Date fromLocalDateTime(LocalDateTime localDateTime) {
+    private Date fromLocalDateTime(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
