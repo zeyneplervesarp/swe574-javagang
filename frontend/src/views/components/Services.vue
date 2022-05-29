@@ -49,10 +49,23 @@
           ></a>
         </base-dropdown>
       </div>
-
+      <span v-if="this.sortByDistance==true">___</span>
+      <div v-if="this.sortByDistance==true" class="row pull-left" >
+        <div class="form-group">
+        <GmapAutocomplete
+            class="form-control"
+            @place_changed="setPlace"
+            placeholder="Enter Location"
+            :value="searchlocation"
+        />
+      </div>
+      </div>
       <div class="col-lg-12 pt-100" v-if="nestedServiceArray.length > 0">
         <div v-if="this.filter == 'featured'">
           <p class="lead text-white">This week's featured services!</p>
+        </div>
+        <div v-if="this.filter == 'recommended'">
+          <p class="lead text-white">Recommended services near you!</p>
         </div>
         <div
           v-for="(serviceArray, index) in nestedServiceArray"
@@ -154,6 +167,7 @@ export default {
       getOngoingOnly: true,
       isLoggedIn: false,
       nextUrl: "",
+      sortByDistance: false,
     };
   },
   mounted() {
@@ -255,6 +269,12 @@ export default {
           this.nestedServiceArray = this.SplitList();
           this.nextUrl = response.nextPage;
         });
+        if(sortBy == 'distanceAsc'){
+          this.sortByDistance = true;
+          //this.searchlocation = null;
+        }else{
+          this.sortByDistance = false;
+        }
     },
     LoadMore() {
       apiRegister.GetUrl(this.nextUrl).then((response) => {
@@ -263,6 +283,30 @@ export default {
         this.nextUrl = response.nextPage;
         this.nestedServiceArray = this.SplitList();
       });
+    },
+    setPlace(place) {
+      var lat = place.geometry.location.lat();
+      var lng = place.geometry.location.lng();
+      var name = place.name;
+      var formattedAddress = place.formatted_address;
+      
+      apiRegister
+        .GetAllServicesSortedWithLocation(
+          this.getOngoingOnly,
+          this.filter,
+          'distanceAsc',
+          false,
+          18,
+          lat,
+          lng
+        ).then((response) => {
+          this.serviceResult = response.items;
+          this.nestedServiceArray = this.SplitList();
+          this.nextUrl = response.nextPage;
+        });
+          
+      this.sortByDistance = true;
+      
     },
   },
   props: {

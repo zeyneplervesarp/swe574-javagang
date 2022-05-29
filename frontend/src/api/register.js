@@ -35,10 +35,19 @@ export default {
         return http.get(process.env.VUE_APP_API + "getRecommendedServices", null, true, "Couldn't fetch recommended services");
     },
     GetAllServicesSorted(getOngoingOnly, filter, sortBy, url, size) {
-        
         const urlToCall = url ? process.env.VUE_APP_API + url : process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?size=" + size + "&sortBy=" + sortBy ;
         console.log("predefined url: ", url)
         console.log("calling url", urlToCall);
+        if (!url) {
+            return http.get(urlToCall)
+        } else {
+
+            return http.get(urlToCall)
+        }
+    },
+    GetAllServicesSortedWithLocation(getOngoingOnly, filter, sortBy, url, size, lat, lon){
+        debugger;
+        const urlToCall = url ? process.env.VUE_APP_API + url : process.env.VUE_APP_API + 'service/' + getOngoingOnly + '/' + filter + "?size=" + size + "&sortBy=" + sortBy + "&lat="+lat+"&lon="+lon;
         if (!url) {
             return http.get(urlToCall)
         } else {
@@ -133,9 +142,6 @@ export default {
     },
     Search(searchQuery) {
         return http.get(process.env.VUE_APP_API + 'search?query=' + searchQuery + '&limit=50', null, true, "Search could not be completed")
-    },
-    SearchWithLocationPerimeter(searchQuery, lat, lon){
-        return http.get(process.env.VUE_APP_API + 'searchwithlocation?lat='+lat+'&lon='+lon+'&query=' + searchQuery + '&limit=50', null, true, "Search could not be completed")
     },
     DeleteUser(userId) {
         return http.delete(process.env.VUE_APP_API + "user/delete/" + userId, null, true)

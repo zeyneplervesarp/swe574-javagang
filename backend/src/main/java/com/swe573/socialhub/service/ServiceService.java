@@ -54,9 +54,15 @@ public class ServiceService {
             Boolean getOngoingOnly,
             ServiceFilter filter,
             Pagination pagination,
-            ServiceSortBy sortBy
+            ServiceSortBy sortBy,
+            String lat,
+            String lon
     ) {
-        final User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        User loggedInUser = userRepository.findUserByUsername(principal.getName()).get();
+        if((lat != null) && (lon!=null) ) {
+            loggedInUser.setLatitude(lat);
+            loggedInUser.setLongitude(lon);
+        }
         final var entityList = new ArrayList<Service>();
 
         String sortByField = "created";
