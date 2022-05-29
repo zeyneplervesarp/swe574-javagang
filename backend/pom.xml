@@ -17,6 +17,17 @@
         <java.version>11</java.version>
         <java.version>11</java.version>
     </properties>
+    <repositories>
+        <!-- ... some other repository definitions -->
+
+        <repository>
+            <id>repsy</id>
+            <name>Private Maven Repository on Repsy</name>
+            <url>https://repo.repsy.io/mvn/sarp/activitystreams</url>
+        </repository>
+
+        <!-- ... some other repository definitions -->
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -123,11 +134,10 @@
 
         <dependency>
             <groupId>com.ibm.common</groupId>
-            <artifactId>activitystreams</artifactId>
+            <artifactId>activitystreams-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/activitystreams-core-0.0.1-SNAPSHOT.jar</systemPath>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
