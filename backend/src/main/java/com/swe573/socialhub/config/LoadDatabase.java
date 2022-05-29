@@ -77,7 +77,7 @@ class LoadDatabase {
             final var started = Instant.now();
             System.out.println("Initial db loading started.");
 
-            final var userCount = 100;
+            final var userCount = 200;
 
             final var tags = createTags(tagRepository);
             final var faker = new Faker();
