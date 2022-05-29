@@ -32,34 +32,6 @@
               
           </div>
             <div class="mt-5 py-5 border-top text-center">
-              <div class="row">
-                 <div class="col-md-3">
-                 <!--<base-dropdown>
-                    <base-button
-                          slot="title"
-                          type="warning"
-                          class="dropdown-toggle float-right">
-                          Filter By
-                    </base-button>
-                    <a class="dropdown-item" href="#">
-                      Distance
-                    </a>
-                  </base-dropdown>-->
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-
-                    <GmapAutocomplete
-                      class="form-control"
-                      @place_changed="setPlace"
-                      placeholder="Sort by Location"
-                    />
-                  </div>
-              
-               <div class="col-md-3">
-               </div>
-              </div>
-              </div>
               <div class="row justify-content-center">
                 <div class="col-lg-12">
                   <div class="container ct-example-row">
@@ -117,8 +89,8 @@ export default {
       searchResultCount: 0,
     };
   },
-  mounted() {
-    this.GetSearchResult();
+  created() {
+    this.GetSearchResult();  
   },
   methods: {
     GetSearchResult() {
@@ -140,8 +112,11 @@ export default {
       var formattedAddress = place.formatted_address;
       var searchQuery = this.$route.params.search_query;
       this.FilterSearchResultsByLocation(searchQuery,lat,lng);
-      debugger;
-      this.$router.go();
+
+      //this.$router.go();
+
+      // with query, resulting in /register?plan=private
+      this.router.push({ path: 'search', query: { lat: 'private' } })
     },
     FilterSearchResultsByLocation(searchQuery,lat,lon){
       apiRegister.SearchWithLocationPerimeter(searchQuery,lat,lon).then((r) => {
