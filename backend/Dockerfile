@@ -1,6 +1,7 @@
 FROM maven:3.6.3-amazoncorretto-11 AS build
 COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
+COPY lib /usr/src/app/lib
 RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests
 
 FROM amazoncorretto:11-alpine
