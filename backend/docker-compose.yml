@@ -33,7 +33,7 @@ services:
     depends_on:
       - app
     environment:
-        - VUE_APP_API=http://localhost:8081/
+        - VUE_APP_API=http://34.88.198.59:8081/
         - VUE_APP_GOOGLE_MAP_KEY=AIzaSyBw6iJ41t8Q-zNOIKVZQ8u3chY5EI-DbNM
     ports:
       - "8080:8080"
