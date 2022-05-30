@@ -289,25 +289,54 @@ public class ServiceService {
                     dto.setLocationType(entityQuery.get().getLocationType());
                 }
             }
-            var entity = mapToEntity(dto);
-            
+            var entity = new Service();
+
+
+            if (entityExists)
+            {
+                entity = existingService.get();
+            }
+            else
+            {
+                entity = mapToEntity(dto);
+            }
+
             // check for editing deadline
             if (entityExists) {
-                if (dto.getLocationType().equals(LocationType.Physical)) {
+                if (entity.getLocationType().equals(LocationType.Physical)) {
                     if (LocalDateTime.now().isAfter(existingService.get().getTime().minusHours(24))) {
                         throw new IllegalArgumentException("You can only edit physical services until 24 hours before their time");
+                    }
+                    if (dto.getLatitude() != null)
+                    {
+                        entity.setLatitude(dto.getLatitude());
+                    }
+                    if (dto.getLongitude() != null)
+                    {
+                        entity.setLongitude(dto.getLongitude());
                     }
                 } else {
                     if (LocalDateTime.now().isAfter(existingService.get().getTime().minusMinutes(30))) {
                         throw new IllegalArgumentException("You can only edit online services until 30 mimutes before their time");
                     }
                 }
-                entity.setId(dto.getId());
+                if (dto.getLocation() != null)
+                {
+                    entity.setLocation(dto.getLocation());
+                }
+                entity.setHeader(dto.getHeader());
+                entity.setDescription(dto.getDescription());
+                entity.setTime(dto.getTime());
+                entity.setQuota(dto.getQuota());
+                entity.setCredit(dto.getHours());
+                entity.setImageUrl(dto.getImageUrl());
             }
 
             entity.setCreatedUser(loggedInUser);
 
             var tags = dto.getServiceTags();
+            if (entityExists)
+                entity.setServiceTags(new HashSet<>());
             if (tags != null) {
                 for (TagDto tagDto : tags) {
                     var addedTag = tagRepository.findById(tagDto.getId());
@@ -325,10 +354,6 @@ public class ServiceService {
                 var balanceToBe = currentUserBalance + dto.getHours();
                 if (balanceToBe >= MAX_CREDIT_LIMIT)
                     throw new IllegalArgumentException("You have reached the maximum limit of credits. You cannot create a service before spending your credits.");
-            }
-            if (entityExists)
-            {
-                entity.setId(dto.getId());
             }
 
             var savedEntity = serviceRepository.save(entity);

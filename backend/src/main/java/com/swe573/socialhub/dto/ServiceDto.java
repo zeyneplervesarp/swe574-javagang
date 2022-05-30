@@ -43,7 +43,6 @@ public class ServiceDto implements Serializable {
     }
 
     public ServiceDto(Long id, String header, String description, LocationType locationType, String location, LocalDateTime time, int hours, int quota, long attendingUserCount, Long createdUserId, String createdUserName, Double latitude, Double longitude, List<TagDto> serviceTags, ServiceStatus status, Long pendingUserCount, Double distanceToUser, List<UserDto> participantUserList, RatingSummaryDto ratingSummary, Long flagCount,  String imageUrl, Boolean isFeatured, Date createdTimestamp) {
-        this.createdTimestamp = createdTimestamp.toInstant().toEpochMilli();
         this.id = id;
         this.header = header;
         this.description = description;
@@ -81,6 +80,12 @@ public class ServiceDto implements Serializable {
         String formattedDateTime = time.format(formatter); // "1986-04-08 12:30"
         this.timeString = formattedDateTime;
         this.showServiceOverButton = time.isBefore(LocalDateTime.now()) ;
+        if(createdTimestamp != null)
+        {
+            this.createdTimestamp = createdTimestamp.toInstant().toEpochMilli();
+
+        }
+
     }
 
     public Long getCreatedTimestamp() {
