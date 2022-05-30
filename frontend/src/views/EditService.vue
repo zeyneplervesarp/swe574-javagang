@@ -37,6 +37,13 @@
                   ></base-input>
                 </div>
                 <div class="col-lg-12">
+                  <base-input
+                    placeholder="Image Url"
+                    addon-left-icon="ni ni-align-left-2"
+                    v-model="serviceData.imageUrl"
+                  ></base-input>
+                </div>
+                <div class="col-lg-12">
                   <textarea
                     class="form-control form-control-alternative"
                     v-model="serviceData.description"
@@ -78,7 +85,7 @@
                     :multiple="true"
                     :close-on-select="false"
                     :show-labels="false"
-                    :taggable="true" 
+                    :taggable="true"
                     @tag="addTag"
                     placeholder="Pick a tag or enter a new one"
                     label="name"
@@ -86,7 +93,10 @@
                   ></multiselect>
                 </div>
                 <br />
-                <div class="col-lg-12">
+                <div
+                  v-if="serviceData.locationType != 'Online'"
+                  class="col-lg-12"
+                >
                   <div class="form-group">
                     <GmapAutocomplete
                       class="form-control"
@@ -96,18 +106,26 @@
                     />
                   </div>
                   <div class="text-center">
-                    <base-button v-if="serviceData.location != ''" type="secondary"
+                    <base-button
+                      v-if="serviceData.location != ''"
+                      type="secondary"
                       ><GmapMap
                         :center="coordinates"
                         :zoom="13"
                         map-type-id="roadmap"
                         style="width: 500px; height: 300px"
                         ref="mapRef"
-                        
                       >
                         <GmapMarker :position="coordinates" /> </GmapMap
                     ></base-button>
                   </div>
+                </div>
+                <div v-else class="col-lg-12">
+                  <base-input
+                    placeholder="Location"
+                    addon-left-icon="ni ni-align-left-2"
+                    v-model="serviceData.location"
+                  ></base-input>
                 </div>
                 <div class="text-center">
                   <base-button
@@ -133,7 +151,7 @@ import apiRegister from "../api/register";
 import DatePicker from "vue2-datepicker";
 import Multiselect from "vue-multiselect";
 import MyMap from "./components/Map.vue";
-import register from '../api/register';
+import register from "../api/register";
 
 export default {
   components: {
@@ -150,7 +168,7 @@ export default {
   data() {
     return {
       serviceData: {
-        id:"",
+        id: "",
         location: "",
         locationType: "",
         time: "",
@@ -167,6 +185,7 @@ export default {
         status: "",
         datePassed: false,
         participantUserList: [],
+        imageUrl : ""
       },
       userData: {
         ownsService: "",
@@ -179,7 +198,7 @@ export default {
     };
   },
   methods: {
-     GetService() {
+    GetService() {
       var id = this.$route.params.service_id;
       apiRegister.GetService(id).then((r) => {
         this.serviceData.location = r.location;
@@ -200,9 +219,10 @@ export default {
         this.coordinates.lat = r.latitude;
         this.coordinates.lng = r.longitude;
         this.serviceData.id = r.id;
+        this.imageUrl = r.imageUrl;
       });
     },
-      GetUserDetails() {
+    GetUserDetails() {
       var id = this.$route.params.service_id;
       apiRegister.GetUserServiceDetails(id).then((r) => {
         this.userData.hasServiceRequest = r.hasServiceRequest;
@@ -212,10 +232,12 @@ export default {
     },
     SendService() {
       console.log("Send service started");
-      apiRegister.CreateService(this.serviceData, "Successfully edited service.").then((r) => {
-        console.log("Send service ok");
-        document.location.href = "#/service/" + r;
-      });
+      apiRegister
+        .CreateService(this.serviceData, "Successfully edited service.")
+        .then((r) => {
+          console.log("Send service ok");
+          document.location.href = "#/service/" + r;
+        });
     },
     GetGeoLocation() {
       if (navigator.geolocation) {
@@ -244,12 +266,12 @@ export default {
       this.coordinates.lat = lat;
       this.coordinates.lng = lng;
     },
-    addTag (newTag) {
+    addTag(newTag) {
       const tag = {
-        name: newTag
-      }
+        name: newTag,
+      };
       register.AddTag(tag);
-    }
+    },
   },
 };
 </script>
