@@ -91,7 +91,7 @@ public class UserService {
         //create entity and set fields
         final User userEntity = new User();
         userEntity.setBio(dto.getBio());
-        userEntity.setEmail(dto.getPassword());
+        userEntity.setEmail(dto.getEmail());
         userEntity.setPassword(passwordHash);
         userEntity.setUsername(dto.getUsername());
         userEntity.setBalance(5);
