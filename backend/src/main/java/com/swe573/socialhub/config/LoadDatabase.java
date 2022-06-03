@@ -166,9 +166,6 @@ class LoadDatabase {
         var admin = new User(null, "admin", "admin@socialhub.com", "I'm the adminest of admins!", Collections.emptySet(), 0, "34", "28", "Admin bvd. 33", UserType.ADMIN, 0);
         admin.setPassword(encodedPw);
 
-        var miranda = new User(null, "miranda", "miranda@gmail.com", "Gamer. Award-winning music buff. Social media maven. Student.", Collections.emptySet(), 4, "41", "29", "Ahmet Adnan Saygun cad. 50", UserType.USER, 20);
-        miranda.setPassword(encodedPw);
-
         var userList = LongStream.range(0, count).parallel().mapToObj(i -> {
             var username = chooseBetween(List.of(faker.internet().slug(), faker.artist().name().trim().toLowerCase() + faker.random().nextInt(99), faker.internet().slug() + faker.internet().domainSuffix()));
             var email = chooseBetween(List.of(username + "@" + faker.internet().domainName() + "." + faker.internet().domainSuffix(), faker.internet().emailAddress()));
@@ -181,7 +178,6 @@ class LoadDatabase {
         }).collect(Collectors.toList());
 
         userList.add(admin);
-        userList.add(miranda);
 
         return userRepository.saveAll(userList);
     }
