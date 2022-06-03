@@ -17,7 +17,7 @@ SocialHub is developed using Spring Boot and Java 11.
 
 The deployment is done using Docker 20.10.11
 
-Java 11  can be downloaded [here](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html).
+Java 11  can be downloaded [here](https://github.com/zeyneplervesarp/swe574-javagang/releases/tag/v0.9).
 
 To properly install all the dependencies and create the environment of the application, the host system must have maven installed. Apache Maven 4.0.0 has been used in the development of SocialHub.
 
